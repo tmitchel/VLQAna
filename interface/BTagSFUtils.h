@@ -252,9 +252,9 @@ class BTagSFUtils {
     double getBTagEff (double pt, double eta, double jetFl) {
 
       std::unique_ptr<TFile>f_effmap = std::unique_ptr<TFile>(new TFile(btageffmap_.c_str())) ;
-      std::unique_ptr<TH2D>h2_btageffmap_b = std::unique_ptr<TH2D>(dynamic_cast<TH2D*>(f_effmap->Get("eff_b"))) ; 
-      std::unique_ptr<TH2D>h2_btageffmap_c = std::unique_ptr<TH2D>(dynamic_cast<TH2D*>(f_effmap->Get("eff_c"))) ; 
-      std::unique_ptr<TH2D>h2_btageffmap_l = std::unique_ptr<TH2D>(dynamic_cast<TH2D*>(f_effmap->Get("eff_l"))) ; 
+      std::unique_ptr<TH2>h2_btageffmap_b = std::unique_ptr<TH2>(dynamic_cast<TH2*>(f_effmap->Get("eff_b"))) ; 
+      std::unique_ptr<TH2>h2_btageffmap_c = std::unique_ptr<TH2>(dynamic_cast<TH2*>(f_effmap->Get("eff_c"))) ; 
+      std::unique_ptr<TH2>h2_btageffmap_l = std::unique_ptr<TH2>(dynamic_cast<TH2*>(f_effmap->Get("eff_l"))) ; 
 
       double eff(1) ; 
       jetFl = abs(jetFl) ; 

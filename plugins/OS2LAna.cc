@@ -204,6 +204,7 @@ OS2LAna::OS2LAna(const edm::ParameterSet& iConfig) :
   funname_DYNLOCorr_      (iConfig.getParameter<std::string>       ("Fun_DYNLOCorr")),
   dynloewkkfact           (DYNLOEwkKfact(fname_DYNLOCorr_,funname_DYNLOCorr_)),
   lepIdSFs                (iConfig.getParameter<edm::ParameterSet> ("lepIdSFsParams")),
+  lepTrigSFs              (iConfig.getParameter<edm::ParameterSet> ("lepTrigSFsParams")), 
   metmaker                (iConfig.getParameter<edm::ParameterSet> ("metselParams"),consumesCollector()),
   muonmaker               (iConfig.getParameter<edm::ParameterSet> ("muselParams"),consumesCollector()),
   electronmaker           (iConfig.getParameter<edm::ParameterSet> ("elselParams"),consumesCollector()),
@@ -266,10 +267,11 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   const int evtno(*h_evtno.product()) ;
   const int runno(*h_runno.product()) ;
   const int lumisec(*h_lumisec.product()) ;
+  const bool isData(evtno > 0 ? true : false) ; 
 
   int signalType(-1);
   if (filterSignal_) {
-    if(skim_ && signalType_.empty()){ 
+    if( (skim_ || maketree_ ) && signalType_.empty() ){ 
       if      (*h_evttype.product() == "EvtType_MC_bZbZ") signalType = 1; 
       else if (*h_evttype.product() == "EvtType_MC_bZbH") signalType = 2; 
       else if (*h_evttype.product() == "EvtType_MC_bZtW") signalType = 3; 
@@ -336,27 +338,33 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   }
 
   //// Get lepton ID and Iso SF
-  if (applyLeptonIDSFs_ && *h_evttype.product() != "EvtType_Data") {
-    if ( zdecayMode_ == "zmumu" ){
-      evtwt *= lepIdSFs.IDSF(goodMuons.at(0).getPt(),goodMuons.at(0).getEta()) * lepIdSFs.IDSF(goodMuons.at(1).getPt(), goodMuons.at(1).getEta() ) * lepIdSFs.IsoSF(goodMuons.at(0).getPt(),goodMuons.at(0).getEta()) * lepIdSFs.IsoSF(goodMuons.at(1).getPt(), goodMuons.at(1).getEta() )  ;}
-    else if ( zdecayMode_ == "zelel" ){ 
-      evtwt *= lepIdSFs.IDSF(goodElectrons.at(0).getPt(),goodElectrons.at(0).getEta()) * lepIdSFs.IDSF(goodElectrons.at(1).getPt(), goodElectrons.at(1).getEta() ) ;}
-  }
+  if  ( !isData ) {
 
-  if (applyLeptonTrigSFs_ && *h_evttype.product() != "EvtType_Data") {
-    if ( zdecayMode_ == "zmumu" ){
-      evtwt *= lepTrigSFs.TrigSFMu1(goodMuons.at(0).getPt(),goodMuons.at(0).getEta())*lepTrigSFs.TrigSFMu1(goodMuons.at(1).getPt(),goodMuons.at(1).getEta());
+    if (applyLeptonIDSFs_) {
+      if ( zdecayMode_ == "zmumu" ) {
+        evtwt *= lepIdSFs.IDSF(goodMuons.at(0).getPt(),goodMuons.at(0).getEta()) ;
+        evtwt *= lepIdSFs.IDSF(goodMuons.at(1).getPt(),goodMuons.at(1).getEta()) ;
+        evtwt *= lepIdSFs.IsoSF(goodMuons.at(0).getPt(),goodMuons.at(0).getEta()) ;
+        evtwt *= lepIdSFs.IsoSF(goodMuons.at(1).getPt(), goodMuons.at(1).getEta()) ; 
+      }
+      else if ( zdecayMode_ == "zelel" ) {
+        evtwt *= lepIdSFs.IDSF(goodElectrons.at(0).getPt(),goodElectrons.at(0).getEta()) ;
+        evtwt *= lepIdSFs.IDSF(goodElectrons.at(1).getPt(), goodElectrons.at(1).getEta()) ;
+      }
     }
-    else if ( zdecayMode_ == "zelel" ){
-      evtwt *=0.968256;
-    }
-  }
 
-  //Z mass candidate filter: 75 < M < 105, lead pt > 45, 2nd pt > 25, Z pt > 100
+    if (applyLeptonTrigSFs_) {
+      if ( zdecayMode_ == "zmumu" ) evtwt *= lepTrigSFs(goodMuons.at(0).getPt(),goodMuons.at(0).getEta()) ; 
+      else if ( zdecayMode_ == "zelel" ) evtwt *= lepTrigSFs(goodElectrons.at(0).getPt(),goodElectrons.at(0).getEta()) ; 
+    }
+
+  } 
+
+  //// Z mass candidate filter: 75 < M < 105, lead pt > 45, 2nd pt > 25, Z pt > 100
   CandidateFilter zllfilter(ZCandParams_) ; 
   zllfilter(dileptons, zll);
 
-  // jets
+  //// jets
   vlq::JetCollection goodAK4Jets;
   jetAK4maker(evt, goodAK4Jets) ;
 
@@ -364,7 +372,7 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   vlq::JetCollection goodBTaggedAK4Jets;
   jetAK4BTaggedmaker(evt, goodBTaggedAK4Jets) ; 
 
-  // jet cleaning w.r.t dileptons
+  //// jet cleaning w.r.t dileptons
   CandidateCleaner cleanjets(0.4, -1); //// The second argument is for lepton 2D iso, setting to -1 disables it
   if (zdecayMode_ == "zmumu") {
     cleanjets(goodAK4Jets, goodMuons);
@@ -449,7 +457,9 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   jetHTaggedmaker(evt, goodHTaggedJets);
   cleanjets(goodHTaggedJets, goodMuons); 
   cleanjets(goodHTaggedJets, goodElectrons); 
-
+  
+  //// http://cms.cern.ch/iCMS/jsp/openfile.jsp?tp=draft&files=AN2016_245_v3.pdf
+  //// SF of 0.93+/-0.09 required for top tag WP with mistag rate 1% (no subjet b tag): AN2016-245v3
   vlq::JetCollection goodTopTaggedJets;
   jetTopTaggedmaker(evt, goodTopTaggedJets);
   cleanjets(goodTopTaggedJets, goodMuons); 
@@ -897,7 +907,7 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
 void OS2LAna::beginJob() {
 
   if (filterSignal_){
-    if(skim_){
+    if(skim_ || maketree_){
       const int nCh = 12;
       const char *channel[nCh] = {"bZbZ", "bZbH", "bZtW", "bHbH", "bHtW", "tWtW",
         "tZtZ", "tZtH", "tZbW", "tHtH", "tHbW", "bWbW"};

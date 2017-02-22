@@ -78,7 +78,7 @@ class ApplyLeptonIDSFs {
           else if(eta < 2.5       && eta > 2.0)     sf_ = 1.02136 ;
         }
       }//end TIGHT and zelel
-     
+
       if (type_ == TIGHT && zdecayMode_ == "zmumu"){
         if(pt > 120.) pt = 120.;
         if (pt > 20 && pt <= 25){
@@ -122,57 +122,52 @@ class ApplyLeptonIDSFs {
     }
 
     double IsoSF(double pt, double eta){
-    if (type_ == TIGHT && zdecayMode_ == "zmumu"){
-      if(pt > 120.) pt = 120.;
-      if (pt > 20 && pt <= 25){
-	if (abs(eta) <= 2.4 && abs(eta) > 2.1)       sf_ = 0.983849;
-	else if (abs(eta) <= 2.1 && abs(eta) > 1.2)  sf_ = 0.991505;
-	else if (abs(eta) <= 1.2 && abs(eta) > 0.9)  sf_ = 0.995189;
-	else if (abs(eta) <= 0.9 && abs(eta) > 0.0)  sf_ = 0.98476;
-      }
-      else if (pt > 25 && pt <= 30){
-	if (abs(eta) <= 2.4 && abs(eta) > 2.1)       sf_ = 0.991877;
-	else if (abs(eta) <= 2.1 && abs(eta) > 1.2)  sf_ = 0.995906;
-	else if (abs(eta) <= 1.2 && abs(eta) > 0.9)  sf_ = 1.00043;
-	else if (abs(eta) <= 0.9 && abs(eta) > 0.0)  sf_ = 0.993309;
-      }
-      else if (pt > 30 && pt <= 40){
-	if (abs(eta) <= 2.4 && abs(eta) > 2.1)       sf_ = 0.996227;
-	else if (abs(eta) <= 2.1 && abs(eta) > 1.2)  sf_ = 0.997965;
-	else if (abs(eta) <= 1.2 && abs(eta) > 0.9)  sf_ = 0.999432;
-	else if (abs(eta) <= 0.9 && abs(eta) > 0.0)  sf_ = 0.993728;
-      }
-      else if (pt > 40 && pt <= 50){
-	if (abs(eta) <= 2.4 && abs(eta) > 2.1)       sf_ = 0.998324;
-	else if (abs(eta) <= 2.1 && abs(eta) > 1.2)  sf_ = 0.998013;
-	else if (abs(eta) <= 1.2 && abs(eta) > 0.9)  sf_ = 0.997695;
-	else if (abs(eta) <= 0.9 && abs(eta) > 0.0)  sf_ = 0.995297;
-      }
-      else if (pt > 50 && pt <= 60){
-	if (abs(eta) <= 2.4 && abs(eta) > 2.1)       sf_ = 0.998603;
-	else if (abs(eta) <= 2.1 && abs(eta) > 1.2)  sf_ = 0.998345;
-	else if (abs(eta) <= 1.2 && abs(eta) > 0.9)  sf_ = 0.999144;
-	else if (abs(eta) <= 0.9 && abs(eta) > 0.0)  sf_ = 0.996805;
-      }
-      else if (pt > 60 && pt <= 120){
-	if (abs(eta) <= 2.4 && abs(eta) > 2.1)       sf_ = 1.00152;
-	else if (abs(eta) <= 2.1 && abs(eta) > 1.2)  sf_ = 0.999213;
-	else if (abs(eta) <= 1.2 && abs(eta) > 0.9)  sf_ = 0.999122;
-	else if (abs(eta) <= 0.9 && abs(eta) > 0.0)  sf_ = 0.99878;
-      }
-    }//TIGHT and zmumu                                                                                                                                                                                                       
-    return sf_ ;
+      if (type_ == TIGHT && zdecayMode_ == "zmumu"){
+        if(pt > 120.) pt = 120.;
+        if (pt > 20 && pt <= 25){
+          if (abs(eta) <= 2.4 && abs(eta) > 2.1)       sf_ = 0.983849;
+          else if (abs(eta) <= 2.1 && abs(eta) > 1.2)  sf_ = 0.991505;
+          else if (abs(eta) <= 1.2 && abs(eta) > 0.9)  sf_ = 0.995189;
+          else if (abs(eta) <= 0.9 && abs(eta) > 0.0)  sf_ = 0.98476;
+        }
+        else if (pt > 25 && pt <= 30){
+          if (abs(eta) <= 2.4 && abs(eta) > 2.1)       sf_ = 0.991877;
+          else if (abs(eta) <= 2.1 && abs(eta) > 1.2)  sf_ = 0.995906;
+          else if (abs(eta) <= 1.2 && abs(eta) > 0.9)  sf_ = 1.00043;
+          else if (abs(eta) <= 0.9 && abs(eta) > 0.0)  sf_ = 0.993309;
+        }
+        else if (pt > 30 && pt <= 40){
+          if (abs(eta) <= 2.4 && abs(eta) > 2.1)       sf_ = 0.996227;
+          else if (abs(eta) <= 2.1 && abs(eta) > 1.2)  sf_ = 0.997965;
+          else if (abs(eta) <= 1.2 && abs(eta) > 0.9)  sf_ = 0.999432;
+          else if (abs(eta) <= 0.9 && abs(eta) > 0.0)  sf_ = 0.993728;
+        }
+        else if (pt > 40 && pt <= 50){
+          if (abs(eta) <= 2.4 && abs(eta) > 2.1)       sf_ = 0.998324;
+          else if (abs(eta) <= 2.1 && abs(eta) > 1.2)  sf_ = 0.998013;
+          else if (abs(eta) <= 1.2 && abs(eta) > 0.9)  sf_ = 0.997695;
+          else if (abs(eta) <= 0.9 && abs(eta) > 0.0)  sf_ = 0.995297;
+        }
+        else if (pt > 50 && pt <= 60){
+          if (abs(eta) <= 2.4 && abs(eta) > 2.1)       sf_ = 0.998603;
+          else if (abs(eta) <= 2.1 && abs(eta) > 1.2)  sf_ = 0.998345;
+          else if (abs(eta) <= 1.2 && abs(eta) > 0.9)  sf_ = 0.999144;
+          else if (abs(eta) <= 0.9 && abs(eta) > 0.0)  sf_ = 0.996805;
+        }
+        else if (pt > 60 && pt <= 120){
+          if (abs(eta) <= 2.4 && abs(eta) > 2.1)       sf_ = 1.00152;
+          else if (abs(eta) <= 2.1 && abs(eta) > 1.2)  sf_ = 0.999213;
+          else if (abs(eta) <= 1.2 && abs(eta) > 0.9)  sf_ = 0.999122;
+          else if (abs(eta) <= 0.9 && abs(eta) > 0.0)  sf_ = 0.99878;
+        }
+      }//TIGHT and zmumu                                                                                                                                                                                                       
+      return sf_ ;
     }
-
-
-
-
-
-
 
   private: 
     double sf_ ;
     const std::string zdecayMode_ ; 
     LEPTONIDTYPES_t type_ ; 
+
 };
 #endif 

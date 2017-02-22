@@ -13,7 +13,7 @@ options.register('skim', True,
     VarParsing.varType.bool,
     "Skim events?"
     )
-options.register('newJECPayloadNames', '',
+options.register('newJECPayloadNames', 'Summer16_23Sep2016V4_MC',
     VarParsing.multiplicity.singleton,
     VarParsing.varType.string,
     "Select one of EvtType_MC_tZtZ, EvtType_MC_tZtH, EvtType_MC_tZbW, EvtType_MC_tHtH, EvtType_MC_tHbW, EvtType_MC_bWbW, EvtType_MC_bZbZ, EvtType_MC_bZbH, EvtType_MC_bZtW, EvtType_MC_bHbH, EvtType_MC_bHtW, EvtType_MC_tWtW" 
@@ -134,7 +134,7 @@ if options.skim:
 
 if options.filterSignal == True: 
   print 'signal type = ', len(options.signalType), 'skim : ', options.skim
-  if options.skim :
+  if options.skim or options.maketree:
     if len(options.signalType) != 0: sys.exit("!!!Error: Please do not specify any signal type when skimming the signal MC!!!")
   elif len(options.signalType) == 0:
     sys.exit("!!!Error: Cannot keep signalType empty when filterSignal switched on!!!") 
@@ -152,6 +152,12 @@ process.source = cms.Source(
 	#FileNames[options.FileNames]
     ) 
   )
+
+if options.isData:
+  import FWCore.PythonUtilities.LumiList as LumiList
+  process.source.lumisToProcess = LumiList.LumiList(
+      filename = "/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions16/13TeV/Final/Cert_271036-284044_13TeV_PromptReco_Collisions16_JSON.txt"
+      ).getVLuminosityBlockRange()
 
 process.TFileService = cms.Service("TFileService",
     fileName = cms.string(
@@ -193,7 +199,11 @@ process.ana = ana.clone(
     File_DYNLOCorr = cms.string(os.path.join(dataPath,'scalefactors_v4.root')),
     )
 process.ana.genParams.debug = cms.bool(False)
+
 process.ana.jetAK4selParams.jecUncPayloadName = cms.string(os.path.join(dataPath,options.newJECPayloadNames+"_Uncertainty_AK4PFchs.txt"))
+if options.maketree: 
+  process.ana.jetAK4BTaggedselParams.jetCSVDiscMin = cms.double(CSVv2L)
+
 process.ana.jetAK4BTaggedselParams.jecUncPayloadName = cms.string(os.path.join(dataPath,options.newJECPayloadNames+"_Uncertainty_AK4PFchs.txt"))
 process.ana.jetAK8selParams.jecUncPayloadName = cms.string(os.path.join(dataPath,options.newJECPayloadNames+"_Uncertainty_AK8PFchs.txt"))
 process.ana.jetHTaggedselParams.jecUncPayloadName = cms.string(os.path.join(dataPath,options.newJECPayloadNames+"_Uncertainty_AK8PFchs.txt"))
@@ -226,6 +236,8 @@ process.ana.muselParams.muidtype = cms.string(options.lepID)
 process.ana.muselParams.muIsoMax = cms.double(0.15)
 process.ana.lepIdSFsParams.lepidtype = cms.string(options.lepID)
 process.ana.lepIdSFsParams.zdecayMode = cms.string(options.zdecaymode)
+process.ana.lepTrigSFsParams.zdecayMode = cms.string(options.zdecaymode)
+if options.zdecaymode == "zelel": process.ana.lepTrigSFsParams.eltrigeffmap = cms.string(os.path.join(dataPath,"ElectronTriggerSF.root")) 
 if options.zdecaymode == "zelel": 
   process.ana.DilepCandParams.ptMaxLeadingLep = cms.double(120)
   process.ana.ZCandParams.ptMaxLeadingLep = cms.double(120)
@@ -237,8 +249,8 @@ process.ana.jetAK8selParams.jetPtMin = cms.double(200)
 process.ana.jetAK4BTaggedselParams.jetPtMin = cms.double(50) 
 process.ana.NAK4Min = cms.uint32(3)
 if options.maketree:
-  process.ana.STMin = cms.double(400.)
-  process.ana.HTMin = cms.double(200.)
+  process.ana.STMin = cms.double(0.)
+  process.ana.HTMin = cms.double(500.)
 else: 
   process.ana.STMin = cms.double(1000.)
   process.ana.HTMin = cms.double(200.)
