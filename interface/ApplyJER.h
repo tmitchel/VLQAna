@@ -1,8 +1,10 @@
 #ifndef ANALYSIS_INTERFACE_APPLYJER_H
 #define ANALYSIS_INTERFACE_APPLYJER_H
 
-double ApplyJERMass() {
-  double massjerscale(1.12) ; 
+double ApplyJERMass(int jerShift) {
+  double massjerscale(1.07) ; 
+  if (jerShift == 2) massjerscale += 0.103 ;
+  if (jerShift == -1) massjerscale -= 0.103 ;
   return massjerscale ; 
 }
 

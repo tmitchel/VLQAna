@@ -362,7 +362,7 @@ void JetMaker::operator()(edm::Event& evt, vlq::JetCollection& jets) {
       if ( jerShift_ != 0 ) {
         double pt_gen = (h_jetGenJetPt.product())->at(ijet) ;  
         double pt_reco   = uncorrJetP4.Pt() ;
-        double jerscalemass = ApplyJERMass() ; 
+        double jerscalemass = ApplyJERMass(jerShift_) ; 
         masssmear = std::max( 0.0, pt_gen + jerscalemass*(pt_reco - pt_gen) )/pt_reco ; 
       }
 

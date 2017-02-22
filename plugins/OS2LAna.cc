@@ -454,7 +454,9 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   jetHTaggedmaker(evt, goodHTaggedJets);
   cleanjets(goodHTaggedJets, goodMuons); 
   cleanjets(goodHTaggedJets, goodElectrons); 
-
+  
+  //// http://cms.cern.ch/iCMS/jsp/openfile.jsp?tp=draft&files=AN2016_245_v3.pdf
+  //// SF of 0.93+/-0.09 required for top tag WP with mistag rate 1% (no subjet b tag): AN2016-245v3
   vlq::JetCollection goodTopTaggedJets;
   jetTopTaggedmaker(evt, goodTopTaggedJets);
   cleanjets(goodTopTaggedJets, goodMuons); 

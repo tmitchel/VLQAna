@@ -147,6 +147,12 @@ process.source = cms.Source(
     ) 
   )
 
+if options.isData:
+  import FWCore.PythonUtilities.LumiList as LumiList
+  process.source.lumisToProcess = LumiList.LumiList(
+      filename = "/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions16/13TeV/Final/Cert_271036-284044_13TeV_PromptReco_Collisions16_JSON.txt"
+      ).getVLuminosityBlockRange()
+
 process.TFileService = cms.Service("TFileService",
     fileName = cms.string(
       options.outFileName
@@ -187,7 +193,11 @@ process.ana = ana.clone(
     File_DYNLOCorr = cms.string(os.path.join(dataPath,'scalefactors_v4.root')),
     )
 process.ana.genParams.debug = cms.bool(False)
+
 process.ana.jetAK4selParams.jecUncPayloadName = cms.string(os.path.join(dataPath,options.newJECPayloadNames+"_Uncertainty_AK4PFchs.txt"))
+if options.maketree: 
+  process.ana.jetAK4BTaggedselParams.jetCSVDiscMin = cms.double(CSVv2L)
+
 process.ana.jetAK4BTaggedselParams.jecUncPayloadName = cms.string(os.path.join(dataPath,options.newJECPayloadNames+"_Uncertainty_AK4PFchs.txt"))
 process.ana.jetAK8selParams.jecUncPayloadName = cms.string(os.path.join(dataPath,options.newJECPayloadNames+"_Uncertainty_AK8PFchs.txt"))
 process.ana.jetHTaggedselParams.jecUncPayloadName = cms.string(os.path.join(dataPath,options.newJECPayloadNames+"_Uncertainty_AK8PFchs.txt"))
@@ -233,8 +243,8 @@ process.ana.jetAK8selParams.jetPtMin = cms.double(200)
 process.ana.jetAK4BTaggedselParams.jetPtMin = cms.double(50) 
 process.ana.NAK4Min = cms.uint32(3)
 if options.maketree:
-  process.ana.STMin = cms.double(400.)
-  process.ana.HTMin = cms.double(200.)
+  process.ana.STMin = cms.double(0.)
+  process.ana.HTMin = cms.double(500.)
 else: 
   process.ana.STMin = cms.double(1000.)
   process.ana.HTMin = cms.double(200.)
