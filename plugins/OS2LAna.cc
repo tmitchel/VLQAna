@@ -222,6 +222,8 @@ OS2LAna::OS2LAna(const edm::ParameterSet& iConfig) :
   maketree_               (iConfig.getParameter<bool>("maketree"))
 
 {
+	produces<vlq::JetCollection>("ak4jets") ;
+	produces<vlq::JetCollection>("ak8jets") ;
   produces<vlq::JetCollection>("tjets") ; 
   produces<vlq::JetCollection>("wjets") ; 
   produces<vlq::JetCollection>("hjets") ;
@@ -240,6 +242,7 @@ OS2LAna::OS2LAna(const edm::ParameterSet& iConfig) :
   produces<double>("sjbtagsflUp");
   produces<double>("sjbtagsflDown");
   produces<double>("finalWeight");
+	produces<double>("st");
 }
 
 
@@ -521,22 +524,25 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
     evt.put(std::move(ptr_sjbtagsf_bcDown), "sjbtagsfbcDown");
     evt.put(std::move(ptr_sjbtagsf_lUp   ), "sjbtagsflUp"   );
     evt.put(std::move(ptr_sjbtagsf_lDown ), "sjbtagsflDown" );
-
-    if(goodAK4Jets.at(0).getPt() > 100 && goodAK4Jets.at(1).getPt() > 50 && goodBTaggedAK4Jets.size() > 0 && ST > STMin_){
-      std::unique_ptr<vlq::JetCollection> ptr_tjets( new vlq::JetCollection(goodTopTaggedJets) ) ; 
-      std::unique_ptr<vlq::JetCollection> ptr_wjets( new vlq::JetCollection(goodWTaggedJets) ) ; 
-      std::unique_ptr<vlq::JetCollection> ptr_hjets( new vlq::JetCollection(goodHTaggedJets) ) ;
-      std::unique_ptr<vlq::JetCollection> ptr_bjets( new vlq::JetCollection(goodBTaggedAK4Jets ) ) ; 
-      std::unique_ptr<vlq::JetCollection> ptr_jets ( new vlq::JetCollection(goodAK4Jets ) ) ; 
-      std::unique_ptr<vlq::CandidateCollection> ptr_zllcands ( new vlq::CandidateCollection(zll) ) ; 
-
-      evt.put(std::move(ptr_tjets), "tjets") ; 
-      evt.put(std::move(ptr_wjets), "wjets") ; 
-      evt.put(std::move(ptr_hjets), "hjets") ; 
-      evt.put(std::move(ptr_bjets), "bjets") ; 
-      evt.put(std::move(ptr_jets), "jets")  ; 
-      evt.put(std::move(ptr_zllcands), "zllcands")  ;
-    }   
+		
+		std::unique_ptr<vlq::JetCollection> ptr_ak4jets( new vlq::JetCollection(goodAK4Jets) ) ;
+		std::unique_ptr<vlq::JetCollection> ptr_ak8jets( new vlq::JetCollection(goodAK8Jets) ) ;
+    std::unique_ptr<vlq::JetCollection> ptr_tjets( new vlq::JetCollection(goodTopTaggedJets) ) ; 
+    std::unique_ptr<vlq::JetCollection> ptr_wjets( new vlq::JetCollection(goodWTaggedJets) ) ; 
+    std::unique_ptr<vlq::JetCollection> ptr_hjets( new vlq::JetCollection(goodHTaggedJets) ) ;
+    std::unique_ptr<vlq::JetCollection> ptr_bjets( new vlq::JetCollection(goodBTaggedAK4Jets ) ) ; 
+    std::unique_ptr<vlq::JetCollection> ptr_jets ( new vlq::JetCollection(goodAK4Jets ) ) ; 
+    std::unique_ptr<vlq::CandidateCollection> ptr_zllcands ( new vlq::CandidateCollection(zll) ) ; 
+		std::unique_ptr<double> ptr_st ( new double(ST) );
+		evt.put(std::move(ptr_ak4jets), "ak4jets");
+		evt.put(std::move(ptr_ak8jets), "ak8jets");
+    evt.put(std::move(ptr_tjets), "tjets") ; 
+    evt.put(std::move(ptr_wjets), "wjets") ; 
+    evt.put(std::move(ptr_hjets), "hjets") ; 
+    evt.put(std::move(ptr_bjets), "bjets") ; 
+    evt.put(std::move(ptr_jets), "jets")  ; 
+    evt.put(std::move(ptr_zllcands), "zllcands")  ;
+		evt.put(std::move(ptr_st), "st") ;
 
   } //// if skim 
   else if ( !maketree_ ) { 

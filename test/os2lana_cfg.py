@@ -33,7 +33,7 @@ options.register('lepID', 'TIGHT',
     VarParsing.varType.string,
     "lepton ID? Choose: 'TIGHT' or 'LOOSE'"
     )
-options.register('outFileName', 'os2lana.root',
+options.register('outFileName', 'Os2lana.root',
     VarParsing.multiplicity.singleton,
     VarParsing.varType.string,
     "Output file name"
@@ -88,6 +88,11 @@ options.register('massReco', False,
     VarParsing.varType.bool,
     "Optimize mass reconstruction"
     )
+options.register('controlReco', False,
+    VarParsing.multiplicity.singleton,
+    VarParsing.varType.bool,
+    "reco in control region"
+)
 options.register('syst', False,
     VarParsing.multiplicity.singleton,
     VarParsing.varType.bool,
@@ -143,7 +148,8 @@ from inputFiles_cfi import *
 process.source = cms.Source(
   "PoolSource",
   fileNames = cms.untracked.vstring(
-    FileNames[options.FileNames]
+  'root://eoscms.cern.ch//store/group/phys_b2g/B2GAnaFW_80X_V2p4/DYJetsToLL_Pt-100To250_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/B2GAnaFW_RunIISpring16MiniAODv2_25ns_v80x_ext1_v2p4/170122_184903/0000/B2GEDMNtuple_1.root'  
+	#FileNames[options.FileNames]
     ) 
   )
 
@@ -234,7 +240,7 @@ if options.maketree:
   process.ana.STMin = cms.double(400.)
   process.ana.HTMin = cms.double(200.)
 else: 
-  process.ana.STMin = cms.double(0.)
+  process.ana.STMin = cms.double(1000.)
   process.ana.HTMin = cms.double(200.)
 
 if options.skim: 
@@ -329,6 +335,7 @@ elif options.massReco:
   process.massReco.ptMin = cms.double(150.)
   process.massReco.zdecaymode = cms.string(options.zdecaymode)
   process.massReco.signalType = cms.string(options.signalType)
+  process.massReco.controlReco = cms.bool(options.controlReco)
   process.p = cms.Path(
     process.allEvents
     *process.evtcleaner
@@ -352,7 +359,7 @@ if options.skim:
     SelectEvents = cms.untracked.PSet(
       SelectEvents = cms.vstring('p')
       ),
-    fileName = cms.untracked.string('os2lana_skim.root'),
+    fileName = cms.untracked.string('Os2lana_skim.root'),
     outputCommands = cms.untracked.vstring(outCommand )
     )
 

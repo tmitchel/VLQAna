@@ -1,6 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 
+from Analysis.VLQAna.PickGenPart_cfi import *
+
 massReco = cms.EDFilter("MassReco",
+    met      = cms.InputTag("metFull", "metFullPt"),
     elPt     = cms.InputTag("electrons", "elPt"),
     elEta    = cms.InputTag("electrons", "elEta"),
     elPhi    = cms.InputTag("electrons", "elPhi"),
@@ -15,7 +18,14 @@ massReco = cms.EDFilter("MassReco",
     hjets    = cms.InputTag("ana", "hjets"),
     zllcands = cms.InputTag("ana", "zllcands"),
     evtwt    = cms.InputTag("ana", "PreWeight"),
+    st       = cms.InputTag("ana", "st"),
+		STMin    = cms.double(1000.),
+		STMaxControl = cms.double(700.),
     ptMin    = cms.double(0.),
     zdecaymode = cms.string('zmumu'),
-    signalType = cms.string('')
-    )
+    signalType = cms.string(''),
+		optimizeReco = cms.bool(True),
+		controlReco = cms.bool(False),
+ 		genParams = getSelectParams,	
+ 
+   )

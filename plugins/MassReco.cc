@@ -20,6 +20,7 @@
 
 #include "Analysis/VLQAna/interface/JetMaker.h"
 #include "Analysis/VLQAna/interface/JetID.h"
+#include "Analysis/VLQAna/interface/PickGenPart.h"
 
 #include <TFile.h>
 #include <TF1.h>
@@ -43,25 +44,22 @@ private:
   pair<double, double> doBoostedReco(vector<vlq::Jet>, TLorentzVector, double, TLorentzVector, double);
   pair<double, double> doResolvedReco(vector<vlq::Jet>, double, TLorentzVector);
   
-
-  edm::EDGetTokenT<vector<float> >     elPt_t;
-  edm::EDGetTokenT<vector<float> >     elEta_t;
-  edm::EDGetTokenT<vector<float> >     elPhi_t;
-  edm::EDGetTokenT<vector<float> >     elE_t;
-  edm::EDGetTokenT<vector<float> >     muPt_t;
-  edm::EDGetTokenT<vector<float> >     muEta_t;
-  edm::EDGetTokenT<vector<float> >     muPhi_t;
-  edm::EDGetTokenT<vector<float> >     muE_t;
   edm::EDGetTokenT<vector<vlq::Jet> >  ak4_t;
   edm::EDGetTokenT<vector<vlq::Jet> >  bjets_t;
   edm::EDGetTokenT<vector<vlq::Jet> >  zjets_t;
   edm::EDGetTokenT<vector<vlq::Jet> >  hjets_t;
   edm::EDGetTokenT<vector<vlq::Candidate> > zllcands_t;
   edm::EDGetTokenT<double>             evtwt_t;
+  edm::EDGetTokenT<double>             st_t;
 
   const double ptMin_;
+	const double STMaxControl_;
+	const double STMin_;
   const string zdecaymode_;
   const string signalType_;
+	const bool optimizeReco_;
+	const bool controlReco_;
+	PickGenPart genpart ;
 
   edm::Service<TFileService> fs;
   map<string, TH1D*> h1_;
@@ -69,133 +67,344 @@ private:
 };
 
 MassReco::MassReco(const edm::ParameterSet& iConfig) :
-  elPt_t     (consumes<vector<float> > (iConfig.getParameter<edm::InputTag>("elPt"))),
-  elEta_t    (consumes<vector<float> > (iConfig.getParameter<edm::InputTag>("elEta"))),
-  elPhi_t    (consumes<vector<float> > (iConfig.getParameter<edm::InputTag>("elPhi"))),
-  elE_t      (consumes<vector<float> > (iConfig.getParameter<edm::InputTag>("elE"))),
-  muPt_t     (consumes<vector<float> > (iConfig.getParameter<edm::InputTag>("muPt"))),
-  muEta_t    (consumes<vector<float> > (iConfig.getParameter<edm::InputTag>("muEta"))),
-  muPhi_t    (consumes<vector<float> > (iConfig.getParameter<edm::InputTag>("muPhi"))),
-  muE_t      (consumes<vector<float> > (iConfig.getParameter<edm::InputTag>("muE"))),
-  ak4_t      (consumes<vector<vlq::Jet> > (iConfig.getParameter<edm::InputTag>("jets"))),
-  bjets_t    (consumes<vector<vlq::Jet> > (iConfig.getParameter<edm::InputTag>("bjets"))),
-  zjets_t    (consumes<vector<vlq::Jet> > (iConfig.getParameter<edm::InputTag>("zjets"))),
-  hjets_t    (consumes<vector<vlq::Jet> > (iConfig.getParameter<edm::InputTag>("hjets"))),
-  zllcands_t (consumes<vector<vlq::Candidate> > (iConfig.getParameter<edm::InputTag>("zllcands"))),
-  evtwt_t    (consumes<double>           (iConfig.getParameter<edm::InputTag>("evtwt"))),
+  ak4_t         (consumes<vector<vlq::Jet> > (iConfig.getParameter<edm::InputTag>("jets"))),
+  bjets_t       (consumes<vector<vlq::Jet> > (iConfig.getParameter<edm::InputTag>("bjets"))),
+  zjets_t       (consumes<vector<vlq::Jet> > (iConfig.getParameter<edm::InputTag>("zjets"))),
+  hjets_t       (consumes<vector<vlq::Jet> > (iConfig.getParameter<edm::InputTag>("hjets"))),
+  zllcands_t    (consumes<vector<vlq::Candidate> > (iConfig.getParameter<edm::InputTag>("zllcands"))),
+  evtwt_t       (consumes<double>           (iConfig.getParameter<edm::InputTag>("evtwt"))),
+  st_t          (consumes<double>           (iConfig.getParameter<edm::InputTag>("st"))),
+ 
   ptMin_     (iConfig.getParameter<double> ("ptMin")),
+	STMaxControl_ (iConfig.getParameter<double> ("STMaxControl")),
+	STMin_     (iConfig.getParameter<double> ("STMin")),
   zdecaymode_       (iConfig.getParameter<string> ("zdecaymode")),
-  signalType_ (iConfig.getParameter<string> ("signalType"))
+  signalType_ (iConfig.getParameter<string> ("signalType")),
+	optimizeReco_ (iConfig.getParameter<bool> ("optimizeReco")),
+	controlReco_  (iConfig.getParameter<bool> ("controlReco")),
+	genpart    (iConfig.getParameter<edm::ParameterSet>("genParams"),consumesCollector())
 {}
 
 MassReco::~MassReco() {}
 
 bool MassReco::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
-  edm::Handle<vector<float> >     elPt_h    ; evt.getByToken(elPt_t, elPt_h)    ;
-  edm::Handle<vector<float> >     elEta_h   ; evt.getByToken(elEta_t, elEta_h)   ;
-  edm::Handle<vector<float> >     elPhi_h   ; evt.getByToken(elPhi_t, elPhi_h)   ;
-  edm::Handle<vector<float> >     elE_h     ; evt.getByToken(elE_t, elE_h)     ;
-  edm::Handle<vector<float> >     muPt_h    ; evt.getByToken(muPt_t, muPt_h)    ;
-  edm::Handle<vector<float> >     muEta_h   ; evt.getByToken(muEta_t, muEta_h)   ;
-  edm::Handle<vector<float> >     muPhi_h   ; evt.getByToken(muPhi_t, muPhi_h)   ;
-  edm::Handle<vector<float> >     muE_h     ; evt.getByToken(muE_t, muE_h)     ;
-  edm::Handle<vector<vlq::Jet> > ak4_h      ; evt.getByToken(ak4_t,  ak4_h)     ;
+
+  //TLorentzVector leptons = (lepP4.at(0) + lepP4.at(1));
+  //  cout << lepP4.at(0).E() << " " << lepP4.at(1).E() << endl;
+	
+	edm::Handle<vector<vlq::Candidate> > zllcands_h; evt.getByToken(zllcands_t, zllcands_h);
+	edm::Handle<vector<vlq::Jet> > ak4_h      ; evt.getByToken(ak4_t,  ak4_h)     ;
   edm::Handle<vector<vlq::Jet> > bjets_h    ; evt.getByToken(bjets_t,  bjets_h) ;
   edm::Handle<vector<vlq::Jet> > zjets_h    ; evt.getByToken(zjets_t,  zjets_h) ;
   edm::Handle<vector<vlq::Jet> > hjets_h    ; evt.getByToken(hjets_t,  hjets_h) ;
-  edm::Handle<vector<vlq::Candidate> > zllcands_h; evt.getByToken(zllcands_t, zllcands_h) ;
   edm::Handle<double>              evtwt_h  ; evt.getByToken(evtwt_t,  evtwt_h) ;
-
-  double evtwt = *evtwt_h.product();
-
-  TLorentzVector zllcand = (*zllcands_h.product()).at(0).getP4();
-  //cout << zllcands.size() << endl;
-
-  // vector<TLorentzVector> lepP4;
-  // if (zdecaymode_ == "zelel"){
-  //   for (unsigned i=0; i<elPt_h->size(); i++){
-  //     TLorentzVector el;
-  //     el.SetPtEtaPhiE((*elPt_h.product()).at(i), (*elEta_h.product()).at(i), (*elPhi_h.product()).at(i), (*elE_h.product()).at(i));
-  //     lepP4.push_back(el);
-  //   }
-  // }
-  // else if (zdecaymode_ == "zmumu"){
-  //   for (unsigned i=0; i<muPt_h->size(); i++){
-  //     TLorentzVector mu;
-  //     mu.SetPtEtaPhiE((*muPt_h.product()).at(i), (*muEta_h.product()).at(i), (*muPhi_h.product()).at(i), (*muE_h.product()).at(i));
-  //     lepP4.push_back(mu);
-  //   }
-  // }
-      
+  edm::Handle<double>              st_h     ; evt.getByToken(st_t,     st_h)    ;
+	TLorentzVector zllcand = (*zllcands_h.product()).at(0).getP4();
+	double evtwt = *evtwt_h.product();
+	double ST = *st_h.product();
   vector<vlq::Jet> ak4s = *ak4_h.product();
   vector<vlq::Jet> bjets = *bjets_h.product();
   vector<vlq::Jet> zjets = *zjets_h.product();
   vector<vlq::Jet> hjets = *hjets_h.product();
 
-  //TLorentzVector leptons = (lepP4.at(0) + lepP4.at(1));
-  //  cout << lepP4.at(0).E() << " " << lepP4.at(1).E() << endl;
-
-  pair<double, double> resReco_bZ, boostReco_bZ, mergeReco_bZ;
-  pair<double, double> resReco_bH, boostReco_bH, mergeReco_bH;
-  
-  resReco_bZ.first = 9999;
-  resReco_bZ.second = -1;
-  resReco_bH.first = 9999;
-  resReco_bH.second = -1;
-  boostReco_bZ.first = 9999;
-  boostReco_bZ.second = -1;
-  boostReco_bH.first = 9999;
-  boostReco_bH.second = -1;
-  mergeReco_bZ.first = 9999;
-  mergeReco_bZ.second = -1;
-  mergeReco_bH.first = 9999;
-  mergeReco_bH.second = -1;
-
-  bool doZ = (signalType_ == "EvtType_MC_bZbZ" || signalType_ == "");
+	bool doZ = (signalType_ == "EvtType_MC_bZbZ" || signalType_ == "");
   bool doH = (signalType_ == "EvtType_MC_bZbH" || signalType_ == "");
 
-  if (zjets.size() > 0 && doZ)
-    boostReco_bZ = doBoostedReco(ak4s, zjets.at(0).getP4(), 91.2, zllcand, 150.);
-   if (hjets.size() > 0 && doH)
-     boostReco_bH = doBoostedReco(ak4s, hjets.at(0).getP4(), 125., zllcand, 150.);
+	double chiCut_ = 20;
 
-  if (ak4s.size() > 3){
-    if (zjets.size() == 0 && doZ)
-      resReco_bZ = doResolvedReco(ak4s, 91.2, zllcand);
-    if (hjets.size() == 0 && doH)
-    resReco_bH = doResolvedReco(ak4s, 125., zllcand);
-  }
-  
-  for (unsigned i=0; i<ak4s.size(); i++){
-    if (ak4s.at(i).getP4().M() > 65 && ak4s.at(i).getP4().M() < 105 && ak4s.at(i).getP4().Pt() > 200 && doZ && ak4s.size() < 4 && zjets.size() == 0)
-      mergeReco_bZ = doBoostedReco(ak4s, ak4s.at(i).getP4(), 91.2, zllcand, 150.);
-    if (ak4s.at(i).getP4().M() > 105 && ak4s.at(i).getP4().M() < 135 && ak4s.at(i).getP4().Pt() > 200 && doH && ak4s.size() < 4 && hjets.size() == 0)
-    mergeReco_bH = doBoostedReco(ak4s, ak4s.at(i).getP4(), 125., zllcand, 150.);
-  }
+ 	////////////////////////
+	//Begin SR Mass Reco. //	///////////////////////////////////////////////////
+	////////////////////////
 
-  if (resReco_bZ.second > 0) h1_["resReco_bZ"]->Fill(resReco_bZ.second, evtwt);
-  if (resReco_bH.second > 0) h1_["resReco_bH"]->Fill(resReco_bH.second, evtwt);
-  if (boostReco_bZ.second > 0) h1_["boostReco_bZ"]->Fill(boostReco_bZ.second, evtwt);
-  if (boostReco_bH.second > 0) h1_["boostReco_bH"]->Fill(boostReco_bH.second, evtwt);
-  if (mergeReco_bZ.second > 0) h1_["mergeReco_bZ"]->Fill(mergeReco_bZ.second, evtwt);
-  if (mergeReco_bH.second > 0) h1_["mergeReco_bH"]->Fill(mergeReco_bH.second, evtwt);
+	if (ak4s.at(0).getPt() > 100 && ak4s.at(1).getPt() > 50 && bjets.size() > 0 && ST > STMin_){
 
-  if (resReco_bZ.first < boostReco_bZ.first && resReco_bZ.first < mergeReco_bZ.first)
-    h1_["comboReco_bZ"]->Fill(resReco_bZ.second, evtwt);
-  else if (boostReco_bZ.first < resReco_bZ.first && boostReco_bZ.first < mergeReco_bZ.first)
-    h1_["comboReco_bZ"]->Fill(boostReco_bZ.second, evtwt);
-  else if (mergeReco_bZ.first < resReco_bZ.first && mergeReco_bZ.first < boostReco_bZ.first)
-    h1_["comboReco_bZ"]->Fill(mergeReco_bZ.second, evtwt);
+		pair<double, double> resReco_bZ, boostReco_bZ, mergeReco_bZ;
+  	pair<double, double> resReco_bH, boostReco_bH, mergeReco_bH;
+ 
+ 		resReco_bZ.first = 9999;
+  	resReco_bZ.second = -1;
+  	resReco_bH.first = 9999;
+  	resReco_bH.second = -1;
+  	boostReco_bZ.first = 9999;
+  	boostReco_bZ.second = -1;
+  	boostReco_bH.first = 9999;
+  	boostReco_bH.second = -1;
+  	mergeReco_bZ.first = 9999;
+  	mergeReco_bZ.second = -1;
+  	mergeReco_bH.first = 9999;
+  	mergeReco_bH.second = -1;
 
-  if (resReco_bH.first < boostReco_bH.first && resReco_bH.first < mergeReco_bH.first)
-    h1_["comboReco_bH"]->Fill(resReco_bH.second, evtwt);
-  else if (boostReco_bH.first < resReco_bH.first && boostReco_bH.first < mergeReco_bH.first)
-    h1_["comboReco_bH"]->Fill(boostReco_bH.second, evtwt);
-  else if (mergeReco_bH.first < resReco_bH.first && mergeReco_bH.first < boostReco_bH.first)
-    h1_["comboReco_bH"]->Fill(mergeReco_bH.second, evtwt);
+   	if (zjets.size() > 0 && doZ)
+    	boostReco_bZ = doBoostedReco(ak4s, zjets.at(0).getP4(), 91.2, zllcand, 150.);
+   	if (hjets.size() > 0 && doH)
+    	boostReco_bH = doBoostedReco(ak4s, hjets.at(0).getP4(), 125., zllcand, 150.);
 
-  if (zjets.size() > 0)
-    h1_["hey"]->Fill(zjets.at(0).getP4().M(), evtwt);
+  	if (ak4s.size() > 3){
+    	if (zjets.size() == 0 && doZ)
+      	resReco_bZ = doResolvedReco(ak4s, 91.2, zllcand);
+    	if (hjets.size() == 0 && doH)
+    		resReco_bH = doResolvedReco(ak4s, 125., zllcand);
+  	}
+
+  	for (unsigned i=0; i<ak4s.size(); i++){
+    	if (ak4s.at(i).getP4().M() > 65 && ak4s.at(i).getP4().M() < 105 && ak4s.at(i).getP4().Pt() > 200 && doZ && ak4s.size() < 4 && zjets.size() == 0)
+      	mergeReco_bZ = doBoostedReco(ak4s, ak4s.at(i).getP4(), 91.2, zllcand, 150.);
+    	if (ak4s.at(i).getP4().M() > 105 && ak4s.at(i).getP4().M() < 135 && ak4s.at(i).getP4().Pt() > 200 && doH && ak4s.size() < 4 && hjets.size() == 0)
+    	mergeReco_bH = doBoostedReco(ak4s, ak4s.at(i).getP4(), 125., zllcand, 150.);
+  	}
+
+  	if (resReco_bZ.second > 0 && resReco_bZ.first < chiCut_){
+    	h1_["resReco_bZ"]->Fill(resReco_bZ.second, evtwt);
+    	h1_["resST_bZ"]->Fill(ST, evtwt);
+  	} 
+  	if (resReco_bH.second > 0 && resReco_bH.first < chiCut_){ 
+    	h1_["resReco_bH"]->Fill(resReco_bH.second, evtwt);
+    	h1_["resST_bZ"]->Fill(ST, evtwt);
+  	}
+  	if (boostReco_bZ.second > 0 && boostReco_bZ.first < chiCut_){
+    	h1_["boostReco_bZ"]->Fill(boostReco_bZ.second, evtwt);
+    	h1_["boostST_bZ"]->Fill(ST, evtwt);
+  	}
+  	if (boostReco_bH.second > 0 && boostReco_bH.first < chiCut_){
+    	h1_["boostReco_bH"]->Fill(boostReco_bH.second, evtwt);
+    	h1_["boostST_bH"]->Fill(ST, evtwt);
+  	}
+  	if (mergeReco_bZ.second > 0 && mergeReco_bZ.first < chiCut_){ 
+    	h1_["mergeReco_bZ"]->Fill(mergeReco_bZ.second, evtwt);
+    	h1_["mergeST_bZ"]->Fill(ST, evtwt);
+  	}
+  	if (mergeReco_bH.second > 0 && mergeReco_bH.first < chiCut_){ 
+    	h1_["mergeReco_bH"]->Fill(mergeReco_bH.second, evtwt);
+    	h1_["mergeST_bH"]->Fill(ST, evtwt);
+  	}
+
+  	if (resReco_bZ.first < boostReco_bZ.first && resReco_bZ.first < mergeReco_bZ.first && resReco_bZ.first < chiCut_){
+    	h1_["comboReco_bZ"]->Fill(resReco_bZ.second, evtwt);
+    	h1_["comboST_bZ"]->Fill(ST, evtwt);
+  	}
+  	else if (boostReco_bZ.first < resReco_bZ.first && boostReco_bZ.first < mergeReco_bZ.first && boostReco_bZ.first < chiCut_){
+    	h1_["comboReco_bZ"]->Fill(boostReco_bZ.second, evtwt);
+    	h1_["comboST_bZ"]->Fill(ST, evtwt);
+  	}
+  	else if (mergeReco_bZ.first < resReco_bZ.first && mergeReco_bZ.first < boostReco_bZ.first && mergeReco_bZ.first < chiCut_){
+    	h1_["comboReco_bZ"]->Fill(mergeReco_bZ.second, evtwt);
+    	h1_["comboST_bZ"]->Fill(ST, evtwt);
+  	}
+
+  	if (resReco_bH.first < boostReco_bH.first && resReco_bH.first < mergeReco_bH.first && resReco_bH.first < chiCut_){
+    	h1_["comboReco_bH"]->Fill(resReco_bH.second, evtwt);
+    	h1_["comboST_bH"]->Fill(ST, evtwt);
+  	}
+  	else if (boostReco_bH.first < resReco_bH.first && boostReco_bH.first < mergeReco_bH.first && boostReco_bH.first < chiCut_){
+    	h1_["comboReco_bH"]->Fill(boostReco_bH.second, evtwt);
+    	h1_["comboST_bH"]->Fill(ST, evtwt);
+  	}
+  	else if (mergeReco_bH.first < resReco_bH.first && mergeReco_bH.first < boostReco_bH.first && mergeReco_bH.first < chiCut_){
+    	h1_["comboReco_bH"]->Fill(mergeReco_bH.second, evtwt);
+    	h1_["comboST_bH"]->Fill(ST, evtwt);
+  	}
+
+ 	 	h1_["ST"]->Fill(ST, evtwt);
+
+		for (auto& jet : zjets){
+			h1_["Zsubjetiness"]->Fill(jet.getNSubjets(), evtwt);
+			h1_["ZprunedMass"]->Fill(jet.getPrunedMass(), evtwt);
+		}
+		for (auto& jet : hjets){
+			h1_["Hsubjetiness"]->Fill(jet.getNSubjets(), evtwt);
+			h1_["HprunedMass"]->Fill(jet.getPrunedMass(), evtwt);
+		}
+	}
+	////////////////////////
+	//Begin CR Mass Reco. //	///////////////////////////////////////////////////
+	////////////////////////
+
+	
+	if (bjets.size() > 0 && ST < STMaxControl_ &&  controlReco_){
+
+		pair<double, double> resCon_bZ, boostCon_bZ, mergeCon_bZ;
+		pair<double, double> resCon_bH, boostCon_bH, mergeCon_bH;
+					
+		resCon_bZ.first = 9999;
+		resCon_bZ.second = -1;
+		resCon_bH.first = 9999;
+		resCon_bH.second = -1;
+		boostCon_bZ.first = 9999;
+		boostCon_bZ.second = -1;
+		boostCon_bH.first = 9999;
+		boostCon_bH.second = -1;
+		mergeCon_bZ.first = 9999;
+		mergeCon_bZ.second = -1;
+		mergeCon_bH.first = 9999;
+		mergeCon_bH.second = -1;
+
+		if (zjets.size() > 0 && doZ)
+			boostCon_bZ = doBoostedReco(ak4s, zjets.at(0).getP4(), 91.2, zllcand, 150.);
+		if (hjets.size() > 0 && doH)
+			boostCon_bH = doBoostedReco(ak4s, hjets.at(0).getP4(), 125., zllcand, 150.);
+
+		if (ak4s.size() > 3){
+			if (zjets.size() == 0 && doZ)
+				resCon_bZ = doResolvedReco(ak4s, 91.2, zllcand);
+			if (hjets.size() == 0 && doH)
+			resCon_bH = doResolvedReco(ak4s, 125., zllcand);
+		}
+
+
+		for (unsigned i=0; i<ak4s.size(); i++){
+			if (ak4s.at(i).getP4().M() > 65 && ak4s.at(i).getP4().M() < 105 && ak4s.at(i).getP4().Pt() > 200 && doZ && ak4s.size() < 4 && zjets.size() == 0)
+				mergeCon_bZ = doBoostedReco(ak4s, ak4s.at(i).getP4(), 91.2, zllcand, 150.);
+			if (ak4s.at(i).getP4().M() > 105 && ak4s.at(i).getP4().M() < 135 && ak4s.at(i).getP4().Pt() > 200 && doH && ak4s.size() < 4 && hjets.size() == 0)
+			mergeCon_bH = doBoostedReco(ak4s, ak4s.at(i).getP4(), 125., zllcand, 150.);
+		}
+
+		if (resCon_bZ.second > 0 && resCon_bZ.first < chiCut_){
+			h1_["resCon_bZ"]->Fill(resCon_bZ.second, evtwt);
+			h1_["resSTCon_bZ"]->Fill(ST, evtwt);
+		} 
+		if (resCon_bH.second > 0 && resCon_bH.first < chiCut_){ 
+			h1_["resCon_bH"]->Fill(resCon_bH.second, evtwt);
+			h1_["resSTCon_bZ"]->Fill(ST, evtwt);
+		}
+		if (boostCon_bZ.second > 0 && boostCon_bZ.first < chiCut_){
+			h1_["boostCon_bZ"]->Fill(boostCon_bZ.second, evtwt);
+			h1_["boostSTCon_bZ"]->Fill(ST, evtwt);
+		}
+		if (boostCon_bH.second > 0 && boostCon_bH.first < chiCut_){
+			h1_["boostCon_bH"]->Fill(boostCon_bH.second, evtwt);
+			h1_["boostSTCon_bH"]->Fill(ST, evtwt);
+		}
+		if (mergeCon_bZ.second > 0 && mergeCon_bZ.first < chiCut_){ 
+			h1_["mergeCon_bZ"]->Fill(mergeCon_bZ.second, evtwt);
+			h1_["mergeSTCon_bZ"]->Fill(ST, evtwt);
+		}
+		if (mergeCon_bH.second > 0 && mergeCon_bH.first < chiCut_){ 
+			h1_["mergeCon_bH"]->Fill(mergeCon_bH.second, evtwt);
+			h1_["mergeSTCon_bH"]->Fill(ST, evtwt);
+		}
+
+		if (resCon_bZ.first < boostCon_bZ.first && resCon_bZ.first < mergeCon_bZ.first && resCon_bZ.first < chiCut_){
+			h1_["comboCon_bZ"]->Fill(resCon_bZ.second, evtwt);
+			h1_["comboSTCon_bZ"]->Fill(ST, evtwt);
+		}
+		else if (boostCon_bZ.first < resCon_bZ.first && boostCon_bZ.first < mergeCon_bZ.first && boostCon_bZ.first < chiCut_){
+			h1_["comboCon_bZ"]->Fill(boostCon_bZ.second, evtwt);
+			h1_["comboSTCon_bZ"]->Fill(ST, evtwt);
+		}
+		else if (mergeCon_bZ.first < resCon_bZ.first && mergeCon_bZ.first < boostCon_bZ.first && mergeCon_bZ.first < chiCut_){
+			h1_["comboCon_bZ"]->Fill(mergeCon_bZ.second, evtwt);
+			h1_["comboSTCon_bZ"]->Fill(ST, evtwt);
+		}
+
+		if (resCon_bH.first < boostCon_bH.first && resCon_bH.first < mergeCon_bH.first && resCon_bH.first < chiCut_){
+			h1_["comboCon_bH"]->Fill(resCon_bH.second, evtwt);
+			h1_["comboSTCon_bH"]->Fill(ST, evtwt);
+		}
+		else if (boostCon_bH.first < resCon_bH.first && boostCon_bH.first < mergeCon_bH.first && boostCon_bH.first < chiCut_){
+			h1_["comboCon_bH"]->Fill(boostCon_bH.second, evtwt);
+			h1_["comboSTCon_bH"]->Fill(ST, evtwt);
+		}
+		else if (mergeCon_bH.first < resCon_bH.first && mergeCon_bH.first < boostCon_bH.first && mergeCon_bH.first < chiCut_){
+			h1_["comboCon_bH"]->Fill(mergeCon_bH.second, evtwt);
+			h1_["comboSTCon_bH"]->Fill(ST, evtwt);
+		}
+
+		h1_["STCon"]->Fill(ST, evtwt);
+
+	}
+
+	///////////////////////
+	//Begin Optimization //	/////////////////////////////////////////////
+	///////////////////////
+
+ 	if (optimizeReco_){
+
+		GenParticleCollection genPartsInfo;
+		genPartsInfo = genpart(evt);
+		TLorentzVector bGen, bbarGen, q1, q2, ZGen, HGen;
+		TLorentzVector Zmerge, Hmerge;
+		TLorentzVector bJet, bbarJet, qJet, qbarJet, ZJet, HJet;
+		TLorentzVector had_bjet, lep_bjet, had_bgen, lep_bgen;
+
+		for (auto& gen : genPartsInfo){
+			if (gen.getPdgID() == 5 && abs(gen.getMom0PdgID()) == 8000002 && gen.getPt() != 0)
+				bGen = gen.getP4();
+			if (gen.getPdgID() == -5 && abs(gen.getMom0PdgID()) == 8000002 && gen.getPt() != 0)
+				bbarGen = gen.getP4();
+			if (signalType_ == "EvtType_MC_bZbZ"){
+				if (gen.getPdgID() >= 1 && gen.getPdgID() <= 5 && abs(gen.getMom0PdgID()) == 23 && gen.getPt() != 0)
+					q1 = gen.getP4();
+				if (gen.getPdgID() <= -1 && gen.getPdgID() >= -5 && abs(gen.getMom0PdgID()) == 23 && gen.getPt() != 0)
+					q2 = gen.getP4();
+			}
+			if (signalType_ == "EvtType_MC_bZbH"){ 
+ 				if (gen.getPdgID() >= 1 && gen.getPdgID() <= 5 && abs(gen.getMom0PdgID()) == 25 && gen.getPt() != 0)
+					q1 = gen.getP4();
+				if (gen.getPdgID() <= -1 && gen.getPdgID() >= -5 && abs(gen.getMom0PdgID()) == 25 && gen.getPt() != 0)
+					q2 = gen.getP4();
+			}
+			if (abs(gen.getPdgID()) == 23 && abs(gen.getMom0PdgID()) == 8000002)// && abs(gen.getDau0PdgID()) >=1 && abs(gen.getDau0PdgID()) <= 5 && gen.getPt() != 0)
+				ZGen = gen.getP4();
+			if (abs(gen.getPdgID()) == 25 && abs(gen.getMom0PdgID()) == 8000002)// && abs(gen.getDau0PdgID()) >=1 && abs(gen.getDau0PdgID()) <= 5 && gen.getPt() != 0)
+				HGen = gen.getP4();
+			
+		}
+		
+		for (auto& jet : ak4s){
+			if (jet.getP4().DeltaR(bGen) < 0.3 && jet.getPt() != 0)
+				bJet = jet.getP4();
+			if (jet.getP4().DeltaR(bbarGen) < 0.3 && jet.getPt() != 0)
+				bbarJet = jet.getP4();
+			if (jet.getP4().DeltaR(q1) < 0.3 && jet.getPt() != 0)
+				qJet = jet.getP4();
+			if (jet.getP4().DeltaR(q2) < 0.3 && jet.getPt() != 0)
+				qbarJet = jet.getP4();
+			if (jet.getP4().DeltaR(ZGen) < 0.3 && jet.getPt() != 0)
+				Zmerge = jet.getP4();
+			if (jet.getP4().DeltaR(HGen) < 0.3 && jet.getPt() != 0)
+				Hmerge = jet.getP4();
+		}
+		
+		for (auto& jet : zjets){
+			if (jet.getP4().DeltaR(ZGen) < 0.3 && jet.getPt() != 0)
+				ZJet = jet.getP4();
+		}
+
+		for (auto& jet : hjets){
+			if (jet.getP4().DeltaR(HGen) < 0.3 && jet.getPt() != 0)
+				HJet = jet.getP4();
+		}
+
+		double vlqMass_ = 1200;
+		double bcheck = abs((bJet+qJet+qbarJet).M() - vlqMass_);
+		double bbarcheck = abs((bbarJet+qJet+qbarJet).M() - vlqMass_);
+
+    if (bcheck < bbarcheck){
+      had_bjet = bJet;
+      lep_bjet = bbarJet;
+    }
+    else {
+      had_bjet = bbarJet;
+      lep_bjet = bJet;
+    }
+		if (qJet != qbarJet){
+			if (signalType_ == "EvtType_MC_bZbZ")
+				h1_["Zresolution"]->Fill((qJet+qbarJet).M(), evtwt);
+			if (signalType_ == "EvtType_MC_bZbH") 
+				h1_["Hresolution"]->Fill((qJet+qbarJet).M(), evtwt);	
+			h1_["Bhadresolution"]->Fill((qJet+qbarJet+had_bjet).M(), evtwt);
+			h1_["Blepresolution"]->Fill((zllcand+lep_bjet).M(), evtwt);
+
+		}
+		if (zjets.size() > 0)
+			h1_["ztagPlain"]->Fill(ZJet.M(), evtwt);
+		h1_["ztagRes"]->Fill(ZGen.M(), evtwt);
+		h1_["htagRes"]->Fill(HJet.M(), evtwt);
+		h1_["ztagRecores"]->Fill((ZJet+had_bjet).M(), evtwt);
+		h1_["htagRecores"]->Fill((HJet+had_bjet).M(), evtwt);
+		h1_["Zmerge"]->Fill(Zmerge.M(), evtwt);
+		h1_["Hmerge"]->Fill(Hmerge.M(), evtwt);
+	}
 
 
   return true;
@@ -210,13 +419,59 @@ void MassReco::beginJob(){
   h1_["mergeReco_bH"] = fs->make<TH1D>("mergeReco_bH", "Merged Reconstruction B->bH", 1000, 0., 3000);
   h1_["comboReco_bZ"] = fs->make<TH1D>("comboReco_bZ", "Combo Reconstruction B->bZ", 1000, 0., 3000);
   h1_["comboReco_bH"] = fs->make<TH1D>("comboReco_bH", "Combo Reconstruction B->bH", 1000, 0., 3000);
-  h1_["hey"] = fs->make<TH1D>("hey", "hey", 20, 0., 110.);
 
-  
+  h1_["resST_bZ"] = fs->make<TH1D>("resST_bZ", "Resolved ST B->bZ", 1000, 0., 3000);
+  h1_["resST_bH"] = fs->make<TH1D>("resST_bH", "Resolved ST B->bH", 1000, 0., 3000);
+  h1_["boostST_bZ"] = fs->make<TH1D>("boostST_bZ", "Boosted ST B->bZ", 1000, 0., 3000);
+  h1_["boostST_bH"] = fs->make<TH1D>("boostST_bH", "Boosted ST B->bH", 1000, 0., 3000);
+  h1_["mergeST_bZ"] = fs->make<TH1D>("mergeST_bZ", "Merged ST B->bZ", 1000, 0., 3000);
+  h1_["mergeST_bH"] = fs->make<TH1D>("mergeST_bH", "Merged ST B->bH", 1000, 0., 3000);
+  h1_["comboST_bZ"] = fs->make<TH1D>("comboST_bZ", "Combo ST B->bZ", 1000, 0., 3000);
+  h1_["comboST_bH"] = fs->make<TH1D>("comboST_bH", "Combo ST B->bH", 1000, 0., 3000);
+
+  h1_["ST"] = fs->make<TH1D>("ST", "Sum Pt", 1000, 0., 8000.);
+
+	h1_["Zresolution"] = fs->make<TH1D>("Zresolution", "reco Z resolution", 100, 20, 160);
+	h1_["Hresolution"] = fs->make<TH1D>("Hresolution", "reco H resolution", 100, 65, 185);
+	h1_["Bhadresolution"] = fs->make<TH1D>("Bhadresolution", "had. reco. B resolution", 200, 0, 2000);
+	h1_["Blepresolution"] = fs->make<TH1D>("Blepresolution", "lep. reco B resolution", 200, 0, 2000);
+	h1_["ztagPlain"] = fs->make<TH1D>("ztagPlain", "ztagged jet mass", 100, 20, 160);
+	h1_["ztagRes"] = fs->make<TH1D>("ztagRes", "tagged Z resolution", 100, 0, 160);
+	h1_["htagRes"] = fs->make<TH1D>("htagRes", "tagged H resolution", 100, 65, 185);
+	h1_["ztagRecores"] = fs->make<TH1D>("ztagRecores", "had reco B resolution w/ Ztag", 200, 0, 2000);
+	h1_["htagRecores"] = fs->make<TH1D>("htagRecores", "had reco B resolution w/ Htag", 200, 0, 2000);
+	h1_["Zmerge"] = fs->make<TH1D>("Zmerge", "merged Z jet", 100, 20, 160);
+	h1_["Hmerge"] = fs->make<TH1D>("Hmerge", "merged H jet", 100, 65, 185);
+
+	h1_["Zsubjetiness"] = fs->make<TH1D>("Zsubjetiness","Z subjetiness", 10, 0, 5);
+	h1_["Hsubjetiness"] = fs->make<TH1D>("Hsubjetiness","H subjetiness", 10, 0, 5);
+	h1_["ZprunedMass"] = fs->make<TH1D>("ZprunedMass","Z pruned Mass", 50, 30, 150);
+	h1_["HprunedMass"] = fs->make<TH1D>("HprunedMass","H pruned Mass", 50, 60, 180);
+
+  h1_["resCon_bZ"] = fs->make<TH1D>("resCon_bZ", "Resolved Reconstruction B->bZ", 1000, 0., 3000);
+  h1_["resCon_bH"] = fs->make<TH1D>("resCon_bH", "Resolved Reconstruction B->bH", 1000, 0., 3000);
+  h1_["boostCon_bZ"] = fs->make<TH1D>("boostCon_bZ", "Boosted Reconstruction B->bZ", 1000, 0., 3000);
+  h1_["boostCon_bH"] = fs->make<TH1D>("boostCon_bH", "Boosted Reconstruction B->bH", 1000, 0., 3000);
+  h1_["mergeCon_bZ"] = fs->make<TH1D>("mergeCon_bZ", "Merged Reconstruction B->bZ", 1000, 0., 3000);
+  h1_["mergeCon_bH"] = fs->make<TH1D>("mergeCon_bH", "Merged Reconstruction B->bH", 1000, 0., 3000);
+  h1_["comboCon_bZ"] = fs->make<TH1D>("comboCon_bZ", "Combo Reconstruction B->bZ", 1000, 0., 3000);
+  h1_["comboCon_bH"] = fs->make<TH1D>("comboCon_bH", "Combo Reconstruction B->bH", 1000, 0., 3000);
+
+  h1_["resSTCon_bZ"] = fs->make<TH1D>("resSTCon_bZ", "Resolved ST B->bZ", 1000, 0., 3000);
+  h1_["resSTCon_bH"] = fs->make<TH1D>("resSTCon_bH", "Resolved ST B->bH", 1000, 0., 3000);
+  h1_["boostSTCon_bZ"] = fs->make<TH1D>("boostSTCon_bZ", "Boosted ST B->bZ", 1000, 0., 3000);
+  h1_["boostSTCon_bH"] = fs->make<TH1D>("boostSTCon_bH", "Boosted ST B->bH", 1000, 0., 3000);
+  h1_["mergeSTCon_bZ"] = fs->make<TH1D>("mergeSTCon_bZ", "Merged ST B->bZ", 1000, 0., 3000);
+  h1_["mergeSTCon_bH"] = fs->make<TH1D>("mergeSTCon_bH", "Merged ST B->bH", 1000, 0., 3000);
+  h1_["comboSTCon_bZ"] = fs->make<TH1D>("comboSTCon_bZ", "Combo ST B->bZ", 1000, 0., 3000);
+  h1_["comboSTCon_bH"] = fs->make<TH1D>("comboSTCon_bH", "Combo ST B->bH", 1000, 0., 3000);
+
+  h1_["STCon"] = fs->make<TH1D>("STCon", "Sum Pt", 1000, 0., 8000.);
+
+
 }
-
 void MassReco::endJob(){
-  return;
+	return;
 }
 
 pair<double, double> MassReco::vector_eval(vector<pair<double, double> > vec){
@@ -235,7 +490,7 @@ double MassReco::resolvedChi2(vector<TLorentzVector> jets, TLorentzVector Lepton
 
   double Zup = abs((jets[2] + jets[3]).M() - bosMass);
   double Zup2 = Zup * Zup;
-  double term1 = Zup2 / (12.2676 * 12.2676);
+  double term1 = Zup2 / (13.5*13.5);
 
   double BHup = abs((jets[1] + jets[2] + jets[3]).M() - mass);
   double BHup2 = BHup * BHup;
