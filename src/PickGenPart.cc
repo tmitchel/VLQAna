@@ -84,11 +84,8 @@ const GenParticleCollection PickGenPart::operator() ( edm::Event& evt) {
     genpart.setDau1Status ( dau1Status ) ;
     genParts_.push_back(genpart) ; 
 
-  }
-
-  if ( debug_ ) {
-    for ( reco::GenParticle igen : *(h_genparticles.product())) {
-      std::cout << " pdg id = " << igen.pdgId() << std::endl ; 
+    if ( debug_ ) {
+      std::cout << " >>>> >>>> pdg id = " << igen.pdgId() << std::endl ; 
       std::cout << " pt     = " << igen.pt() << std::endl ; 
       std::cout << " eta    = " << igen.eta() << std::endl ; 
       std::cout << " phi    = " << igen.phi() << std::endl ; 
@@ -97,25 +94,50 @@ const GenParticleCollection PickGenPart::operator() ( edm::Event& evt) {
 
       std::cout << " nmoms = " << igen.numberOfMothers() << " ndaus = " << igen.numberOfDaughters() << std::endl;
 
+      if (igen.numberOfMothers() > 0 && igen.mother(0) != nullptr) {
+        std::cout << " >>>> mom0pdg id = " << igen.mother(0)->pdgId() << std::endl ; 
+        std::cout << " mom0pt     = " << igen.mother(0)->pt() << std::endl ; 
+        std::cout << " mom0eta    = " << igen.mother(0)->eta() << std::endl ; 
+        std::cout << " mom0phi    = " << igen.mother(0)->phi() << std::endl ; 
+        std::cout << " mom0e      = " << igen.mother(0)->energy() << std::endl ; 
+        std::cout << " mom0mass   = " << igen.mother(0)->mass() << std::endl ; 
+      }
+      else std::cout << " mom0 is a nullptr\n" ;
+
       if (igen.numberOfMothers() > 1 && igen.mother(1) != nullptr) {
-        std::cout << " mom1pdg id = " << igen.mother(1)->pdgId() << std::endl ; 
+        std::cout << " >>>> mom1pdg id = " << igen.mother(1)->pdgId() << std::endl ; 
         std::cout << " mom1pt     = " << igen.mother(1)->pt() << std::endl ; 
         std::cout << " mom1eta    = " << igen.mother(1)->eta() << std::endl ; 
         std::cout << " mom1phi    = " << igen.mother(1)->phi() << std::endl ; 
         std::cout << " mom1e      = " << igen.mother(1)->energy() << std::endl ; 
         std::cout << " mom1mass   = " << igen.mother(1)->mass() << std::endl ; 
       }
+      else std::cout << " mom1 is a nullptr\n" ;
 
       if (igen.numberOfDaughters() > 0 && igen.daughter(0) != nullptr) {
-        std::cout << " dau0 pdg id = " << igen.daughter(0)->pdgId() << std::endl ; 
+        std::cout << " >>>> dau0 pdg id = " << igen.daughter(0)->pdgId() << std::endl ; 
         std::cout << " dau0 pt     = " << igen.daughter(0)->pt() << std::endl ; 
         std::cout << " dau0 eta    = " << igen.daughter(0)->eta() << std::endl ; 
         std::cout << " dau0 phi    = " << igen.daughter(0)->phi() << std::endl ; 
         std::cout << " dau0 e      = " << igen.daughter(0)->energy() << std::endl ; 
         std::cout << " dau0 mass   = " << igen.daughter(0)->mass() << std::endl ; 
       }
-    }
+      else std::cout << " dau0 is a nullptr\n" ;
+
+      if (igen.numberOfDaughters() > 1 && igen.daughter(1) != nullptr) {
+        std::cout << " >>>> dau1 pdg id = " << igen.daughter(1)->pdgId() << std::endl ; 
+        std::cout << " dau1 pt     = " << igen.daughter(1)->pt() << std::endl ; 
+        std::cout << " dau1 eta    = " << igen.daughter(1)->eta() << std::endl ; 
+        std::cout << " dau1 phi    = " << igen.daughter(1)->phi() << std::endl ; 
+        std::cout << " dau1 e      = " << igen.daughter(1)->energy() << std::endl ; 
+        std::cout << " dau1 mass   = " << igen.daughter(1)->mass() << std::endl ; 
+      }
+      else std::cout << " dau1 is a nullptr\n" ;
+
+    } //// Debug 
+
   }
+
 
   return genParts_ ; 
 }

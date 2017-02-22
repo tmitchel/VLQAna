@@ -13,7 +13,7 @@ options.register('skim', True,
     VarParsing.varType.bool,
     "Skim events?"
     )
-options.register('newJECPayloadNames', '',
+options.register('newJECPayloadNames', 'Summer16_23Sep2016V4_MC',
     VarParsing.multiplicity.singleton,
     VarParsing.varType.string,
     "Select one of EvtType_MC_tZtZ, EvtType_MC_tZtH, EvtType_MC_tZbW, EvtType_MC_tHtH, EvtType_MC_tHbW, EvtType_MC_bWbW, EvtType_MC_bZbZ, EvtType_MC_bZbH, EvtType_MC_bZtW, EvtType_MC_bHbH, EvtType_MC_bHtW, EvtType_MC_tWtW" 
@@ -129,7 +129,7 @@ if options.skim:
 
 if options.filterSignal == True: 
   print 'signal type = ', len(options.signalType), 'skim : ', options.skim
-  if options.skim :
+  if options.skim or options.maketree:
     if len(options.signalType) != 0: sys.exit("!!!Error: Please do not specify any signal type when skimming the signal MC!!!")
   elif len(options.signalType) == 0:
     sys.exit("!!!Error: Cannot keep signalType empty when filterSignal switched on!!!") 
@@ -220,6 +220,8 @@ process.ana.muselParams.muidtype = cms.string(options.lepID)
 process.ana.muselParams.muIsoMax = cms.double(0.15)
 process.ana.lepIdSFsParams.lepidtype = cms.string(options.lepID)
 process.ana.lepIdSFsParams.zdecayMode = cms.string(options.zdecaymode)
+process.ana.lepTrigSFsParams.zdecayMode = cms.string(options.zdecaymode)
+if options.zdecaymode == "zelel": process.ana.lepTrigSFsParams.eltrigeffmap = cms.string(os.path.join(dataPath,"ElectronTriggerSF.root")) 
 if options.zdecaymode == "zelel": 
   process.ana.DilepCandParams.ptMaxLeadingLep = cms.double(120)
   process.ana.ZCandParams.ptMaxLeadingLep = cms.double(120)
@@ -234,7 +236,7 @@ if options.maketree:
   process.ana.STMin = cms.double(400.)
   process.ana.HTMin = cms.double(200.)
 else: 
-  process.ana.STMin = cms.double(0.)
+  process.ana.STMin = cms.double(1000.)
   process.ana.HTMin = cms.double(200.)
 
 if options.skim: 
