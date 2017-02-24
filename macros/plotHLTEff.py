@@ -1,9 +1,12 @@
 #!/usr/bin/env python
 
+#/afs/cern.ch/user/d/devdatta/afswork/CMSREL/Analysis/CMSSW_8_0_20/src/Analysis/VLQAna/test/HH4bTrig_JetHT/Final_JetHT_Run2016.root
+#/afs/cern.ch/user/d/devdatta/afswork/CMSREL/Analysis/CMSSW_8_0_20/src/Analysis/VLQAna/test/HH4bTrig_SingleMu/RunsBtoH.root
+# python plotHLTEff.py /afs/cern.ch/user/d/devdatta/afswork/CMSREL/Analysis/CMSSW_8_0_20/src/Analysis/VLQAna/test/HH4bTrig_JetHT/Final_JetHT_Run2016.root mjj 2 RunsBtoH
+
 usage='''
 Usage: 
-python plotHLTEff.py singleT_Trig.root HT
-python plotHLTEff.py singleT_Trig.root Mjj
+python plotHLTEff.py infile hist nbins runperiod
 
 The first argument is the filename, the second argument is the histogram name used to plot the efficiency
 '''
@@ -52,8 +55,8 @@ def compareHLTEff():
   var = sys.argv[1]
   run = sys.argv[2]
 
-  fjetht = ROOT.TFile("JetHT_BtoH_trigeff_mjj.root","READ")
-  fsinglemu = ROOT.TFile("SingleMu_BtoH_trigeff_mjj.root","READ")
+  fjetht = ROOT.TFile("JetHT_RunsBtoH_trigeff_mjj.root","READ")
+  fsinglemu = ROOT.TFile("SingleMu_RunsBtoH_trigeff_mjj.root","READ")
 
   effjetht = fjetht.Get("divide_mjj_by_mjj")
   effjetht.SetName("JetHT")
@@ -162,8 +165,8 @@ def plotHLTEff () :
   leg.SetFillColor(0)
   leg.SetTextSize(0.020)
   leg.SetHeader(run)
-  leg.AddEntry(hden,"PFJet260 (prescaled)","l")
-  leg.AddEntry(hnum,"PFJet260 (prescaled) && OR combination","l")
+  leg.AddEntry(hden,"HLT_PFHT260 (prescaled)","l")
+  leg.AddEntry(hnum,"HLT_PFHT260 (prescaled) OR combination","l")
   leg.Draw()
   c0.Update()
   txt0 = ROOT.TPaveText(0.4,0.55,0.88,0.65,"brNDC")
@@ -216,4 +219,5 @@ def plotHLTEff () :
   gr.Write()
   fout.Close()
 
+#plotHLTEff()
 compareHLTEff()
