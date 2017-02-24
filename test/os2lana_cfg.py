@@ -53,7 +53,7 @@ options.register('signalType', '',
     VarParsing.varType.string,
     "Select one of EvtType_MC_tZtZ, EvtType_MC_tZtH, EvtType_MC_tZbW, EvtType_MC_tHtH, EvtType_MC_tHbW, EvtType_MC_bWbW, EvtType_MC_bZbZ, EvtType_MC_bZbH, EvtType_MC_bZtW, EvtType_MC_bHbH, EvtType_MC_bHtW, EvtType_MC_tWtW" 
     )
-options.register('applyLeptonSFs', True,
+options.register('applyLeptonIDSFs', True,
     VarParsing.multiplicity.singleton,
     VarParsing.varType.bool,
     "Apply lepton SFs to the MC"
@@ -103,7 +103,7 @@ hltpaths = []
 if options.isData:
   options.filterSignal = False 
   options.signalType = "" 
-  options.applyLeptonSFs = False 
+  options.applyLeptonIDSFs = False 
   options.applyLeptonTrigSFs= False
   options.applyBTagSFs   = False 
   options.applyDYNLOCorr = False 
@@ -150,7 +150,7 @@ process.source = cms.Source(
 if options.isData:
   import FWCore.PythonUtilities.LumiList as LumiList
   process.source.lumisToProcess = LumiList.LumiList(
-      filename = "/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions16/13TeV/Final/Cert_271036-284044_13TeV_PromptReco_Collisions16_JSON.txt"
+      filename = "/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions16/13TeV/ReReco/Final/Cert_271036-284044_13TeV_23Sep2016ReReco_Collisions16_JSON.txt"
       ).getVLuminosityBlockRange()
 
 process.TFileService = cms.Service("TFileService",
@@ -181,7 +181,7 @@ process.ana = ana.clone(
     filterSignal = cms.bool(options.filterSignal),
     signalType = cms.string(options.signalType),
     zdecayMode = cms.string(options.zdecaymode),
-    applyLeptonSFs = cms.bool(options.applyLeptonSFs),
+    applyLeptonIDSFs = cms.bool(options.applyLeptonIDSFs),
     applyLeptonTrigSFs = cms.bool(options.applyLeptonTrigSFs),
     applyBTagSFs = cms.bool(options.applyBTagSFs),
     btageffmap = cms.string(os.path.join(dataPath,options.btageffmap)), 

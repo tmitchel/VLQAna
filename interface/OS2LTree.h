@@ -46,6 +46,12 @@ namespace os2l {
       std::vector<float>  t_muonIsPFMuon;
       std::vector<float>  t_muonIsTracker;
 
+      std::vector<float>  t_ZllPt;
+      std::vector<float>  t_ZllEta;
+      std::vector<float>  t_ZllPhi;
+      std::vector<float>  t_ZllE;
+      std::vector<float>  t_ZllMass;
+
       std::vector<float>  t_jetAK4Pt;
       std::vector<float>  t_jetAK4Eta;
       std::vector<float>  t_jetAK4Phi;
@@ -54,7 +60,6 @@ namespace os2l {
       std::vector<float>  t_jetAK4Mass;
       std::vector<float>  t_jetAK4HadronFlavour;
       std::vector<float>  t_jetAK4PartonFlavour;
-
 
       std::vector<float>  t_jetAK4GenJetPt;
       std::vector<float>  t_jetAK4GenJetEta;
@@ -218,6 +223,12 @@ namespace os2l {
         t_muonIsGlobal        .clear();
         t_muonIsPFMuon        .clear();
         t_muonIsTracker       .clear();
+
+        t_ZllPt               .clear();
+        t_ZllEta              .clear();
+        t_ZllPhi              .clear();
+        t_ZllE                .clear();
+        t_ZllMass             .clear();
 
         t_jetAK4Pt            .clear();
         t_jetAK4Eta           .clear();
@@ -387,6 +398,12 @@ namespace os2l {
         tree->Branch("t_muonIsGlobal"  ,&t_muonIsGlobal ); 
         tree->Branch("t_muonIsPFMuon"  ,&t_muonIsPFMuon ); 
         tree->Branch("t_muonIsTracker" ,&t_muonIsTracker); 
+
+        tree->Branch("t_ZllPt"             ,&t_ZllPt );
+        tree->Branch("t_ZllPhi"            ,&t_ZllPhi );
+        tree->Branch("t_ZllEta"            ,&t_ZllEta );
+        tree->Branch("t_ZllE"              ,&t_ZllE );
+        tree->Branch("t_ZllMass"           ,&t_ZllMass );
 
         tree->Branch("t_jetAK4Pt"             ,&t_jetAK4Pt );
         tree->Branch("t_jetAK4Phi"            ,&t_jetAK4Phi );

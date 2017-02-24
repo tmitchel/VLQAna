@@ -380,11 +380,11 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
     cleanjets(goodBTaggedAK4Jets, goodElectrons);
   } 
 
-  //// At least one Z cand in event
+  //// Exactly one Z cand in event
   if(zll.size() == 1) {h1_["cutflow"] -> Fill(4, evtwt) ;}
   else return false ; //// Presel : Z->ll
 
-  //// At least HT > 200 in event
+  //// HT selection
   HT htak4(goodAK4Jets) ; 
   if ( htak4.getHT() > HTMin_ ) h1_["cutflow"] -> Fill(5, evtwt) ;  
   else return false ; //// Presel: HT cut
@@ -757,6 +757,12 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
       os2ltree_.t_muonIsPFMuon .push_back(m.getIsPFMuon()); 
       os2ltree_.t_muonIsTracker.push_back(m.getIsTrackerMuon()); 
     }
+
+    os2ltree_.t_ZllPt   .push_back(zll.at(0).getPt())   ;
+    os2ltree_.t_ZllEta  .push_back(zll.at(0).getEta())   ;
+    os2ltree_.t_ZllPhi  .push_back(zll.at(0).getPhi())   ;
+    os2ltree_.t_ZllE    .push_back(zll.at(0).getEnergy())   ;
+    os2ltree_.t_ZllMass .push_back(zll.at(0).getMass())   ;
 
     for (vlq::Jet jet : goodAK4Jets) {
       os2ltree_.t_jetAK4Pt           .push_back(jet.getPt());
