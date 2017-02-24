@@ -43,7 +43,8 @@ private:
   double boostedChi2(vector<TLorentzVector>, TLorentzVector, TLorentzVector, double, double, double);
   pair<double, double> doBoostedReco(vector<vlq::Jet>, TLorentzVector, double, TLorentzVector, double);
   pair<double, double> doResolvedReco(vector<vlq::Jet>, double, TLorentzVector);
-  
+  	
+	edm::EDGetTokenT<vector<vlq::Jet> >  ak8_t;
   edm::EDGetTokenT<vector<vlq::Jet> >  ak4_t;
   edm::EDGetTokenT<vector<vlq::Jet> >  bjets_t;
   edm::EDGetTokenT<vector<vlq::Jet> >  zjets_t;
@@ -67,6 +68,7 @@ private:
 };
 
 MassReco::MassReco(const edm::ParameterSet& iConfig) :
+	ak8_t         (consumes<vector<vlq::Jet> > (iConfig.getParameter<edm::InputTag>("ak8jets"))),
   ak4_t         (consumes<vector<vlq::Jet> > (iConfig.getParameter<edm::InputTag>("jets"))),
   bjets_t       (consumes<vector<vlq::Jet> > (iConfig.getParameter<edm::InputTag>("bjets"))),
   zjets_t       (consumes<vector<vlq::Jet> > (iConfig.getParameter<edm::InputTag>("zjets"))),
@@ -93,6 +95,7 @@ bool MassReco::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   //  cout << lepP4.at(0).E() << " " << lepP4.at(1).E() << endl;
 	
 	edm::Handle<vector<vlq::Candidate> > zllcands_h; evt.getByToken(zllcands_t, zllcands_h);
+	edm::Handle<vector<vlq::Jet> > ak8_h      ; evt.getByToken(ak8_t,  ak8_h)     ;
 	edm::Handle<vector<vlq::Jet> > ak4_h      ; evt.getByToken(ak4_t,  ak4_h)     ;
   edm::Handle<vector<vlq::Jet> > bjets_h    ; evt.getByToken(bjets_t,  bjets_h) ;
   edm::Handle<vector<vlq::Jet> > zjets_h    ; evt.getByToken(zjets_t,  zjets_h) ;
@@ -102,6 +105,7 @@ bool MassReco::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
 	TLorentzVector zllcand = (*zllcands_h.product()).at(0).getP4();
 	double evtwt = *evtwt_h.product();
 	double ST = *st_h.product();
+	vector<vlq::Jet> ak8s = *ak8_h.product();
   vector<vlq::Jet> ak4s = *ak4_h.product();
   vector<vlq::Jet> bjets = *bjets_h.product();
   vector<vlq::Jet> zjets = *zjets_h.product();
@@ -111,6 +115,19 @@ bool MassReco::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   bool doH = (signalType_ == "EvtType_MC_bZbH" || signalType_ == "");
 
 	double chiCut_ = 20;
+
+	for (auto& jet : ak8s){
+		h1_["ak8subjetiness"]->Fill(jet.getTau2()/jet.getTau1(), evtwt);
+		h1_["ak8prunedMass"]->Fill(jet.getPrunedMass(), evtwt);
+	}
+	for (auto& jet : zjets){
+		h1_["Zsubjetiness"]->Fill(jet.getTau2()/jet.getTau1(), evtwt);
+		h1_["ZprunedMass"]->Fill(jet.getPrunedMass(), evtwt);
+	}
+	for (auto& jet : hjets){
+		h1_["Hsubjetiness"]->Fill(jet.getTau2()/jet.getTau1(), evtwt);
+		h1_["HprunedMass"]->Fill(jet.getPrunedMass(), evtwt);
+	}
 
  	////////////////////////
 	//Begin SR Mass Reco. //	///////////////////////////////////////////////////
@@ -206,14 +223,6 @@ bool MassReco::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
 
  	 	h1_["ST"]->Fill(ST, evtwt);
 
-		for (auto& jet : zjets){
-			h1_["Zsubjetiness"]->Fill(jet.getNSubjets(), evtwt);
-			h1_["ZprunedMass"]->Fill(jet.getPrunedMass(), evtwt);
-		}
-		for (auto& jet : hjets){
-			h1_["Hsubjetiness"]->Fill(jet.getNSubjets(), evtwt);
-			h1_["HprunedMass"]->Fill(jet.getPrunedMass(), evtwt);
-		}
 	}
 	////////////////////////
 	//Begin CR Mass Reco. //	///////////////////////////////////////////////////
@@ -443,6 +452,8 @@ void MassReco::beginJob(){
 	h1_["Zmerge"] = fs->make<TH1D>("Zmerge", "merged Z jet", 100, 20, 160);
 	h1_["Hmerge"] = fs->make<TH1D>("Hmerge", "merged H jet", 100, 65, 185);
 
+	h1_["ak8subjetiness"] = fs->make<TH1D>("ak8subjetiness", "tau2/1", 20, 0., 1.);
+	h1_["ak8prunedMass"] = fs->make<TH1D>("ak8prunedMass", "Pruned M", 100, 0., 250.);
 	h1_["Zsubjetiness"] = fs->make<TH1D>("Zsubjetiness","Z subjetiness", 10, 0, 5);
 	h1_["Hsubjetiness"] = fs->make<TH1D>("Hsubjetiness","H subjetiness", 10, 0, 5);
 	h1_["ZprunedMass"] = fs->make<TH1D>("ZprunedMass","Z pruned Mass", 50, 30, 150);

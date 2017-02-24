@@ -491,24 +491,24 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
 
   }
 
-  if ( skim_ ) {
-
-    h1_["ht_preSel_bfFit"] -> Fill(htak4.getHT(), presel_wt);
-    //fill jet flavor pt and eta for b-tagging efficiencies 
-    if (goodAK4Jets.at(0).getPt() > 100 && goodAK4Jets.at(1).getPt() > 50){// not sure if we should also cut on ST
-      for (vlq::Jet jet : goodAK4Jets) {
-        if ( abs(jet.getHadronFlavour()) == 5) h2_["pt_eta_b_all"] -> Fill(jet.getPt(), jet.getEta()) ; 
-        else if ( abs(jet.getHadronFlavour()) == 4) h2_["pt_eta_c_all"] -> Fill(jet.getPt(), jet.getEta()) ; 
-        else if ( abs(jet.getHadronFlavour()) == 0) h2_["pt_eta_l_all"] -> Fill(jet.getPt(), jet.getEta()) ; 
-      }
-      if ( goodBTaggedAK4Jets.size() > 0 ){
-        for (vlq::Jet jet : goodBTaggedAK4Jets) {
-          if ( abs(jet.getHadronFlavour()) == 5) h2_["pt_eta_b_btagged"] -> Fill(jet.getPt(), jet.getEta()) ; 
-          else if ( abs(jet.getHadronFlavour()) == 4) h2_["pt_eta_c_btagged"] -> Fill(jet.getPt(), jet.getEta()) ; 
-          else if ( abs(jet.getHadronFlavour()) == 0) h2_["pt_eta_l_btagged"] -> Fill(jet.getPt(), jet.getEta()) ; 
-        }
-      }
-    }
+  //if ( skim_ ) {
+	if (true) {
+//    h1_["ht_preSel_bfFit"] -> Fill(htak4.getHT(), presel_wt);
+//    //fill jet flavor pt and eta for b-tagging efficiencies 
+//    if (goodAK4Jets.at(0).getPt() > 100 && goodAK4Jets.at(1).getPt() > 50){// not sure if we should also cut on ST
+//      for (vlq::Jet jet : goodAK4Jets) {
+//        if ( abs(jet.getHadronFlavour()) == 5) h2_["pt_eta_b_all"] -> Fill(jet.getPt(), jet.getEta()) ; 
+//        else if ( abs(jet.getHadronFlavour()) == 4) h2_["pt_eta_c_all"] -> Fill(jet.getPt(), jet.getEta()) ; 
+//        else if ( abs(jet.getHadronFlavour()) == 0) h2_["pt_eta_l_all"] -> Fill(jet.getPt(), jet.getEta()) ; 
+//      }
+//      if ( goodBTaggedAK4Jets.size() > 0 ){
+//        for (vlq::Jet jet : goodBTaggedAK4Jets) {
+//          if ( abs(jet.getHadronFlavour()) == 5) h2_["pt_eta_b_btagged"] -> Fill(jet.getPt(), jet.getEta()) ; 
+//          else if ( abs(jet.getHadronFlavour()) == 4) h2_["pt_eta_c_btagged"] -> Fill(jet.getPt(), jet.getEta()) ; 
+//          else if ( abs(jet.getHadronFlavour()) == 0) h2_["pt_eta_l_btagged"] -> Fill(jet.getPt(), jet.getEta()) ; 
+//        }
+//      }
+//    }
 
     std::unique_ptr<double> ptr_fevtwt ( new double(evtwt) ) ;
     std::unique_ptr<double> ptr_prewt ( new double(presel_wt) ) ;
