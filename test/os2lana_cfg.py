@@ -148,11 +148,26 @@ from inputFiles_cfi import *
 process.source = cms.Source(
   "PoolSource",
   fileNames = cms.untracked.vstring(
-'root://eoscms.cern.ch//store/group/phys_b2g/B2GAnaFW_80X_V2p4/SingleMuon/Run2016H-PromptReco-v1_B2GAnaFW_80X_v2p4/161221_180445//0000/B2GEDMNtuple_1.root',
-'root://eoscms.cern.ch//store/group/phys_b2g/B2GAnaFW_80X_V2p4/SingleMuon/Run2016H-PromptReco-v1_B2GAnaFW_80X_v2p4/161221_180445//0000/B2GEDMNtuple_2.root',
-'root://eoscms.cern.ch//store/group/phys_b2g/B2GAnaFW_80X_V2p4/SingleMuon/Run2016H-PromptReco-v1_B2GAnaFW_80X_v2p4/161221_180445//0000/B2GEDMNtuple_3.root',
-'root://eoscms.cern.ch//store/group/phys_b2g/B2GAnaFW_80X_V2p4/SingleMuon/Run2016H-PromptReco-v1_B2GAnaFW_80X_v2p4/161221_180445//0000/B2GEDMNtuple_4.root',
-'root://eoscms.cern.ch//store/group/phys_b2g/B2GAnaFW_80X_V2p4/SingleMuon/Run2016H-PromptReco-v1_B2GAnaFW_80X_v2p4/161221_180445//0000/B2GEDMNtuple_5.root'
+'root://eoscms.cern.ch//store/group/phys_b2g/B2GAnaFW_80X_V2p4/SingleMuon/Run2016C-23Sep2016-v1_B2GAnaFW_80X_v2p4/161221_155142//0000/B2GEDMNtuple_1.root',
+'root://eoscms.cern.ch//store/group/phys_b2g/B2GAnaFW_80X_V2p4/SingleMuon/Run2016C-23Sep2016-v1_B2GAnaFW_80X_v2p4/161221_155142//0000/B2GEDMNtuple_2.root',
+'root://eoscms.cern.ch//store/group/phys_b2g/B2GAnaFW_80X_V2p4/SingleMuon/Run2016C-23Sep2016-v1_B2GAnaFW_80X_v2p4/161221_155142//0000/B2GEDMNtuple_3.root',
+'root://eoscms.cern.ch//store/group/phys_b2g/B2GAnaFW_80X_V2p4/SingleMuon/Run2016C-23Sep2016-v1_B2GAnaFW_80X_v2p4/161221_155142//0000/B2GEDMNtuple_4.root',
+'root://eoscms.cern.ch//store/group/phys_b2g/B2GAnaFW_80X_V2p4/SingleMuon/Run2016C-23Sep2016-v1_B2GAnaFW_80X_v2p4/161221_155142//0000/B2GEDMNtuple_5.root',
+'root://eoscms.cern.ch//store/group/phys_b2g/B2GAnaFW_80X_V2p4/SingleMuon/Run2016C-23Sep2016-v1_B2GAnaFW_80X_v2p4/161221_155142//0000/B2GEDMNtuple_6.root',
+'root://eoscms.cern.ch//store/group/phys_b2g/B2GAnaFW_80X_V2p4/SingleMuon/Run2016C-23Sep2016-v1_B2GAnaFW_80X_v2p4/161221_155142//0000/B2GEDMNtuple_7.root',
+'root://eoscms.cern.ch//store/group/phys_b2g/B2GAnaFW_80X_V2p4/SingleMuon/Run2016C-23Sep2016-v1_B2GAnaFW_80X_v2p4/161221_155142//0000/B2GEDMNtuple_8.root',
+'root://eoscms.cern.ch//store/group/phys_b2g/B2GAnaFW_80X_V2p4/SingleMuon/Run2016C-23Sep2016-v1_B2GAnaFW_80X_v2p4/161221_155142//0000/B2GEDMNtuple_9.root',
+'root://eoscms.cern.ch//store/group/phys_b2g/B2GAnaFW_80X_V2p4/SingleMuon/Run2016C-23Sep2016-v1_B2GAnaFW_80X_v2p4/161221_155142//0000/B2GEDMNtuple_10.root',
+'root://eoscms.cern.ch//store/group/phys_b2g/B2GAnaFW_80X_V2p4/SingleMuon/Run2016C-23Sep2016-v1_B2GAnaFW_80X_v2p4/161221_155142//0000/B2GEDMNtuple_11.root',
+'root://eoscms.cern.ch//store/group/phys_b2g/B2GAnaFW_80X_V2p4/SingleMuon/Run2016C-23Sep2016-v1_B2GAnaFW_80X_v2p4/161221_155142//0000/B2GEDMNtuple_12.root',
+'root://eoscms.cern.ch//store/group/phys_b2g/B2GAnaFW_80X_V2p4/SingleMuon/Run2016C-23Sep2016-v1_B2GAnaFW_80X_v2p4/161221_155142//0000/B2GEDMNtuple_13.root',
+'root://eoscms.cern.ch//store/group/phys_b2g/B2GAnaFW_80X_V2p4/SingleMuon/Run2016C-23Sep2016-v1_B2GAnaFW_80X_v2p4/161221_155142//0000/B2GEDMNtuple_14.root',
+'root://eoscms.cern.ch//store/group/phys_b2g/B2GAnaFW_80X_V2p4/SingleMuon/Run2016C-23Sep2016-v1_B2GAnaFW_80X_v2p4/161221_155142//0000/B2GEDMNtuple_15.root',
+'root://eoscms.cern.ch//store/group/phys_b2g/B2GAnaFW_80X_V2p4/SingleMuon/Run2016C-23Sep2016-v1_B2GAnaFW_80X_v2p4/161221_155142//0000/B2GEDMNtuple_16.root',
+'root://eoscms.cern.ch//store/group/phys_b2g/B2GAnaFW_80X_V2p4/SingleMuon/Run2016C-23Sep2016-v1_B2GAnaFW_80X_v2p4/161221_155142//0000/B2GEDMNtuple_17.root',
+'root://eoscms.cern.ch//store/group/phys_b2g/B2GAnaFW_80X_V2p4/SingleMuon/Run2016C-23Sep2016-v1_B2GAnaFW_80X_v2p4/161221_155142//0000/B2GEDMNtuple_18.root',
+'root://eoscms.cern.ch//store/group/phys_b2g/B2GAnaFW_80X_V2p4/SingleMuon/Run2016C-23Sep2016-v1_B2GAnaFW_80X_v2p4/161221_155142//0000/B2GEDMNtuple_19.root',
+'root://eoscms.cern.ch//store/group/phys_b2g/B2GAnaFW_80X_V2p4/SingleMuon/Run2016C-23Sep2016-v1_B2GAnaFW_80X_v2p4/161221_155142//0000/B2GEDMNtuple_20.root'
 #	FileNames[options.FileNames]
     ) 
   )

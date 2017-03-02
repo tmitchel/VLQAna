@@ -710,16 +710,19 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
         h1_["etaak8leading"] -> Fill((goodAK8Jets.at(0)).getEta(), evtwt) ;
         //h1_["mak8leading"] -> Fill((goodAK8Jets.at(0)).getMass(), evtwt) ; 
         //h1_["trimmedmak8leading"] -> Fill((goodAK8Jets.at(0)).getTrimmedMass(), evtwt) ;
-        //h1_["prunedmak8leading"] -> Fill((goodAK8Jets.at(0)).getPrunedMass(), evtwt) ;
+        h1_["prunedmak8leading"] -> Fill((goodAK8Jets.at(0)).getPrunedMass(), evtwt) ;
         h1_["softdropmak8leading"] -> Fill((goodAK8Jets.at(0)).getSoftDropMass(), evtwt) ;
+				h1_["subjetinessak8leading"] -> Fill((goodAK8Jets.at(0)).getTau2()/(goodAK8Jets.at(0)).getTau1(), evtwt);
       }
       if (goodAK8Jets.size() > 1) {
         h1_["ptak82nd"] -> Fill((goodAK8Jets.at(1)).getPt(), evtwt) ; 
         h1_["etaak82nd"] -> Fill((goodAK8Jets.at(1)).getEta(), evtwt) ;
         //h1_["mak82nd"] -> Fill((goodAK8Jets.at(1)).getMass(), evtwt) ; 
         //h1_["trimmedmak82nd"] -> Fill((goodAK8Jets.at(1)).getTrimmedMass(), evtwt) ;
-        //h1_["prunedmak82nd"] -> Fill((goodAK8Jets.at(1)).getPrunedMass(), evtwt) ;
+        h1_["prunedmak82nd"] -> Fill((goodAK8Jets.at(1)).getPrunedMass(), evtwt) ;
         h1_["softdropmak82nd"] -> Fill((goodAK8Jets.at(1)).getSoftDropMass(), evtwt) ;
+        h1_["subjetinessak82nd"] -> Fill((goodAK8Jets.at(1)).getTau2()/(goodAK8Jets.at(1)).getTau1(), evtwt);
+
       }
     } //// Signal region 
     else return false;
@@ -1013,6 +1016,8 @@ void OS2LAna::beginJob() {
     h1_["ptak82nd"]  = sig.make<TH1D>("ptak82nd", ";p_{T}(2nd AK8 jet) [GeV];;" , 50, 0., 1000.) ; 
     h1_["etaak82nd"] = sig.make<TH1D>("etaak82nd", ";#eta(2nd AK8 jet);;" , 80 ,-4. ,4.) ; 
     h1_["softdropmak82nd"] = sig.make<TH1D>("softdropmak82nd", ";M(2nd AK8 jet) [GeV];;" ,100 ,0., 200.) ;
+    h1_["subjetinessak8leading"] = sig.make<TH1D>("subjetinessak8leading", ";#tau 2/1 (leading AK8 jet)", 20, 0., 1.);
+    h1_["subjetinessak82nd"]  = sig.make<TH1D>("subjetinessak82nd", "#tau 2/1 (2nd AK8 jet)", 20, 0., 1.);
 
     ////electrons specific varaibles in EE and EB at preselection level
     if (zdecayMode_ == "zelel" && additionalPlots_){
