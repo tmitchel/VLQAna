@@ -13,32 +13,32 @@ RunHv2_0   -1
 RunHv2_1   -1 
 RunHv3     -1 
 
-DATA_B:
-RunBv1     -1 
-RunBv3_0   -1 
-RunBv3_1   -1 
-
-DATA_C:
-RunCv1     -1 
-
-DATA_D:
-RunDv1_0   -1 
-RunDv1_1   -1 
-
-DATA_E:
-RunEv1     -1 
-
-DATA_F:
-RunFv1     -1 
-
-DATA_G:
-RunGv1_0   -1 
-RunGv1_1   -1 
-
-DATA_H:
-RunHv2_0   -1 
-RunHv2_1   -1 
-RunHv3     -1 
+#DATA_B:
+#RunBv1     -1 
+#RunBv3_0   -1 
+#RunBv3_1   -1 
+#
+#DATA_C:
+#RunCv1     -1 
+#
+#DATA_D:
+#RunDv1_0   -1 
+#RunDv1_1   -1 
+#
+#DATA_E:
+#RunEv1     -1 
+#
+#DATA_F:
+#RunFv1     -1 
+#
+#DATA_G:
+#RunGv1_0   -1 
+#RunGv1_1   -1 
+#
+#DATA_H:
+#RunHv2_0   -1 
+#RunHv2_1   -1 
+#RunHv3     -1 
 
 #JetHT_Run2016H-PromptReco-v3  -1
 #JetHT_Run2016H-PromptReco-v2_0  -1

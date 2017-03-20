@@ -267,7 +267,7 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   const bool isData(evtno > 0 ? true : false) ; 
 
   int signalType(-1);
-  if (filterSignal_) {
+  if ( !isData && filterSignal_ ) {
     if( (skim_ || maketree_ ) && signalType_.empty() ){ 
       if      (*h_evttype.product() == "EvtType_MC_bZbZ") signalType = 1; 
       else if (*h_evttype.product() == "EvtType_MC_bZbH") signalType = 2; 
@@ -870,7 +870,7 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
     os2ltree_.t_sjbtagsf_lUp = sjbtagsf_lUp;
     os2ltree_.t_sjbtagsf_lDown = sjbtagsf_lDown;
 
-    if ( evtno < 0) {
+    if ( !isData && filterSignal_ ) {
       vlq::GenParticleCollection vlqGen = genpart(evt) ;
       for(vlq::GenParticle p : vlqGen) { 
         os2ltree_.t_genPartPt        .push_back(p.getP4().Pt());

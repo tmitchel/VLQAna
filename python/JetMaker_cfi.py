@@ -47,6 +47,7 @@ defaultAK8CHSJetSelectionParameters = defaultAK4JetSelectionParameters.clone(
     jecAK8GroomedPayloadNames = cms.vstring(
       "Summer16_23Sep2016V4_MC_L2Relative_AK8PFchs.txt", 
       "Summer16_23Sep2016V4_MC_L3Absolute_AK8PFchs.txt"), 
+    SDMassCorrWt              = cms.string(""), 
     jecShift                  = cms.double(0), 
     jerShift                  = cms.int32(1), 
     jetPtMin                  = cms.double(200),
@@ -122,6 +123,7 @@ defaultAK8PuppiJetSelectionParameters = defaultAK4JetSelectionParameters.clone(
     jecAK8GroomedPayloadNames = cms.vstring(
       "Summer16_23Sep2016V4_MC_L2Relative_AK8PFPuppi.txt", 
       "Summer16_23Sep2016V4_MC_L3Absolute_AK8PFPuppi.txt"), 
+    SDMassCorrWt              = cms.string(""), 
     jecShift                  = cms.double(0), 
     jerShift                  = cms.int32(1), 
     jetPtMin                  = cms.double(200),

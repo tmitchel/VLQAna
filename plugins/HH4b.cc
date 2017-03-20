@@ -14,6 +14,7 @@
 #include "Analysis/VLQAna/interface/Utilities.h"
 #include "Analysis/VLQAna/interface/BTagSFUtils.h"
 #include <TH1D.h>
+#include <TH2D.h>
 #include <TTree.h>
 #include <TF1.h>
 #include <boost/math/special_functions/fpclassify.hpp>
@@ -50,6 +51,7 @@ class HH4b : public edm::EDFilter {
     const std::string  btageffFile_              ;
     edm::Service<TFileService> fs                ; 
     std::map<std::string, TH1D*> h1_             ; 
+    std::map<std::string, TH2D*> h2_             ; 
     hh4b::EventInfoBranches selectedevt; 
     hh4b::DiJetInfoBranches leadingdijets; 
     hh4b::JetInfoBranches ak8jets ; 
@@ -57,8 +59,8 @@ class HH4b : public edm::EDFilter {
     TTree* tree_ ; 
     const bool printEvtNo_;
 
-    std::unique_ptr<BTagSFUtils> btagsfutils_ ; 
-    std::unique_ptr<BTagSFUtils> doublebtagsfutils_ ; 
+    //std::unique_ptr<BTagSFUtils> btagsfutils_ ; 
+    //std::unique_ptr<BTagSFUtils> doublebtagsfutils_ ; 
 
     std::ofstream outfile0b_ ; 
     std::ofstream outfile4b_ ; 
@@ -94,9 +96,9 @@ HH4b::HH4b(const edm::ParameterSet& iConfig) :
   jetAK8maker           (iConfig.getParameter<edm::ParameterSet> ("jetAK8selParams"),consumesCollector()), 
   jetHTaggedmaker       (iConfig.getParameter<edm::ParameterSet> ("jetHTaggedselParams"),consumesCollector()),
   btageffFile_          (iConfig.getParameter<std::string>       ("btageffFile")), 
-  printEvtNo_           (iConfig.getParameter<bool>("printEvtNo")), 
-  btagsfutils_          (new BTagSFUtils()),
-  doublebtagsfutils_    (new BTagSFUtils())
+  printEvtNo_           (iConfig.getParameter<bool>("printEvtNo"))  
+  //btagsfutils_          (new BTagSFUtils()),
+  //doublebtagsfutils_    (new BTagSFUtils())
 {
 
 }
@@ -133,13 +135,14 @@ bool HH4b::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   vlq::JetCollection  goodAK8Jets ;  
   jetAK8maker(evt, goodAK8Jets); 
 
-  double cosThetaStar(goodAK8Jets.size()>= 2 ? abs(goodAK8Jets.at(0).getEta() -  goodAK8Jets.at(1).getEta()) : 999999) ; 
+  double aK8DEta(goodAK8Jets.size()>= 2 ? abs(goodAK8Jets.at(0).getEta() -  goodAK8Jets.at(1).getEta()) : 999999) ; 
   TLorentzVector p4null; p4null.SetPtEtaPhiE(0,0,0,0); 
   TLorentzVector p4_jet0 = goodAK8Jets.size()>=1 ? goodAK8Jets.at(0).getP4() : p4null ;
   TLorentzVector p4_jet1 = goodAK8Jets.size()>= 2 ? goodAK8Jets.at(1).getP4() : p4null ;
-  double invm(goodAK8Jets.size()>= 2 ? (p4_jet0 + p4_jet1).Mag() : -999999) ;
+  double mjj(goodAK8Jets.size()>= 2 ? (p4_jet0 + p4_jet1).Mag() : -999999) ;
   double mj_0(goodAK8Jets.size()>= 2 ? goodAK8Jets.at(0).getSoftDropMass() : -999999) ;
   double mj_1(goodAK8Jets.size()>= 2 ? goodAK8Jets.at(1).getSoftDropMass() : -999999) ;
+  double mjjred(goodAK8Jets.size()>= 2 ? mjj - mj_0 - mj_1 + 250. : -999999) ;
   double t21_0(goodAK8Jets.size()>= 2 ? 
       ( goodAK8Jets.at(0).getTau1() != 0 ? goodAK8Jets.at(0).getTau2() / goodAK8Jets.at(0).getTau1() : 999999) 
       : 999999 ) ; 
@@ -161,45 +164,46 @@ bool HH4b::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   if (doubleb1 > DoubleBT) doublebcat1 = doublebcat1 << 1;
   std::bitset<4>doublebcategory(doublebcat0 | doublebcat1);
 
+
   //// Event flags for cut flows
-  const bool hltNPV   (hltdecision && (npv > 0)) ; 
-  const bool ak8Pt    (goodAK8Jets.size()>= 2) ; 
-  const bool ak8eta   (goodAK8Jets.size()>= 2 && ( abs(goodAK8Jets.at(0).getEta()) <= 2.4 && abs(goodAK8Jets.at(1).getEta()) <= 2.4) ); 
-  const bool ak8DEta  (cosThetaStar < 1.3);
-  const bool ak8Mjj   (invm > 1000.);
-  const bool ak8Mj    ((mj_0 >= 105 && mj_0 <= 135) && (mj_1 >= 105 && mj_1 <= 135) ) ; 
-  const bool ak8t21   ((t21_0 < 0.75 && t21_1 < 0.75) && (t21_0 < 0.6 || t21_1 < 0.6)); 
-  const bool evt0b    (nsjBTagged == 0) ; 
-  const bool evt1b    (nsjBTagged == 1) ; 
-  const bool evt2b    (nsjBTagged == 2) ; 
-  const bool evt3b    (nsjBTagged == 3) ; 
-  const bool evt4b    (nsjBTagged == 4) ; 
-  const bool evt3bHPHP(nsjBTagged == 3 && (t21_0 < 0.6 && t21_1 < 0.6));
+  const bool isHltNPV   (hltdecision && (npv > 0)) ; 
+  const bool isAK8Pt    (goodAK8Jets.size()>= 2) ; 
+  const bool isAK8Eta   (goodAK8Jets.size()>= 2 && ( abs(goodAK8Jets.at(0).getEta()) <= 2.4 && abs(goodAK8Jets.at(1).getEta()) <= 2.4) ); 
+  const bool isAK8DEta  (aK8DEta < 1.3);
+  const bool isAK8Mjj   (mjjred > 1100.);
+  const bool isAK8Mj    ((mj_0 >= 105 && mj_0 <= 135) && (mj_1 >= 105 && mj_1 <= 135) ) ; 
+  const bool isAK8t21   ((t21_0 < 0.55 && t21_1 < 0.55)); 
+  const bool isEvt0b    (nsjBTagged == 0) ; 
+  const bool isEvt1b    (nsjBTagged == 1) ; 
+  const bool isEvt2b    (nsjBTagged == 2) ; 
+  const bool isEvt3b    (nsjBTagged == 3) ; 
+  const bool isEvt4b    (nsjBTagged == 4) ; 
+  const bool isEvt3bHPHP(nsjBTagged == 3 && (t21_0 < 0.55 && t21_1 < 0.55));
 
   //// Cut flow
   h1_["cutflow"] -> Fill(1) ; 
-  if ( hltNPV  ) h1_["cutflow"] -> Fill(2) ; 
-  if ( hltNPV && ak8Pt  ) h1_["cutflow"] -> Fill(3) ; 
-  if ( hltNPV && ak8Pt && ak8eta  ) h1_["cutflow"] -> Fill(4) ; 
-  if ( hltNPV && ak8Pt && ak8eta && ak8DEta ) h1_["cutflow"] -> Fill(5) ; 
-  if ( hltNPV && ak8Pt && ak8eta && ak8DEta && ak8Mjj  ) h1_["cutflow"] -> Fill(6) ;
-  if ( hltNPV && ak8Pt && ak8eta && ak8DEta && ak8Mjj && ak8Mj  ) h1_["cutflow"] -> Fill(7) ;
-  if ( hltNPV && ak8Pt && ak8eta && ak8DEta && ak8Mjj && ak8Mj && ak8t21  ) h1_["cutflow"] -> Fill(8) ;
-  if ( hltNPV && ak8Pt && ak8eta && ak8DEta && ak8Mjj && ak8Mj && ak8t21 && evt0b  ) h1_["cutflow"] -> Fill( 9) ;
-  if ( hltNPV && ak8Pt && ak8eta && ak8DEta && ak8Mjj && ak8Mj && ak8t21 && evt1b  ) h1_["cutflow"] -> Fill(10) ;
-  if ( hltNPV && ak8Pt && ak8eta && ak8DEta && ak8Mjj && ak8Mj && ak8t21 && evt2b  ) h1_["cutflow"] -> Fill(11) ;
-  if ( hltNPV && ak8Pt && ak8eta && ak8DEta && ak8Mjj && ak8Mj && ak8t21 && evt3b  ) h1_["cutflow"] -> Fill(12) ;
-  if ( hltNPV && ak8Pt && ak8eta && ak8DEta && ak8Mjj && ak8Mj && ak8t21 && evt4b  ) h1_["cutflow"] -> Fill(13) ;
-  if ( hltNPV && ak8Pt && ak8eta && ak8DEta && ak8Mjj && ak8Mj && ak8t21 && evt3bHPHP) h1_["cutflow"] -> Fill(14) ;
+  if ( isHltNPV  ) h1_["cutflow"] -> Fill(2) ; 
+  if ( isHltNPV && isAK8Pt  ) h1_["cutflow"] -> Fill(3) ; 
+  if ( isHltNPV && isAK8Pt && isAK8Eta  ) h1_["cutflow"] -> Fill(4) ; 
+  if ( isHltNPV && isAK8Pt && isAK8Eta && isAK8DEta ) h1_["cutflow"] -> Fill(5) ; 
+  if ( isHltNPV && isAK8Pt && isAK8Eta && isAK8DEta && isAK8Mjj  ) h1_["cutflow"] -> Fill(6) ;
+  if ( isHltNPV && isAK8Pt && isAK8Eta && isAK8DEta && isAK8Mjj && isAK8Mj  ) h1_["cutflow"] -> Fill(7) ;
+  if ( isHltNPV && isAK8Pt && isAK8Eta && isAK8DEta && isAK8Mjj && isAK8Mj && isAK8t21  ) h1_["cutflow"] -> Fill(8) ;
+  if ( isHltNPV && isAK8Pt && isAK8Eta && isAK8DEta && isAK8Mjj && isAK8Mj && isAK8t21 && isEvt0b  ) h1_["cutflow"] -> Fill( 9) ;
+  if ( isHltNPV && isAK8Pt && isAK8Eta && isAK8DEta && isAK8Mjj && isAK8Mj && isAK8t21 && isEvt1b  ) h1_["cutflow"] -> Fill(10) ;
+  if ( isHltNPV && isAK8Pt && isAK8Eta && isAK8DEta && isAK8Mjj && isAK8Mj && isAK8t21 && isEvt2b  ) h1_["cutflow"] -> Fill(11) ;
+  if ( isHltNPV && isAK8Pt && isAK8Eta && isAK8DEta && isAK8Mjj && isAK8Mj && isAK8t21 && isEvt3b  ) h1_["cutflow"] -> Fill(12) ;
+  if ( isHltNPV && isAK8Pt && isAK8Eta && isAK8DEta && isAK8Mjj && isAK8Mj && isAK8t21 && isEvt4b  ) h1_["cutflow"] -> Fill(13) ;
+  if ( isHltNPV && isAK8Pt && isAK8Eta && isAK8DEta && isAK8Mjj && isAK8Mj && isAK8t21 && isEvt3bHPHP) h1_["cutflow"] -> Fill(14) ;
 
-  if ( printEvtNo_ && hltNPV && ak8Pt && ak8eta && ak8DEta && ak8Mjj && ak8Mj && ak8t21 && evt0b  ) {
+  if ( printEvtNo_ && isHltNPV && isAK8Pt && isAK8Eta && isAK8DEta && isAK8Mjj && isAK8Mj && isAK8t21 && isEvt0b  ) {
     outfile0b_ << runno << " " << lumisec << " " << evtno << " " 
       << goodAK8Jets.at(0).getCSVSubjet0() << " " << goodAK8Jets.at(0).getCSVSubjet1() << " " 
       << goodAK8Jets.at(1).getCSVSubjet0() << " " << goodAK8Jets.at(1).getCSVSubjet1() << " " 
       << std::endl ; 
   }
 
-  if ( printEvtNo_ && hltNPV && ak8Pt && ak8eta && ak8DEta && ak8Mjj && ak8Mj && ak8t21 && evt4b  ) {
+  if ( printEvtNo_ && isHltNPV && isAK8Pt && isAK8Eta && isAK8DEta && isAK8Mjj && isAK8Mj && isAK8t21 && isEvt4b  ) {
     outfile4b_ << runno << " " << lumisec << " " << evtno << " " 
       << goodAK8Jets.at(0).getCSVSubjet0() << " " << goodAK8Jets.at(0).getCSVSubjet1() << " " 
       << goodAK8Jets.at(1).getCSVSubjet0() << " " << goodAK8Jets.at(1).getCSVSubjet1() << " " 
@@ -272,14 +276,23 @@ bool HH4b::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   //>>} //// Loop over all AK8 jets
 
   //// Event selection
-  if ( !hltNPV || !ak8Pt ) return false; 
-
-  h1_["npv"] -> Fill(*h_npv.product()); 
+  if ( !isHltNPV || !isAK8Pt ) return false; 
 
   //>>leadingdijets.doublebcategory_ = int(doublebcategory.to_ulong()) ; 
 
   //// For trigger turn on
-  if ( ak8Pt && ak8eta && ak8DEta && (goodAK8Jets.at(0).getMass() > 50. || goodAK8Jets.at(1).getMass() > 50.)) h1_["mjj"] -> Fill(invm) ;
+  if ( isAK8Pt && isAK8Eta && isAK8DEta && (goodAK8Jets.at(0).getMass() > 50. || goodAK8Jets.at(1).getMass() > 50.)) {
+    h1_["npv"] -> Fill(*h_npv.product()); 
+    h1_["mjj"] -> Fill(mjj) ;
+    h1_["mjjred"] -> Fill(mjjred) ;
+    h2_["mjjred_deta"] -> Fill(mjjred, aK8DEta) ;
+  }
+  if ( isHltNPV && isAK8Pt && isAK8Eta && isAK8DEta && isAK8Mj  ) {
+    h1_["npv_MJSel"] -> Fill(*h_npv.product()); 
+    h1_["mjj_MJSel"] -> Fill(mjj) ;
+    h1_["mjjred_MJSel"] -> Fill(mjjred) ;
+    h2_["mjjred_deta_MJSel"] -> Fill(mjjred, aK8DEta) ;
+  }
 
   //// Leading 2 jets pass Higgs tagging
   //>>if ( !passHiggsTagging(goodAK8Jets.at(0)) || !passHiggsTagging(goodAK8Jets.at(1)) ) return false ;
@@ -298,7 +311,7 @@ bool HH4b::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   //>>TLorentzVector p4_hjet1 = goodHTaggedJets.at(1).getP4() ; 
   //>>TLorentzVector p4_leading2hjets = p4_hjet0+p4_hjet1 ;
 
-  //>>leadingdijets.deta_leading2hjets_ = cosThetaStar ; 
+  //>>leadingdijets.deta_leading2hjets_ = aK8DEta ; 
   //>>leadingdijets.minv_leading2hjets_ = p4_leading2hjets.Mag();
   //>>leadingdijets.minv_leading2hjets_subtr_ = p4_leading2hjets.Mag() 
   //>>  - (goodHTaggedJets.at(0).getMass() - 125.) 
@@ -446,6 +459,13 @@ void HH4b::beginJob() {
   h1_["npv"] = fs->make<TH1D>("npv", ";N(PV);;", 51, -0.5, 50.5) ; 
   h1_["mjj"] = fs->make<TH1D>("mjj", ";M(jj) [GeV];;", 300, 0., 3000.) ; 
   h1_["mjjred"] = fs->make<TH1D>("mjjred", ";M_{red}(jj) [GeV];;", 300, 0., 3000.) ; 
+  h2_["mjjred_deta"] = fs->make<TH2D>("mjjred_deta", ";M_{red}(jj) [GeV]; #Delta#eta(jj);", 300, 0., 3000., 3, 0., 1.302) ; 
+
+  h1_["npv_MJSel"] = fs->make<TH1D>("npv_MJSel", ";N(PV);;", 51, -0.5, 50.5) ; 
+  h1_["mjj_MJSel"] = fs->make<TH1D>("mjj_MJSel", ";M(jj) [GeV];;", 300, 0., 3000.) ; 
+  h1_["mjjred_MJSel"] = fs->make<TH1D>("mjjred_MJSel", ";M_{red}(jj) [GeV];;", 300, 0., 3000.) ; 
+  h2_["mjjred_deta_MJSel"] = fs->make<TH2D>("mjjred_deta_MJSel", ";M_{red}(jj) [GeV]; #Delta#eta(jj);", 300, 0., 3000., 3, 0., 1.302) ; 
+
   tree_ = fs->make<TTree>("tree", "HH4b") ; 
   selectedevt.RegisterTree(tree_,"SelectedEvent") ; 
   leadingdijets.RegisterTree(tree_,"LeadingDiJets") ;

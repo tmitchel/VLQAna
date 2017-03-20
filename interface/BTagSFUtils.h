@@ -89,7 +89,7 @@ class BTagSFUtils {
   }
 
     BTagSFUtils () : 
-      calib_          (new BTagCalibration("CSVv2","subjet_CSVv2_ichep.csv")), 
+      calib_          (new BTagCalibration("CSVv2","subjet_CSVv2_Moriond17_B_H.csv")), 
       reader_         (new BTagCalibrationReader(BTagEntry::OP_LOOSE,"central")), 
       readerUp_       (new BTagCalibrationReader(BTagEntry::OP_LOOSE,"up")), 
       readerDown_     (new BTagCalibrationReader(BTagEntry::OP_LOOSE,"down")),
