@@ -25,6 +25,7 @@
 #include <TFile.h>
 #include <TF1.h>
 #include <TH1D.h>
+#include <TH2D.h>
 #include <TLorentzVector.h>
 
 using namespace std;
@@ -50,8 +51,22 @@ private:
   edm::EDGetTokenT<vector<vlq::Jet> >  zjets_t;
   edm::EDGetTokenT<vector<vlq::Jet> >  hjets_t;
   edm::EDGetTokenT<vector<vlq::Candidate> > zllcands_t;
-  edm::EDGetTokenT<double>             evtwt_t;
   edm::EDGetTokenT<double>             st_t;
+  edm::EDGetTokenT<double>             evtwt_t;
+  edm::EDGetTokenT<double>             bcUp_t;
+  edm::EDGetTokenT<double>             bcDown_t;
+  edm::EDGetTokenT<double>             lUp_t;
+  edm::EDGetTokenT<double>             lDown_t;
+  edm::EDGetTokenT<double>             sbcUp_t;
+  edm::EDGetTokenT<double>             sbcDown_t;
+  edm::EDGetTokenT<double>             slUp_t;
+  edm::EDGetTokenT<double>             slDown_t;
+  edm::EDGetTokenT<double>             puUp_t;
+  edm::EDGetTokenT<double>             puDown_t;
+  edm::EDGetTokenT<double>             JECup_t;
+  edm::EDGetTokenT<double>             JECdown_t;
+  edm::EDGetTokenT<double>             JERup_t;
+  edm::EDGetTokenT<double>             JERdown_t;
 
   const double ptMin_;
 	const double STMaxControl_;
@@ -60,10 +75,27 @@ private:
   const string signalType_;
 	const bool optimizeReco_;
 	const bool controlReco_;
+  const bool doSkim_;
+  const bool btagbcSFup_;
+  const bool btagbcSFdown_;
+  const bool btaglSFup_;
+  const bool btaglSFdown_;
+  const bool sbtagbcSFup_;
+  const bool sbtagbcSFdown_;
+  const bool sbtaglSFup_;
+  const bool sbtaglSFdown_;
+  const bool pileupUp_;
+  const bool pileupDown_;
+  const bool JECup_;
+  const bool JECdown_;
+  const bool JERup_;
+  const bool JERdown_;
+
 	PickGenPart genpart ;
 
   edm::Service<TFileService> fs;
   map<string, TH1D*> h1_;
+  map<string, TH2D*> h2_;
 
 };
 
@@ -74,8 +106,22 @@ MassReco::MassReco(const edm::ParameterSet& iConfig) :
   zjets_t       (consumes<vector<vlq::Jet> > (iConfig.getParameter<edm::InputTag>("zjets"))),
   hjets_t       (consumes<vector<vlq::Jet> > (iConfig.getParameter<edm::InputTag>("hjets"))),
   zllcands_t    (consumes<vector<vlq::Candidate> > (iConfig.getParameter<edm::InputTag>("zllcands"))),
-  evtwt_t       (consumes<double>           (iConfig.getParameter<edm::InputTag>("evtwt"))),
   st_t          (consumes<double>           (iConfig.getParameter<edm::InputTag>("st"))),
+  evtwt_t       (consumes<double>           (iConfig.getParameter<edm::InputTag>("evtwt"))),
+  bcUp_t        (consumes<double>           (iConfig.getParameter<edm::InputTag>("bcUp"))),
+  bcDown_t      (consumes<double>           (iConfig.getParameter<edm::InputTag>("bcDown"))),
+  lUp_t         (consumes<double>           (iConfig.getParameter<edm::InputTag>("lUp"))),
+  lDown_t       (consumes<double>           (iConfig.getParameter<edm::InputTag>("lDown"))),
+  sbcUp_t       (consumes<double>           (iConfig.getParameter<edm::InputTag>("sbcUp"))),
+  sbcDown_t     (consumes<double>           (iConfig.getParameter<edm::InputTag>("sbcDown"))),
+  slUp_t        (consumes<double>           (iConfig.getParameter<edm::InputTag>("slUp"))),
+  slDown_t      (consumes<double>           (iConfig.getParameter<edm::InputTag>("slDown"))),
+  puUp_t        (consumes<double>           (iConfig.getParameter<edm::InputTag>("puUp"))),
+  puDown_t      (consumes<double>           (iConfig.getParameter<edm::InputTag>("puDown"))),
+  JECup_t       (consumes<double>           (iConfig.getParameter<edm::InputTag>("JERUp"))),
+  JECdown_t     (consumes<double>           (iConfig.getParameter<edm::InputTag>("JECDown"))),
+  JERup_t       (consumes<double>           (iConfig.getParameter<edm::InputTag>("JERUp"))),
+  JERdown_t     (consumes<double>           (iConfig.getParameter<edm::InputTag>("JERDown"))),
  
   ptMin_     (iConfig.getParameter<double> ("ptMin")),
 	STMaxControl_ (iConfig.getParameter<double> ("STMaxControl")),
@@ -84,7 +130,24 @@ MassReco::MassReco(const edm::ParameterSet& iConfig) :
   signalType_ (iConfig.getParameter<string> ("signalType")),
 	optimizeReco_ (iConfig.getParameter<bool> ("optimizeReco")),
 	controlReco_  (iConfig.getParameter<bool> ("controlReco")),
+  doSkim_       (iConfig.getParameter<bool> ("doSkim")),
+  btagbcSFup_   (iConfig.getParameter<bool> ("btagbcSFup")),
+  btagbcSFdown_ (iConfig.getParameter<bool> ("btagbcSFdown")),
+  btaglSFup_    (iConfig.getParameter<bool> ("btaglSFup")),
+  btaglSFdown_  (iConfig.getParameter<bool> ("btaglSFdown")),
+  sbtagbcSFup_  (iConfig.getParameter<bool> ("sbtagbcSFup")),
+  sbtagbcSFdown_(iConfig.getParameter<bool> ("sbtagbcSFdown")),
+  sbtaglSFup_   (iConfig.getParameter<bool> ("sbtaglSFup")),
+  sbtaglSFdown_ (iConfig.getParameter<bool> ("sbtaglSFdown")),
+  pileupUp_     (iConfig.getParameter<bool> ("pileupUp")),
+  pileupDown_   (iConfig.getParameter<bool> ("pileupDown")),
+  JECup_        (iConfig.getParameter<bool> ("JECup")),
+  JECdown_      (iConfig.getParameter<bool> ("JECdown")),
+  JERup_        (iConfig.getParameter<bool> ("JERup")),
+  JERdown_      (iConfig.getParameter<bool> ("JERdown")),
+
 	genpart    (iConfig.getParameter<edm::ParameterSet>("genParams"),consumesCollector())
+
 {}
 
 MassReco::~MassReco() {}
@@ -93,15 +156,33 @@ bool MassReco::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
 
   //TLorentzVector leptons = (lepP4.at(0) + lepP4.at(1));
   //  cout << lepP4.at(0).E() << " " << lepP4.at(1).E() << endl;
+
 	
-	edm::Handle<vector<vlq::Candidate> > zllcands_h; evt.getByToken(zllcands_t, zllcands_h);
+  edm::Handle<vector<vlq::Candidate> > zllcands_h; evt.getByToken(zllcands_t, zllcands_h);
 	edm::Handle<vector<vlq::Jet> > ak8_h      ; evt.getByToken(ak8_t,  ak8_h)     ;
 	edm::Handle<vector<vlq::Jet> > ak4_h      ; evt.getByToken(ak4_t,  ak4_h)     ;
   edm::Handle<vector<vlq::Jet> > bjets_h    ; evt.getByToken(bjets_t,  bjets_h) ;
   edm::Handle<vector<vlq::Jet> > zjets_h    ; evt.getByToken(zjets_t,  zjets_h) ;
   edm::Handle<vector<vlq::Jet> > hjets_h    ; evt.getByToken(hjets_t,  hjets_h) ;
-  edm::Handle<double>              evtwt_h  ; evt.getByToken(evtwt_t,  evtwt_h) ;
-  edm::Handle<double>              st_h     ; evt.getByToken(st_t,     st_h)    ;
+//  edm::Handle<double>              evtwt_h  ; evt.getByToken(evtwt_t,  evtwt_h) ;
+  edm::Handle<double>            st_h       ; evt.getByToken(st_t,     st_h)    ;
+  edm::Handle<double>            evtwt_h    ;
+  if (btagbcSFup_)         evt.getByToken(bcUp_t,   evtwt_h);
+  else if (btagbcSFdown_)  evt.getByToken(bcDown_t, evtwt_h);
+  else if (btaglSFup_)     evt.getByToken(lUp_t,    evtwt_h);
+  else if (btaglSFdown_)   evt.getByToken(lDown_t,  evtwt_h);
+  else if (sbtagbcSFup_)   evt.getByToken(sbcUp_t,  evtwt_h);
+  else if (sbtagbcSFdown_) evt.getByToken(sbcDown_t,evtwt_h);
+  else if (sbtaglSFup_)    evt.getByToken(slUp_t,   evtwt_h);
+  else if (sbtaglSFdown_)  evt.getByToken(slDown_t, evtwt_h);
+  else if (pileupUp_)      evt.getByToken(puUp_t,   evtwt_h);
+  else if (pileupDown_)    evt.getByToken(puDown_t, evtwt_h);
+  else if (JECup_)         evt.getByToken(JECup_t,  evtwt_h);
+  else if (JECdown_)       evt.getByToken(JECdown_t,evtwt_h);
+  else if (JERup_)         evt.getByToken(JERup_t,  evtwt_h);
+  else if (JERdown_)       evt.getByToken(JERdown_t,evtwt_h);
+  else                     evt.getByToken(evtwt_t,  evtwt_h);
+
 	TLorentzVector zllcand = (*zllcands_h.product()).at(0).getP4();
 	double evtwt = *evtwt_h.product();
 	double ST = *st_h.product();
@@ -114,7 +195,7 @@ bool MassReco::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
 	bool doZ = (signalType_ == "EvtType_MC_bZbZ" || signalType_ == "");
   bool doH = (signalType_ == "EvtType_MC_bZbH" || signalType_ == "");
 
-	double chiCut_ = 20;
+	double chiCut_ = 1000;
 
 	for (auto& jet : ak8s){
 		h1_["ak8subjetiness"]->Fill(jet.getTau2()/jet.getTau1(), evtwt);
@@ -172,52 +253,64 @@ bool MassReco::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
 
   	if (resReco_bZ.second > 0 && resReco_bZ.first < chiCut_){
     	h1_["resReco_bZ"]->Fill(resReco_bZ.second, evtwt);
+      h2_["resbZ_2d"]->Fill(resReco_bZ.first, resReco_bZ.second);
     	h1_["resST_bZ"]->Fill(ST, evtwt);
   	} 
   	if (resReco_bH.second > 0 && resReco_bH.first < chiCut_){ 
     	h1_["resReco_bH"]->Fill(resReco_bH.second, evtwt);
+      h2_["resbH_2d"]->Fill(resReco_bH.first, resReco_bH.second);
     	h1_["resST_bZ"]->Fill(ST, evtwt);
   	}
   	if (boostReco_bZ.second > 0 && boostReco_bZ.first < chiCut_){
     	h1_["boostReco_bZ"]->Fill(boostReco_bZ.second, evtwt);
-    	h1_["boostST_bZ"]->Fill(ST, evtwt);
+    	h2_["boostbZ_2d"]->Fill(boostReco_bZ.first, boostReco_bZ.second);
+      h1_["boostST_bZ"]->Fill(ST, evtwt);
   	}
   	if (boostReco_bH.second > 0 && boostReco_bH.first < chiCut_){
     	h1_["boostReco_bH"]->Fill(boostReco_bH.second, evtwt);
-    	h1_["boostST_bH"]->Fill(ST, evtwt);
+    	h2_["boostbH_2d"]->Fill(boostReco_bH.first, boostReco_bH.second);
+      h1_["boostST_bH"]->Fill(ST, evtwt);
   	}
   	if (mergeReco_bZ.second > 0 && mergeReco_bZ.first < chiCut_){ 
     	h1_["mergeReco_bZ"]->Fill(mergeReco_bZ.second, evtwt);
-    	h1_["mergeST_bZ"]->Fill(ST, evtwt);
+    	h2_["mergebZ_2d"]->Fill(mergeReco_bZ.first, mergeReco_bZ.second);
+      h1_["mergeST_bZ"]->Fill(ST, evtwt);
   	}
   	if (mergeReco_bH.second > 0 && mergeReco_bH.first < chiCut_){ 
     	h1_["mergeReco_bH"]->Fill(mergeReco_bH.second, evtwt);
-    	h1_["mergeST_bH"]->Fill(ST, evtwt);
+    	h2_["mergebH_2d"]->Fill(mergeReco_bH.first, mergeReco_bH.second);
+      h1_["mergeST_bH"]->Fill(ST, evtwt);
   	}
 
   	if (resReco_bZ.first < boostReco_bZ.first && resReco_bZ.first < mergeReco_bZ.first && resReco_bZ.first < chiCut_){
     	h1_["comboReco_bZ"]->Fill(resReco_bZ.second, evtwt);
+      h2_["combobZ_2d"]->Fill(resReco_bZ.first, resReco_bZ.second);
     	h1_["comboST_bZ"]->Fill(ST, evtwt);
   	}
   	else if (boostReco_bZ.first < resReco_bZ.first && boostReco_bZ.first < mergeReco_bZ.first && boostReco_bZ.first < chiCut_){
     	h1_["comboReco_bZ"]->Fill(boostReco_bZ.second, evtwt);
+      h2_["combobZ_2d"]->Fill(boostReco_bZ.first, boostReco_bZ.second);
     	h1_["comboST_bZ"]->Fill(ST, evtwt);
   	}
   	else if (mergeReco_bZ.first < resReco_bZ.first && mergeReco_bZ.first < boostReco_bZ.first && mergeReco_bZ.first < chiCut_){
     	h1_["comboReco_bZ"]->Fill(mergeReco_bZ.second, evtwt);
+      h2_["combobZ_2d"]->Fill(mergeReco_bZ.first, mergeReco_bZ.second);
     	h1_["comboST_bZ"]->Fill(ST, evtwt);
   	}
 
   	if (resReco_bH.first < boostReco_bH.first && resReco_bH.first < mergeReco_bH.first && resReco_bH.first < chiCut_){
     	h1_["comboReco_bH"]->Fill(resReco_bH.second, evtwt);
+      h2_["combobH_2d"]->Fill(resReco_bH.first, resReco_bH.second);
     	h1_["comboST_bH"]->Fill(ST, evtwt);
   	}
   	else if (boostReco_bH.first < resReco_bH.first && boostReco_bH.first < mergeReco_bH.first && boostReco_bH.first < chiCut_){
     	h1_["comboReco_bH"]->Fill(boostReco_bH.second, evtwt);
+      h2_["combobH_2d"]->Fill(boostReco_bH.first, boostReco_bH.second);
     	h1_["comboST_bH"]->Fill(ST, evtwt);
   	}
   	else if (mergeReco_bH.first < resReco_bH.first && mergeReco_bH.first < boostReco_bH.first && mergeReco_bH.first < chiCut_){
     	h1_["comboReco_bH"]->Fill(mergeReco_bH.second, evtwt);
+      h2_["combobH_2d"]->Fill(mergeReco_bH.first, mergeReco_bH.second);
     	h1_["comboST_bH"]->Fill(ST, evtwt);
   	}
 
@@ -437,6 +530,15 @@ void MassReco::beginJob(){
   h1_["mergeST_bH"] = fs->make<TH1D>("mergeST_bH", "Merged ST B->bH", 1000, 0., 3000);
   h1_["comboST_bZ"] = fs->make<TH1D>("comboST_bZ", "Combo ST B->bZ", 1000, 0., 3000);
   h1_["comboST_bH"] = fs->make<TH1D>("comboST_bH", "Combo ST B->bH", 1000, 0., 3000);
+
+  h2_["resbZ_2d"] = fs->make<TH2D>("resbZ_d2", ";M_{#chi^{2}}(B) vs Min(#chi^{2});;", 100, 0., 50., 400, 0, 2000);
+  h2_["mergebZ_2d"] = fs->make<TH2D>("mergebZ_d2", ";M_{#chi^{2}}(B) vs Min(#chi^{2});;", 100, 0., 50., 400, 0, 2000);
+  h2_["boostbZ_2d"] = fs->make<TH2D>("boostbZ_d2", ";M_{#chi^{2}}(B) vs Min(#chi^{2});;", 100, 0., 50., 400, 0, 2000);
+  h2_["combobZ_2d"] = fs->make<TH2D>("combobZ_d2", ";M_{#chi^{2}}(B) vs Min(#chi^{2});;", 100, 0., 50., 400, 0, 2000);
+  h2_["resbH_2d"] = fs->make<TH2D>("resbH_d2", ";M_{#chi^{2}}(B) vs Min(#chi^{2});;", 100, 0., 50., 400, 0, 2000);
+  h2_["mergebH_2d"] = fs->make<TH2D>("mergebH_d2", ";M_{#chi^{2}}(B) vs Min(#chi^{2});;", 100, 0., 50., 400, 0, 2000);
+  h2_["boostbH_2d"] = fs->make<TH2D>("boostbH_d2", ";M_{#chi^{2}}(B) vs Min(#chi^{2});;", 100, 0., 50., 400, 0, 2000);
+  h2_["combobH_2d"] = fs->make<TH2D>("combobH_d2", ";M_{#chi^{2}}(B) vs Min(#chi^{2});;", 100, 0., 50., 400, 0, 2000);
 
   h1_["ST"] = fs->make<TH1D>("ST", "Sum Pt", 1000, 0., 8000.);
 

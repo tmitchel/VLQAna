@@ -103,6 +103,10 @@ class OS2LAna : public edm::EDFilter {
     const bool btagsf_bcDown_                    ;
     const bool btagsf_lUp_                       ;
     const bool btagsf_lDown_                     ;
+    const bool sbtagsf_bcUp_                     ;
+    const bool sbtagsf_bcDown_                   ;
+    const bool sbtagsf_lUp_                      ;
+    const bool sbtagsf_lDown_                    ;
     const bool PileupUp_                         ;
     const bool PileupDown_                       ;   
     const bool applyLeptonIDSFs_                 ;
@@ -194,6 +198,10 @@ OS2LAna::OS2LAna(const edm::ParameterSet& iConfig) :
   btagsf_bcDown_          (iConfig.getParameter<bool>              ("btagsf_bcDown")),
   btagsf_lUp_             (iConfig.getParameter<bool>              ("btagsf_lUp")),
   btagsf_lDown_           (iConfig.getParameter<bool>              ("btagsf_lDown")),
+  sbtagsf_bcUp_           (iConfig.getParameter<bool>              ("sbtagsf_bcUp")),
+  sbtagsf_bcDown_         (iConfig.getParameter<bool>              ("sbtagsf_bcDown")),
+  sbtagsf_lUp_            (iConfig.getParameter<bool>              ("sbtagsf_lUp")),
+  sbtagsf_lDown_          (iConfig.getParameter<bool>              ("sbtagsf_lDown")),
   PileupUp_               (iConfig.getParameter<bool>              ("PileupUp")),
   PileupDown_             (iConfig.getParameter<bool>              ("PileupDown")),
   applyLeptonIDSFs_       (iConfig.getParameter<bool>              ("applyLeptonIDSFs")), 
@@ -488,6 +496,17 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
     }
 
     sjbtagsfutils_->getBTagSFs (csvs, pts, etas, flhads, jetHTaggedmaker.idxsjCSVMin_, sjbtagsf, sjbtagsf_bcUp, sjbtagsf_bcDown, sjbtagsf_lUp, sjbtagsf_lDown) ;
+
+    if (sbtagsf_bcUp_)
+      evtwt *= sjbtagsf_bcUp;
+    else if (sbtagsf_bcDown_)
+      evtwt *= sjbtagsf_bcDown;
+    else  if (sbtagsf_lUp_)
+      evtwt *= sjbtagsf_lUp;
+    else if (sbtagsf_lDown_)
+      evtwt *= sjbtagsf_lDown;
+    else
+      evtwt *= sjbtagsf;
 
   }
 

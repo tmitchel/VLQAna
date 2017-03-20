@@ -8,7 +8,7 @@ options.register('isData', False,
     VarParsing.varType.bool,
     "Is data?"
     )
-options.register('skim', True,
+options.register('skim', False,
     VarParsing.multiplicity.singleton,
     VarParsing.varType.bool,
     "Skim events?"
@@ -83,17 +83,17 @@ options.register('FileNames', 'FileNames_DY',
     VarParsing.varType.string,
     "Name of list of input files"
     )
-options.register('massReco', False,
+options.register('massReco', True,
     VarParsing.multiplicity.singleton,
     VarParsing.varType.bool,
     "Optimize mass reconstruction"
     )
-options.register('controlReco', False,
+options.register('controlReco', True,
     VarParsing.multiplicity.singleton,
     VarParsing.varType.bool,
     "reco in control region"
 )
-options.register('syst', False,
+options.register('syst', True,
     VarParsing.multiplicity.singleton,
     VarParsing.varType.bool,
     "Do systematics"
@@ -148,27 +148,27 @@ from inputFiles_cfi import *
 process.source = cms.Source(
   "PoolSource",
   fileNames = cms.untracked.vstring(
-'root://eoscms.cern.ch//store/group/phys_b2g/B2GAnaFW_80X_V2p4/SingleMuon/Run2016C-23Sep2016-v1_B2GAnaFW_80X_v2p4/161221_155142//0000/B2GEDMNtuple_1.root',
-'root://eoscms.cern.ch//store/group/phys_b2g/B2GAnaFW_80X_V2p4/SingleMuon/Run2016C-23Sep2016-v1_B2GAnaFW_80X_v2p4/161221_155142//0000/B2GEDMNtuple_2.root',
-'root://eoscms.cern.ch//store/group/phys_b2g/B2GAnaFW_80X_V2p4/SingleMuon/Run2016C-23Sep2016-v1_B2GAnaFW_80X_v2p4/161221_155142//0000/B2GEDMNtuple_3.root',
-'root://eoscms.cern.ch//store/group/phys_b2g/B2GAnaFW_80X_V2p4/SingleMuon/Run2016C-23Sep2016-v1_B2GAnaFW_80X_v2p4/161221_155142//0000/B2GEDMNtuple_4.root',
-'root://eoscms.cern.ch//store/group/phys_b2g/B2GAnaFW_80X_V2p4/SingleMuon/Run2016C-23Sep2016-v1_B2GAnaFW_80X_v2p4/161221_155142//0000/B2GEDMNtuple_5.root',
-'root://eoscms.cern.ch//store/group/phys_b2g/B2GAnaFW_80X_V2p4/SingleMuon/Run2016C-23Sep2016-v1_B2GAnaFW_80X_v2p4/161221_155142//0000/B2GEDMNtuple_6.root',
-'root://eoscms.cern.ch//store/group/phys_b2g/B2GAnaFW_80X_V2p4/SingleMuon/Run2016C-23Sep2016-v1_B2GAnaFW_80X_v2p4/161221_155142//0000/B2GEDMNtuple_7.root',
-'root://eoscms.cern.ch//store/group/phys_b2g/B2GAnaFW_80X_V2p4/SingleMuon/Run2016C-23Sep2016-v1_B2GAnaFW_80X_v2p4/161221_155142//0000/B2GEDMNtuple_8.root',
-'root://eoscms.cern.ch//store/group/phys_b2g/B2GAnaFW_80X_V2p4/SingleMuon/Run2016C-23Sep2016-v1_B2GAnaFW_80X_v2p4/161221_155142//0000/B2GEDMNtuple_9.root',
-'root://eoscms.cern.ch//store/group/phys_b2g/B2GAnaFW_80X_V2p4/SingleMuon/Run2016C-23Sep2016-v1_B2GAnaFW_80X_v2p4/161221_155142//0000/B2GEDMNtuple_10.root',
-'root://eoscms.cern.ch//store/group/phys_b2g/B2GAnaFW_80X_V2p4/SingleMuon/Run2016C-23Sep2016-v1_B2GAnaFW_80X_v2p4/161221_155142//0000/B2GEDMNtuple_11.root',
-'root://eoscms.cern.ch//store/group/phys_b2g/B2GAnaFW_80X_V2p4/SingleMuon/Run2016C-23Sep2016-v1_B2GAnaFW_80X_v2p4/161221_155142//0000/B2GEDMNtuple_12.root',
-'root://eoscms.cern.ch//store/group/phys_b2g/B2GAnaFW_80X_V2p4/SingleMuon/Run2016C-23Sep2016-v1_B2GAnaFW_80X_v2p4/161221_155142//0000/B2GEDMNtuple_13.root',
-'root://eoscms.cern.ch//store/group/phys_b2g/B2GAnaFW_80X_V2p4/SingleMuon/Run2016C-23Sep2016-v1_B2GAnaFW_80X_v2p4/161221_155142//0000/B2GEDMNtuple_14.root',
-'root://eoscms.cern.ch//store/group/phys_b2g/B2GAnaFW_80X_V2p4/SingleMuon/Run2016C-23Sep2016-v1_B2GAnaFW_80X_v2p4/161221_155142//0000/B2GEDMNtuple_15.root',
-'root://eoscms.cern.ch//store/group/phys_b2g/B2GAnaFW_80X_V2p4/SingleMuon/Run2016C-23Sep2016-v1_B2GAnaFW_80X_v2p4/161221_155142//0000/B2GEDMNtuple_16.root',
-'root://eoscms.cern.ch//store/group/phys_b2g/B2GAnaFW_80X_V2p4/SingleMuon/Run2016C-23Sep2016-v1_B2GAnaFW_80X_v2p4/161221_155142//0000/B2GEDMNtuple_17.root',
-'root://eoscms.cern.ch//store/group/phys_b2g/B2GAnaFW_80X_V2p4/SingleMuon/Run2016C-23Sep2016-v1_B2GAnaFW_80X_v2p4/161221_155142//0000/B2GEDMNtuple_18.root',
-'root://eoscms.cern.ch//store/group/phys_b2g/B2GAnaFW_80X_V2p4/SingleMuon/Run2016C-23Sep2016-v1_B2GAnaFW_80X_v2p4/161221_155142//0000/B2GEDMNtuple_19.root',
-'root://eoscms.cern.ch//store/group/phys_b2g/B2GAnaFW_80X_V2p4/SingleMuon/Run2016C-23Sep2016-v1_B2GAnaFW_80X_v2p4/161221_155142//0000/B2GEDMNtuple_20.root'
-#	FileNames[options.FileNames]
+#'root://eoscms.cern.ch//store/group/phys_b2g/B2GAnaFW_80X_V2p4/SingleMuon/Run2016C-23Sep2016-v1_B2GAnaFW_80X_v2p4/161221_155142//0000/B2GEDMNtuple_1.root',
+#'root://eoscms.cern.ch//store/group/phys_b2g/B2GAnaFW_80X_V2p4/SingleMuon/Run2016C-23Sep2016-v1_B2GAnaFW_80X_v2p4/161221_155142//0000/B2GEDMNtuple_2.root',
+#'root://eoscms.cern.ch//store/group/phys_b2g/B2GAnaFW_80X_V2p4/SingleMuon/Run2016C-23Sep2016-v1_B2GAnaFW_80X_v2p4/161221_155142//0000/B2GEDMNtuple_3.root',
+#'root://eoscms.cern.ch//store/group/phys_b2g/B2GAnaFW_80X_V2p4/SingleMuon/Run2016C-23Sep2016-v1_B2GAnaFW_80X_v2p4/161221_155142//0000/B2GEDMNtuple_4.root',
+#'root://eoscms.cern.ch//store/group/phys_b2g/B2GAnaFW_80X_V2p4/SingleMuon/Run2016C-23Sep2016-v1_B2GAnaFW_80X_v2p4/161221_155142//0000/B2GEDMNtuple_5.root',
+#'root://eoscms.cern.ch//store/group/phys_b2g/B2GAnaFW_80X_V2p4/SingleMuon/Run2016C-23Sep2016-v1_B2GAnaFW_80X_v2p4/161221_155142//0000/B2GEDMNtuple_6.root',
+#'root://eoscms.cern.ch//store/group/phys_b2g/B2GAnaFW_80X_V2p4/SingleMuon/Run2016C-23Sep2016-v1_B2GAnaFW_80X_v2p4/161221_155142//0000/B2GEDMNtuple_7.root',
+#'root://eoscms.cern.ch//store/group/phys_b2g/B2GAnaFW_80X_V2p4/SingleMuon/Run2016C-23Sep2016-v1_B2GAnaFW_80X_v2p4/161221_155142//0000/B2GEDMNtuple_8.root',
+#'root://eoscms.cern.ch//store/group/phys_b2g/B2GAnaFW_80X_V2p4/SingleMuon/Run2016C-23Sep2016-v1_B2GAnaFW_80X_v2p4/161221_155142//0000/B2GEDMNtuple_9.root',
+#'root://eoscms.cern.ch//store/group/phys_b2g/B2GAnaFW_80X_V2p4/SingleMuon/Run2016C-23Sep2016-v1_B2GAnaFW_80X_v2p4/161221_155142//0000/B2GEDMNtuple_10.root',
+#'root://eoscms.cern.ch//store/group/phys_b2g/B2GAnaFW_80X_V2p4/SingleMuon/Run2016C-23Sep2016-v1_B2GAnaFW_80X_v2p4/161221_155142//0000/B2GEDMNtuple_11.root',
+#'root://eoscms.cern.ch//store/group/phys_b2g/B2GAnaFW_80X_V2p4/SingleMuon/Run2016C-23Sep2016-v1_B2GAnaFW_80X_v2p4/161221_155142//0000/B2GEDMNtuple_12.root',
+#'root://eoscms.cern.ch//store/group/phys_b2g/B2GAnaFW_80X_V2p4/SingleMuon/Run2016C-23Sep2016-v1_B2GAnaFW_80X_v2p4/161221_155142//0000/B2GEDMNtuple_13.root',
+#'root://eoscms.cern.ch//store/group/phys_b2g/B2GAnaFW_80X_V2p4/SingleMuon/Run2016C-23Sep2016-v1_B2GAnaFW_80X_v2p4/161221_155142//0000/B2GEDMNtuple_14.root',
+#'root://eoscms.cern.ch//store/group/phys_b2g/B2GAnaFW_80X_V2p4/SingleMuon/Run2016C-23Sep2016-v1_B2GAnaFW_80X_v2p4/161221_155142//0000/B2GEDMNtuple_15.root',
+#'root://eoscms.cern.ch//store/group/phys_b2g/B2GAnaFW_80X_V2p4/SingleMuon/Run2016C-23Sep2016-v1_B2GAnaFW_80X_v2p4/161221_155142//0000/B2GEDMNtuple_16.root',
+#'root://eoscms.cern.ch//store/group/phys_b2g/B2GAnaFW_80X_V2p4/SingleMuon/Run2016C-23Sep2016-v1_B2GAnaFW_80X_v2p4/161221_155142//0000/B2GEDMNtuple_17.root',
+#'root://eoscms.cern.ch//store/group/phys_b2g/B2GAnaFW_80X_V2p4/SingleMuon/Run2016C-23Sep2016-v1_B2GAnaFW_80X_v2p4/161221_155142//0000/B2GEDMNtuple_18.root',
+#'root://eoscms.cern.ch//store/group/phys_b2g/B2GAnaFW_80X_V2p4/SingleMuon/Run2016C-23Sep2016-v1_B2GAnaFW_80X_v2p4/161221_155142//0000/B2GEDMNtuple_19.root',
+#'root://eoscms.cern.ch//store/group/phys_b2g/B2GAnaFW_80X_V2p4/SingleMuon/Run2016C-23Sep2016-v1_B2GAnaFW_80X_v2p4/161221_155142//0000/B2GEDMNtuple_20.root'
+  FileNames[options.FileNames]
     ) 
   )
 
@@ -294,6 +294,18 @@ else:
     process.analightDown = process.ana.clone(
         btagsf_lDown = cms.bool(True),
         )
+    process.anasbcUp = process.ana.clone(
+        sbtagsf_bcUp = cms.bool(True),
+        )
+    process.anasbcDown = process.ana.clone(
+        sbtagsf_bcDown = cms.bool(True),
+        )
+    process.anaslightUp = process.ana.clone(
+        sbtagsf_lUp = cms.bool(True),
+        )
+    process.anaslightDown = process.ana.clone(
+        sbtagsf_lDown = cms.bool(True),
+        )
     process.anaJecUp = process.ana.clone()
     process.anaJecUp.jetAK4selParams.jecShift = cms.double(1.)
     process.anaJecUp.jetAK4BTaggedselParams.jecShift = cms.double(1.)
@@ -333,6 +345,29 @@ else:
         PileupDown = cms.bool(True),
         )
 
+
+process.load('Analysis.VLQAna.MassReco_cfi')
+process.massReco.ptMin = cms.double(150.)
+process.massReco.zdecaymode = cms.string(options.zdecaymode)
+process.massReco.signalType = cms.string(options.signalType)
+process.massReco.controlReco = cms.bool(options.controlReco)
+
+if options.massReco and options.syst:
+  process.recobcUp        = process.massReco.clone(btagbcSFup    = cms.bool(True))
+  process.recobcDown      = process.massReco.clone(btagbcSFdown  = cms.bool(True))
+  process.recolightUp     = process.massReco.clone(btaglSFup     = cms.bool(True))
+  process.recolightDown   = process.massReco.clone(btaglSFdown   = cms.bool(True))
+  process.recosbcUp       = process.massReco.clone(sbtagbcSFup   = cms.bool(True))
+  process.recosbcDown     = process.massReco.clone(sbtagbcSFdown = cms.bool(True))
+  process.recoslightUp    = process.massReco.clone(sbtaglSFup    = cms.bool(True))
+  process.recoslightDown  = process.massReco.clone(sbtaglSFdown  = cms.bool(True))
+  process.recoJecUp       = process.massReco.clone(JECup   = cms.bool(True))
+  process.recoJecDown     = process.massReco.clone(JECdown = cms.bool(True))
+  process.recoJerUp       = process.massReco.clone(JERup   = cms.bool(True))
+  process.recoJerDown     = process.massReco.clone(JERdown = cms.bool(True))
+  process.recoPileupUp    = process.massReco.clone(pileupUp    = cms.bool(True))
+  process.recoPileupDown  = process.massReco.clone(pileupDown  = cms.bool(True))
+
 ## Event counters
 from Analysis.EventCounter.eventcounter_cfi import eventCounter
 process.allEvents = eventCounter.clone(isData=options.isData)
@@ -341,7 +376,7 @@ process.finalEvents = eventCounter.clone(isData=options.isData)
 
 process.load("Analysis.VLQAna.VLQCandProducer_cff")
 
-if options.syst and not options.skim:
+if options.syst and not options.skim and not options.massReco:
   process.p = cms.Path(
     process.allEvents
     *process.evtcleaner
@@ -354,6 +389,10 @@ if options.syst and not options.skim:
     *cms.ignore(process.anabcDown)
     *cms.ignore(process.analightUp)
     *cms.ignore(process.analightDown)
+    *cms.ignore(process.anasbcUp)
+    *cms.ignore(process.anasbcDown)
+    *cms.ignore(process.anaslightUp)
+    *cms.ignore(process.anaslightDown)
     *cms.ignore(process.anaJecUp)
     *cms.ignore(process.anaJecDown)
     *cms.ignore(process.anaJerUp)
@@ -362,19 +401,53 @@ if options.syst and not options.skim:
     *cms.ignore(process.anaPileupDown)
     )
 elif options.massReco:
-  process.load('Analysis.VLQAna.MassReco_cfi')
-  process.massReco.ptMin = cms.double(150.)
-  process.massReco.zdecaymode = cms.string(options.zdecaymode)
-  process.massReco.signalType = cms.string(options.signalType)
-  process.massReco.controlReco = cms.bool(options.controlReco)
-  process.p = cms.Path(
-    process.allEvents
-    *process.evtcleaner
-    *process.cleanedEvents
-    *process.ana
-    *process.massReco
-    *process.finalEvents
-    )
+  if options.syst:
+    process.p = cms.Path(
+      process.allEvents
+      *process.evtcleaner
+      *process.cleanedEvents
+      *process.ana
+      *process.massReco
+      *process.finalEvents
+      
+      *cms.ignore(process.anabcUp)
+      *cms.ignore(process.anabcDown)
+      *cms.ignore(process.analightUp)
+      *cms.ignore(process.analightDown)
+      *cms.ignore(process.anasbcUp)
+      *cms.ignore(process.anasbcDown)
+      *cms.ignore(process.anaslightUp)
+      *cms.ignore(process.anaslightDown)
+      *cms.ignore(process.anaJecUp)
+      *cms.ignore(process.anaJecDown)
+      *cms.ignore(process.anaJerUp)
+      *cms.ignore(process.anaJerDown)
+      *cms.ignore(process.anaPileupUp)
+      *cms.ignore(process.anaPileupDown)
+      *process.recobcUp
+      *process.recobcDown
+      *process.recolightUp
+      *process.recolightDown
+      *process.recosbcUp
+      *process.recosbcDown
+      *process.recoslightUp
+      *process.recoslightDown
+      *process.recoJecUp
+      *process.recoJecDown
+      *process.recoJerUp
+      *process.recoJerDown
+      *process.recoPileupUp
+      *process.recoPileupDown
+      )
+  else:
+    process.p = cms.Path(
+      process.allEvents
+      *process.evtcleaner
+      *process.cleanedEvents
+      *process.ana
+      *process.massReco
+      *process.finalEvents
+      )
 else:
   process.p = cms.Path(
     process.allEvents
