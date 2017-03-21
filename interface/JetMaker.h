@@ -16,6 +16,8 @@
 #include <boost/algorithm/string.hpp>
 #include <string>
 #include <TLorentzVector.h>
+#include <TFile.h>
+#include <TF1.h>
 
 using namespace std;
 using namespace edm ; 
@@ -114,6 +116,7 @@ class JetMaker {
     edm::EDGetTokenT<std::vector<float>> t_ak8sjPhi           ; 
     edm::EDGetTokenT<std::vector<float>> t_ak8sjMass          ; 
     edm::EDGetTokenT<std::vector<float>> t_ak8sjEnergy        ; 
+    edm::EDGetTokenT<std::vector<float>> t_ak8sjJEC           ; 
     edm::EDGetTokenT<std::vector<float>> t_ak8sjCSV           ; 
     edm::EDGetTokenT<std::vector<float>> t_ak8sjCMVA          ; 
     edm::EDGetTokenT<std::vector<float>> t_ak8sjGenJetPt      ; 
@@ -127,11 +130,16 @@ class JetMaker {
     std::string               jecUncPayloadName_;
     std::vector<std::string>  jecAK8GroomedPayloadNames_;
     bool                      doGroomedMassCorr_;
+    std::string               SDMassCorrWt_   ;
     bool                      doNewJEC_;
     boost::shared_ptr<FactorizedJetCorrector>   ptr_jecAK8_  ;
     boost::shared_ptr<JetCorrectionUncertainty> ptr_jecUnc ; 
     boost::shared_ptr<FactorizedJetCorrector>   ptr_newJEC_  ;
     std::string jecAK8UncName_  ;
+    std::unique_ptr<TFile> puppiSDMassCorrWtFile_ ; 
+    std::unique_ptr<TF1> puppiSDMassCorrWtFunGen_ ; 
+    std::unique_ptr<TF1> puppiSDMassCorrWtFunRecoCen_ ; 
+    std::unique_ptr<TF1> puppiSDMassCorrWtFunRecoFor_ ; 
 
     JETTYPES_t type_ ; 
     JetID jetID_ ; 

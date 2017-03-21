@@ -212,238 +212,188 @@ bool EventCleaner::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   const int lumisec( (2*isData_ - 1) * (*h_lumisec) ) ; //// If MC, -ve sign for lumisec
   const int evtno  ( (2*isData_ - 1) * (*h_evtno) )   ; //// If MC, -ve sign for evtno  
 
-  //const size_t ntrigs ((h_trigName.product())->size());
   const size_t ntrigs (hltPaths_.size());
-  //std::bitset<1000>hltdecisions(0) ; 
   boost::dynamic_bitset<> hltdecisions(std::max(int(ntrigs),1));
   if ( ntrigs > 0 ) { 
     for ( size_t i = 0; i < ntrigs; ++i) {
       const string& myhltpath = hltPaths_.at(i);
-      //for ( const string& myhltpath : hltPaths_ ) {
       vector<string>::const_iterator it;
       for (it = h_trigName.product()->begin(); it != (h_trigName.product())->end(); ++it ) {
         if ( it->find(myhltpath) < std::string::npos) {
-          //hltdecisions |= bool((h_trigBit.product())->at( it - (h_trigName.product())->begin() )) << ( it - (h_trigName.product())->begin() ) ;  
           hltdecisions[i] = (h_trigBit.product())->at( it - (h_trigName.product())->begin() ) ;
         }
       }
     }
+  }
+  else {
+    hltdecisions[0] = 1;
+  }
+  if ( cleanEvents_ ) {
+    if ( hltORAND_ == "OR" ) { 
+      if ( !hltdecisions.any() ) {
+        return false ; 
+      }
+    }
+    else if ( hltORAND_ == "AND" ) {
+      int hltdecision = 1;
+      for (size_t i = 0; i < ntrigs; ++i) {
+        hltdecision *= hltdecisions[i];
+      }
+      if (hltdecision == 0) return false;
     }
     else {
-      hltdecisions[0] = 1;
+      edm::LogError("EventCleaner::hltdecison type set to") << hltORAND_ << ". Not acceptable!!! Set hltORAND to either OR or AND !!!!";
+      return false;
     }
-    if ( cleanEvents_ ) {
-      if ( hltORAND_ == "OR" ) { 
-        if ( !hltdecisions.any() ) {
-          return false ; 
+  }
+
+  bool metfilterdecision(1) ; 
+  if ( *h_BadChargedCandidateFilter.product() == false || *h_BadPFMuonFilter.product() == false) return false;
+  if ( isData_ ) {
+    for ( const string& metfilter : metFilters_ ) {
+      vector<string>::const_iterator it ; 
+      for (it = (h_metFiltersName.product())->begin(); it != (h_metFiltersName.product())->end(); ++it) {
+        if ( it->find(metfilter) < std::string::npos) {
+          metfilterdecision *= (h_metFiltersBit.product())->at( it - (h_metFiltersName.product())->begin() ) ; 
         }
       }
-      else if ( hltORAND_ == "AND" ) {
-        int hltdecision = 1;
-        for (size_t i = 0; i < ntrigs; ++i) {
-          hltdecision *= hltdecisions[i];
-        }
-        if (hltdecision == 0) return false;
-      }
-      else {
-        edm::LogError("EventCleaner::hltdecison type set to") << hltORAND_ << ". Not acceptable!!! Set hltORAND to either OR or AND !!!!";
-        return false;
-      }
+    }
+    if ( !metfilterdecision ) return false ; 
+  }
+
+  const int npv(*h_npv) ; 
+
+  double evtwtGen(1.0) ; 
+  double htHat(0.0);
+  std::vector<int> lhewtids;
+  std::vector<double> lhewts;
+  if ( !isData_ && storeLHEWts_ ) {
+
+    Handle<LHEEventProduct> h_lheEvtProd;
+    evt.getByToken(t_lheEvtProd, h_lheEvtProd); 
+    double nominal_wt = h_lheEvtProd->weights()[0].wgt ; // h_lheEvtProd->hepeup().XWGTUP ; //h_lheEvtProd->originalXWGTUP();
+    lhewtids.reserve(h_lheEvtProd->weights().size()) ;
+    lhewts.reserve(h_lheEvtProd->weights().size()) ; 
+    for (unsigned iwt = 0; iwt < h_lheEvtProd->weights().size(); ++iwt) {
+      lhewtids.push_back(std::stoi(h_lheEvtProd->weights()[iwt].id)) ;
+      lhewts.push_back(h_lheEvtProd->weights()[iwt].wgt / nominal_wt) ; 
     }
 
-    bool metfilterdecision(1) ; 
-    if ( *h_BadChargedCandidateFilter.product() == false || *h_BadPFMuonFilter.product() == false) return false;
-    if ( isData_ ) {
-      for ( const string& metfilter : metFilters_ ) {
-        vector<string>::const_iterator it ; 
-        for (it = (h_metFiltersName.product())->begin(); it != (h_metFiltersName.product())->end(); ++it) {
-          if ( it->find(metfilter) < std::string::npos) {
-            metfilterdecision *= (h_metFiltersBit.product())->at( it - (h_metFiltersName.product())->begin() ) ; 
-          }
-        }
-      }
-      if ( !metfilterdecision ) return false ; 
-    }
-
-    const int npv(*h_npv) ; 
-    //for ( unsigned ipv = 0; ipv < (h_vtxRho.product())->size(); ++ipv) {
-    //  double vtxRho = (h_vtxho.product())->at(ipv) ; 
-    //  double vtxZ = (h_vtxZ.product())->at(ipv) ; 
-    //  double vtxNdf = (h_vtxNdf.product())->at(ipv) ; 
-    //  if ( std::abs(vtxRho) < 2. && std:abs(vtxZ) <= 24. && vtxNdf > 4 ) ++npv ; 
-    //}
-    ////if ( npv < 1 ) return false ; 
-
-    double evtwtGen(1.0) ; 
-    double htHat(0.0);
-    std::vector<int> lhewtids;
-    std::vector<double> lhewts;
-    if ( !isData_ && storeLHEWts_ ) {
-      //Handle<GenEventInfoProduct> h_genEvtInfoProd; 
-      //evt.getByToken(t_genEvtInfoProd, h_genEvtInfoProd);
-      //evtwtGen = h_genEvtInfoProd->weight() ; 
-      //evtwtGen /= std::abs(evtwtGen) ; 
-      //if (h_genEvtInfoProd->binningValues().size()>0) htHat = h_genEvtInfoProd->binningValues()[0];
-
-      Handle<LHEEventProduct> h_lheEvtProd;
-      evt.getByToken(t_lheEvtProd, h_lheEvtProd); 
-      double nominal_wt = h_lheEvtProd->weights()[0].wgt ; // h_lheEvtProd->hepeup().XWGTUP ; //h_lheEvtProd->originalXWGTUP();
-      lhewtids.reserve(h_lheEvtProd->weights().size()) ;
-      lhewts.reserve(h_lheEvtProd->weights().size()) ; 
-      for (unsigned iwt = 0; iwt < h_lheEvtProd->weights().size(); ++iwt) {
-        lhewtids.push_back(std::stoi(h_lheEvtProd->weights()[iwt].id)) ;
-        lhewts.push_back(h_lheEvtProd->weights()[iwt].wgt / nominal_wt) ; 
-        //cout << "weight id = " << h_lheEvtProd->weights()[iwt].id << " weight = " << h_lheEvtProd->weights()[iwt].wgt / nominal_wt << endl ; 
-      }
-
-      std::vector<lhef::HEPEUP::FiveVector> lheParticles = h_lheEvtProd->hepeup().PUP;
-      for(size_t idxPart = 0; idxPart < lheParticles.size();++idxPart){
-        unsigned absPdgId = TMath::Abs(h_lheEvtProd->hepeup().IDUP[idxPart]);
-        unsigned status = h_lheEvtProd->hepeup().ISTUP[idxPart];
-        if(status==1 &&((absPdgId >=1 &&absPdgId<=6) || absPdgId == 21)){
-          htHat += sqrt(pow(lheParticles[idxPart][0],2.) + pow(lheParticles[idxPart][1],2.));
-        }
-      }
-
-    }
-    else {
-      lhewtids.push_back(-999999);
-      lhewts.push_back(-999999) ;
-    }
-
-    int npuTrue(-1);
-    double evtwtPV(1.0) ;
-    double evtwtPVLow(1.0) ;
-    double evtwtPVHigh(1.0) ;
-    if ( !isData_ ) {
-      npuTrue = *h_puNtrueInt ; 
-      if ( doPUReweightingOfficial_ ) { 
-        evtwtPV *= LumiWeights_.weight(npuTrue) ; 
-        evtwtPVLow *= LumiWeightsLow_.weight(npuTrue) ; 
-        evtwtPVHigh *= LumiWeightsHigh_.weight(npuTrue) ; 
+    std::vector<lhef::HEPEUP::FiveVector> lheParticles = h_lheEvtProd->hepeup().PUP;
+    for(size_t idxPart = 0; idxPart < lheParticles.size();++idxPart){
+      unsigned absPdgId = TMath::Abs(h_lheEvtProd->hepeup().IDUP[idxPart]);
+      unsigned status = h_lheEvtProd->hepeup().ISTUP[idxPart];
+      if(status==1 &&((absPdgId >=1 &&absPdgId<=6) || absPdgId == 21)){
+        htHat += sqrt(pow(lheParticles[idxPart][0],2.) + pow(lheParticles[idxPart][1],2.));
       }
     }
 
-    string evttype(isData_ ? "EvtType_Data" : "EvtType_MC");
+  }
+  else {
+    lhewtids.push_back(-999999);
+    lhewts.push_back(-999999) ;
+  }
 
-    if ( !isData_ ) {
-      vlq::GenParticleCollection vlqTtZ = pickTtZ(evt) ;  
-      vlq::GenParticleCollection vlqTtH = pickTtH(evt) ;  
-      vlq::GenParticleCollection vlqTbW = pickTbW(evt) ;  
-      vlq::GenParticleCollection vlqBbZ = pickBbZ(evt) ;  
-      vlq::GenParticleCollection vlqBbH = pickBbH(evt) ;  
-      vlq::GenParticleCollection vlqBtW = pickBtW(evt) ;  
-
-      if ( vlqTtZ.size() == 2 ) evttype = "EvtType_MC_tZtZ" ; 
-      if ( vlqTtH.size() == 2 ) evttype = "EvtType_MC_tHtH" ; 
-      if ( vlqTbW.size() == 2 ) evttype = "EvtType_MC_bWbW" ; 
-
-      if ( vlqTtZ.size() == 1 && vlqTtH.size() == 1 ) evttype = "EvtType_MC_tZtH" ; 
-      if ( vlqTtZ.size() == 1 && vlqTbW.size() == 1 ) evttype = "EvtType_MC_tZbW" ; 
-      if ( vlqTtH.size() == 1 && vlqTbW.size() == 1 ) evttype = "EvtType_MC_tHbW" ; 
-
-      if ( vlqBbZ.size() == 2 ) evttype = "EvtType_MC_bZbZ" ; 
-      if ( vlqBbH.size() == 2 ) evttype = "EvtType_MC_bHbH" ; 
-      if ( vlqBtW.size() == 2 ) evttype = "EvtType_MC_tWtW" ; 
-
-      if ( vlqBbZ.size() == 1 && vlqBbH.size() == 1 ) evttype = "EvtType_MC_bZbH" ; 
-      if ( vlqBbZ.size() == 1 && vlqBtW.size() == 1 ) evttype = "EvtType_MC_bZtW" ; 
-      if ( vlqBbH.size() == 1 && vlqBtW.size() == 1 ) evttype = "EvtType_MC_bHtW" ; 
+  int npuTrue(-1);
+  double evtwtPV(1.0) ;
+  double evtwtPVLow(1.0) ;
+  double evtwtPVHigh(1.0) ;
+  if ( !isData_ ) {
+    npuTrue = *h_puNtrueInt ; 
+    if ( doPUReweightingOfficial_ ) { 
+      evtwtPV *= LumiWeights_.weight(npuTrue) ; 
+      evtwtPVLow *= LumiWeightsLow_.weight(npuTrue) ; 
+      evtwtPVHigh *= LumiWeightsHigh_.weight(npuTrue) ; 
     }
-
-    unique_ptr<int>ptr_evtno(new int(evtno)); 
-    unique_ptr<int>ptr_lumisec(new int(lumisec)); 
-    unique_ptr<int>ptr_runno(new int(runno)); 
-    unique_ptr<bool>ptr_isData(new bool(isData_)); 
-    unique_ptr<bool>ptr_hltdecision(new bool(hltdecisions.any())); 
-    unique_ptr<string>ptr_evttype(new string(evttype)); 
-    unique_ptr<double>ptr_evtwtGen(new double(evtwtGen)); 
-    unique_ptr<double>ptr_evtwtPV(new double(evtwtPV)); 
-    unique_ptr<double>ptr_evtwtPVLow(new double(evtwtPVLow)); 
-    unique_ptr<double>ptr_evtwtPVHigh(new double(evtwtPVHigh)); 
-    unique_ptr<unsigned>ptr_npv(new unsigned(npv)); 
-    unique_ptr<int>ptr_npuTrue(new int(npuTrue)); 
-    unique_ptr<double>ptr_htHat(new double(htHat)); 
-    unique_ptr<std::vector<int>> ptr_lhewtids(new std::vector<int>(lhewtids));
-    unique_ptr<std::vector<double>> ptr_lhewts(new std::vector<double>(lhewts));
-
-    evt.put(std::move(ptr_evtno), "evtno");
-    evt.put(std::move(ptr_lumisec), "lumisec");
-    evt.put(std::move(ptr_runno), "runno");
-    evt.put(std::move(ptr_isData), "isData");
-    evt.put(std::move(ptr_hltdecision), "hltdecision");
-    evt.put(std::move(ptr_evttype), "evttype");
-    evt.put(std::move(ptr_evtwtGen), "evtwtGen");
-    evt.put(std::move(ptr_evtwtPV), "evtwtPV");
-    evt.put(std::move(ptr_evtwtPVLow), "evtwtPVLow");
-    evt.put(std::move(ptr_evtwtPVHigh), "evtwtPVHigh");
-    evt.put(std::move(ptr_npv), "npv");
-    evt.put(std::move(ptr_npuTrue), "npuTrue");
-    evt.put(std::move(ptr_htHat), "htHat");
-    evt.put(std::move(ptr_lhewtids), "lhewtids") ;
-    evt.put(std::move(ptr_lhewts), "lhewts") ;
-
-    return true ; 
-
   }
 
-  void EventCleaner::beginJob() {
+  string evttype(isData_ ? "EvtType_Data" : "EvtType_MC");
+
+  if ( !isData_ ) {
+    vlq::GenParticleCollection vlqTtZ = pickTtZ(evt) ;  
+    vlq::GenParticleCollection vlqTtH = pickTtH(evt) ;  
+    vlq::GenParticleCollection vlqTbW = pickTbW(evt) ;  
+    vlq::GenParticleCollection vlqBbZ = pickBbZ(evt) ;  
+    vlq::GenParticleCollection vlqBbH = pickBbH(evt) ;  
+    vlq::GenParticleCollection vlqBtW = pickBtW(evt) ;  
+
+    if ( vlqTtZ.size() == 2 ) evttype = "EvtType_MC_tZtZ" ; 
+    if ( vlqTtH.size() == 2 ) evttype = "EvtType_MC_tHtH" ; 
+    if ( vlqTbW.size() == 2 ) evttype = "EvtType_MC_bWbW" ; 
+
+    if ( vlqTtZ.size() == 1 && vlqTtH.size() == 1 ) evttype = "EvtType_MC_tZtH" ; 
+    if ( vlqTtZ.size() == 1 && vlqTbW.size() == 1 ) evttype = "EvtType_MC_tZbW" ; 
+    if ( vlqTtH.size() == 1 && vlqTbW.size() == 1 ) evttype = "EvtType_MC_tHbW" ; 
+
+    if ( vlqBbZ.size() == 2 ) evttype = "EvtType_MC_bZbZ" ; 
+    if ( vlqBbH.size() == 2 ) evttype = "EvtType_MC_bHbH" ; 
+    if ( vlqBtW.size() == 2 ) evttype = "EvtType_MC_tWtW" ; 
+
+    if ( vlqBbZ.size() == 1 && vlqBbH.size() == 1 ) evttype = "EvtType_MC_bZbH" ; 
+    if ( vlqBbZ.size() == 1 && vlqBtW.size() == 1 ) evttype = "EvtType_MC_bZtW" ; 
+    if ( vlqBbH.size() == 1 && vlqBtW.size() == 1 ) evttype = "EvtType_MC_bHtW" ; 
   }
 
-  void EventCleaner::endJob() {
-    //if (lhe_weight_labels_.size()) {
-    //  std::cout << std::string(78, '-') << "\n";
-    //  std::cout << "LHE event weights\n";
-    //  for (unsigned l = 0; l < lhe_weight_labels_.size(); ++l) {
-    //    std::cout << lhe_weight_labels_[l];
-    //  }
-    //}
-  }
+  unique_ptr<int>ptr_evtno(new int(evtno)); 
+  unique_ptr<int>ptr_lumisec(new int(lumisec)); 
+  unique_ptr<int>ptr_runno(new int(runno)); 
+  unique_ptr<bool>ptr_isData(new bool(isData_)); 
+  unique_ptr<bool>ptr_hltdecision(new bool(hltdecisions.any())); 
+  unique_ptr<string>ptr_evttype(new string(evttype)); 
+  unique_ptr<double>ptr_evtwtGen(new double(evtwtGen)); 
+  unique_ptr<double>ptr_evtwtPV(new double(evtwtPV)); 
+  unique_ptr<double>ptr_evtwtPVLow(new double(evtwtPVLow)); 
+  unique_ptr<double>ptr_evtwtPVHigh(new double(evtwtPVHigh)); 
+  unique_ptr<unsigned>ptr_npv(new unsigned(npv)); 
+  unique_ptr<int>ptr_npuTrue(new int(npuTrue)); 
+  unique_ptr<double>ptr_htHat(new double(htHat)); 
+  unique_ptr<std::vector<int>> ptr_lhewtids(new std::vector<int>(lhewtids));
+  unique_ptr<std::vector<double>> ptr_lhewts(new std::vector<double>(lhewts));
 
-  void EventCleaner::beginRun(edm::Run const& run, edm::EventSetup const& es) {
+  evt.put(std::move(ptr_evtno), "evtno");
+  evt.put(std::move(ptr_lumisec), "lumisec");
+  evt.put(std::move(ptr_runno), "runno");
+  evt.put(std::move(ptr_isData), "isData");
+  evt.put(std::move(ptr_hltdecision), "hltdecision");
+  evt.put(std::move(ptr_evttype), "evttype");
+  evt.put(std::move(ptr_evtwtGen), "evtwtGen");
+  evt.put(std::move(ptr_evtwtPV), "evtwtPV");
+  evt.put(std::move(ptr_evtwtPVLow), "evtwtPVLow");
+  evt.put(std::move(ptr_evtwtPVHigh), "evtwtPVHigh");
+  evt.put(std::move(ptr_npv), "npv");
+  evt.put(std::move(ptr_npuTrue), "npuTrue");
+  evt.put(std::move(ptr_htHat), "htHat");
+  evt.put(std::move(ptr_lhewtids), "lhewtids") ;
+  evt.put(std::move(ptr_lhewts), "lhewts") ;
 
-    run.getByLabel (l_trigName               , h_trigName             );
-    run.getByLabel (l_metFiltersName         , h_metFiltersName       );
+  return true ; 
 
-  }
+}
 
-  void EventCleaner::endRun(edm::Run const& run, edm::EventSetup const& es) {
+void EventCleaner::beginJob() {
+}
 
-    //if ( !isData_ && storeLHEWts_ ) {
-    //  if (lhe_weight_labels_.size()) return;
-    //  edm::Handle<LHERunInfoProduct> lhe_info;
-    //  run.getByLabel("externalLHEProducer", lhe_info);
-    //  LHERunInfoProduct myLHERunInfoProduct = *(lhe_info.product());
-    //  typedef std::vector<LHERunInfoProduct::Header>::const_iterator headers_const_iterator;
-    //  for (headers_const_iterator iter=myLHERunInfoProduct.headers_begin(); iter!=myLHERunInfoProduct.headers_end(); iter++){
-    //    //std::cout << iter->tag() << std::endl;
-    //    std::vector<std::string> lines = iter->lines();
-    //    for (unsigned int iLine = 0; iLine<lines.size(); iLine++) {
-    //      lhe_weight_labels_.push_back(lines.at(iLine));
-    //    }
-    //  }
-    //}
+void EventCleaner::endJob() {
+}
 
-    //bool record = false;
-    //for (auto it = lhe_info->headers_begin(); it != lhe_info->headers_end(); ++it) {
-    //std::vector<std::string>::const_iterator iLt = it->begin();
-    //for (; iLt != it->end(); ++iLt) {
-    //  std::string const& line = *iLt;
-    //  if (line.find("<weightgroup")  != std::string::npos) record = true;
-    //  if (line.find("</weightgroup") != std::string::npos) record = false;
-    //  if (record) lhe_weight_labels_.push_back(line);
-    //}
+void EventCleaner::beginRun(edm::Run const& run, edm::EventSetup const& es) {
 
-  }
+  run.getByLabel (l_trigName               , h_trigName             );
+  run.getByLabel (l_metFiltersName         , h_metFiltersName       );
 
-  double EventCleaner::GetLumiWeightsPVBased (const std::string file, const std::string hist, const unsigned npv) { 
-    double wtPU(1) ;
-    TFile f(file.c_str()) ;
-    TH1D* hwt = dynamic_cast<TH1D*>( f.Get( hist.c_str() ) ) ; 
-    wtPU = npv > 0 && npv <= 60 ? hwt->GetBinContent(npv) : 1.; 
-    delete hwt ; 
-    f.Close() ; 
-    return wtPU ;
-  }
+}
 
-  DEFINE_FWK_MODULE(EventCleaner);
+void EventCleaner::endRun(edm::Run const& run, edm::EventSetup const& es) {
+}
+
+double EventCleaner::GetLumiWeightsPVBased (const std::string file, const std::string hist, const unsigned npv) { 
+  double wtPU(1) ;
+  TFile f(file.c_str()) ;
+  TH1D* hwt = dynamic_cast<TH1D*>( f.Get( hist.c_str() ) ) ; 
+  wtPU = npv > 0 && npv <= 60 ? hwt->GetBinContent(npv) : 1.; 
+  delete hwt ; 
+  f.Close() ; 
+  return wtPU ;
+}
+
+DEFINE_FWK_MODULE(EventCleaner);
