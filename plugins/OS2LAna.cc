@@ -85,6 +85,8 @@ class OS2LAna : public edm::EDFilter {
     edm::EDGetTokenT<int>      t_evtno           ; 
     edm::EDGetTokenT<int>      t_runno           ;
     edm::EDGetTokenT<int>      t_lumisec         ;
+    edm::EDGetTokenT<vector<int> > t_lhewtids        ;
+    edm::EDGetTokenT<vector<double> >  t_lhewts          ;
     edm::ParameterSet DilepCandParams_           ; 
     edm::ParameterSet ZCandParams_               ; 
     //edm::ParameterSet BoostedZCandParams_        ; 
@@ -104,7 +106,8 @@ class OS2LAna : public edm::EDFilter {
     const bool btagsf_lUp_                       ;
     const bool btagsf_lDown_                     ;
     const bool PileupUp_                         ;
-    const bool PileupDown_                       ;   
+    const bool PileupDown_                       ; 
+    const int  lheId_                            ;  
     const bool applyLeptonIDSFs_                 ;
     const bool applyLeptonTrigSFs_               ;
     const bool applyBTagSFs_                     ;
@@ -176,6 +179,8 @@ OS2LAna::OS2LAna(const edm::ParameterSet& iConfig) :
   t_evtno                 (consumes<int>     (iConfig.getParameter<edm::InputTag>("evtno"))),
   t_runno                 (consumes<int>     (iConfig.getParameter<edm::InputTag>("runno"))),
   t_lumisec               (consumes<int>     (iConfig.getParameter<edm::InputTag>("lumisec"))),
+  t_lhewtids              (consumes<vector<int> >     (iConfig.getParameter<edm::InputTag>("lhewtids"))),
+  t_lhewts                (consumes<vector<double> >  (iConfig.getParameter<edm::InputTag>("lhewts"))),
   DilepCandParams_        (iConfig.getParameter<edm::ParameterSet> ("DilepCandParams")),
   ZCandParams_            (iConfig.getParameter<edm::ParameterSet> ("ZCandParams")),
   //BoostedZCandParams_     (iConfig.getParameter<edm::ParameterSet> ("BoostedZCandParams")),
@@ -196,6 +201,7 @@ OS2LAna::OS2LAna(const edm::ParameterSet& iConfig) :
   btagsf_lDown_           (iConfig.getParameter<bool>              ("btagsf_lDown")),
   PileupUp_               (iConfig.getParameter<bool>              ("PileupUp")),
   PileupDown_             (iConfig.getParameter<bool>              ("PileupDown")),
+  lheId_                  (iConfig.getParameter<int>               ("lheId")),
   applyLeptonIDSFs_       (iConfig.getParameter<bool>              ("applyLeptonIDSFs")), 
   applyLeptonTrigSFs_     (iConfig.getParameter<bool>              ("applyLeptonTrigSFs")),
   applyBTagSFs_           (iConfig.getParameter<bool>              ("applyBTagSFs")),
@@ -259,12 +265,23 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   Handle<int>      h_evtno       ; evt.getByToken(t_evtno       ,h_evtno      ) ; 
   Handle<int>      h_runno       ; evt.getByToken(t_runno       ,h_runno      ) ; 
   Handle<int>      h_lumisec     ; evt.getByToken(t_lumisec     ,h_lumisec    ) ; 
+  Handle<vector<int> > h_lhewtids; evt.getByToken(t_lhewtids    ,h_lhewtids   ) ;
+  Handle<vector<double> > h_lhewts;evt.getByToken(t_lhewts      ,h_lhewts     ) ;
 
   const int npv(*h_npv.product());
   const int evtno(*h_evtno.product()) ;
   const int runno(*h_runno.product()) ;
   const int lumisec(*h_lumisec.product()) ;
   const bool isData(evtno > 0 ? true : false) ; 
+  vector<pair<int, double> > lhe_id_wts;
+
+  if (!isData){
+    for (unsigned i=0; i<(*h_lhewtids.product()).size(); i++){
+      int id = (*h_lhewtids.product()).at(i);
+      double wt = (*h_lhewts.product()).at(i);
+      lhe_id_wts.push_back(make_pair(id, wt));
+    }
+  }
 
   int signalType(-1);
   if (filterSignal_) {
@@ -293,6 +310,13 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   if (PileupUp_)         evtwt = (*h_evtwtGen.product()) * (*h_evtwtPVHigh.product()) ; 
   else if (PileupDown_)  evtwt = (*h_evtwtGen.product()) * (*h_evtwtPVLow.product()) ;
   else                   evtwt = (*h_evtwtGen.product()) * (*h_evtwtPV.product()) ;
+
+  if (!isData){
+    for (auto& lhe : lhe_id_wts){
+      if (lhe.first == lheId_)
+        evtwt *= lhe.second;
+    }
+  }
 
   h1_["cutflow"] -> Fill(1, evtwt) ;
 
