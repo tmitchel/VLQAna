@@ -93,6 +93,11 @@ options.register('syst', False,
     VarParsing.varType.bool,
     "Do systematics"
     )
+options.register('storeLHEWts', True,
+    VarParsing.multiplicity.singleton,
+    VarParsing.varType.bool,
+    "Store LHE weights",
+    )
 
 options.setDefault('maxEvents', -1)
 options.parseArguments()
@@ -172,7 +177,7 @@ process.evtcleaner.File_PUDistMC        = cms.string(os.path.join(dataPath,'PUDi
 process.evtcleaner.isData = options.isData 
 process.evtcleaner.hltPaths = cms.vstring (hltpaths)  
 process.evtcleaner.DoPUReweightingOfficial = cms.bool(options.doPUReweightingOfficial)  
-#process.evtcleaner.storeLHEWts = options.storeLHEWts
+process.evtcleaner.storeLHEWts = options.storeLHEWts
 
 from Analysis.VLQAna.OS2LAna_cfi import * 
 
@@ -248,6 +253,10 @@ if options.maketree:
 else: 
   process.ana.STMin = cms.double(1000.)
   process.ana.HTMin = cms.double(200.)
+if options.filterSignal:
+  process.ana.lheId = cms.int32(1)
+else:
+  process.ana.lheId = cms.int32(1001)
 
 if options.skim: 
   process.ana.jetAK4selParams.jetPtMin = cms.double(20) 
@@ -307,6 +316,20 @@ else:
     process.anaPileupDown = process.ana.clone(
         PileupDown = cms.bool(True),
         )
+    if options.filterSignal:
+      process.ana.ScaleUp = process.ana.clone(
+          lheId = cms.int32(5)
+          )
+      process.ana.ScaleDown = process.ana.clone(
+          lheId = cms.int32(9)
+          )
+    else:
+      process.anaScaleUp = process.ana.clone(
+          lheId = cms.int32(1005),
+          )
+      process.anaScaleDown = process.ana.clone(
+          lheId = cms.int32(1009),
+          )
 
 ## Event counters
 from Analysis.EventCounter.eventcounter_cfi import eventCounter
@@ -335,6 +358,8 @@ if options.syst and not options.skim:
     *cms.ignore(process.anaJerDown)
     *cms.ignore(process.anaPileupUp)
     *cms.ignore(process.anaPileupDown)
+    *cms.ignore(process.anaScaleUp)
+    *cms.ignore(process.anaScaleDown)
     )
 elif options.massReco:
   process.load('Analysis.VLQAna.MassReco_cfi')
