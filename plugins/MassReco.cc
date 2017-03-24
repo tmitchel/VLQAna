@@ -67,6 +67,8 @@ private:
   edm::EDGetTokenT<double>             JECdown_t;
   edm::EDGetTokenT<double>             JERup_t;
   edm::EDGetTokenT<double>             JERdown_t;
+  edm::EDGetTokenT<double>             ScaleUp_t;
+  edm::EDGetTokenT<double>             ScaleDown_t;
 
   const double ptMin_;
 	const double STMaxControl_;
@@ -90,6 +92,8 @@ private:
   const bool JECdown_;
   const bool JERup_;
   const bool JERdown_;
+  const bool ScaleUp_;
+  const bool ScaleDown_;
 
 	PickGenPart genpart ;
 
@@ -122,6 +126,8 @@ MassReco::MassReco(const edm::ParameterSet& iConfig) :
   JECdown_t     (consumes<double>           (iConfig.getParameter<edm::InputTag>("JECDown"))),
   JERup_t       (consumes<double>           (iConfig.getParameter<edm::InputTag>("JERUp"))),
   JERdown_t     (consumes<double>           (iConfig.getParameter<edm::InputTag>("JERDown"))),
+  ScaleUp_t     (consumes<double>           (iConfig.getParameter<edm::InputTag>("scaleUp"))),
+  ScaleDown_t   (consumes<double>           (iConfig.getParameter<edm::InputTag>("scaleDown"))),
  
   ptMin_     (iConfig.getParameter<double> ("ptMin")),
 	STMaxControl_ (iConfig.getParameter<double> ("STMaxControl")),
@@ -145,6 +151,8 @@ MassReco::MassReco(const edm::ParameterSet& iConfig) :
   JECdown_      (iConfig.getParameter<bool> ("JECdown")),
   JERup_        (iConfig.getParameter<bool> ("JERup")),
   JERdown_      (iConfig.getParameter<bool> ("JERdown")),
+  ScaleUp_      (iConfig.getParameter<bool> ("ScaleUp")),
+  ScaleDown_    (iConfig.getParameter<bool> ("ScaleDown")),
 
 	genpart    (iConfig.getParameter<edm::ParameterSet>("genParams"),consumesCollector())
 
@@ -181,6 +189,8 @@ bool MassReco::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   else if (JECdown_)       evt.getByToken(JECdown_t,evtwt_h);
   else if (JERup_)         evt.getByToken(JERup_t,  evtwt_h);
   else if (JERdown_)       evt.getByToken(JERdown_t,evtwt_h);
+  else if (ScaleUp_)       evt.getByToken(ScaleUp_t,evtwt_h);
+  else if (ScaleDown_)     evt.getByToken(ScaleDown_t,evtwt_h);
   else                     evt.getByToken(evtwt_t,  evtwt_h);
 
 	TLorentzVector zllcand = (*zllcands_h.product()).at(0).getP4();

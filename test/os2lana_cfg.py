@@ -63,7 +63,7 @@ options.register('applyBTagSFs', True,
     VarParsing.varType.bool,
     "Apply b-tagging SFs to the MC"
     )
-options.register('btageffmap', "bpbpbZb1200_bTagEff.root",#until new SFs arrive
+options.register('btageffmap', "ttjets_bTagEff.root",#until new SFs arrive
     VarParsing.multiplicity.singleton,
     VarParsing.varType.string,
     "ROOT file with Th2D histos of b tag effs for b,c, and light flavoured jets"
@@ -98,11 +98,16 @@ options.register('syst', True,
     VarParsing.varType.bool,
     "Do systematics"
     )
+options.register('storeLHEWts', True,
+    VarParsing.multiplicity.singleton,
+    VarParsing.varType.bool,
+    'Store LHE Weights'
+    )
 
 options.setDefault('maxEvents', -1)
 options.parseArguments()
 
-dataPath = '../data/'
+dataPath = '../data'
 
 hltpaths = []
 if options.isData:
@@ -148,34 +153,14 @@ from inputFiles_cfi import *
 process.source = cms.Source(
   "PoolSource",
   fileNames = cms.untracked.vstring(
-#'root://eoscms.cern.ch//store/group/phys_b2g/B2GAnaFW_80X_V2p4/SingleMuon/Run2016C-23Sep2016-v1_B2GAnaFW_80X_v2p4/161221_155142//0000/B2GEDMNtuple_1.root',
-#'root://eoscms.cern.ch//store/group/phys_b2g/B2GAnaFW_80X_V2p4/SingleMuon/Run2016C-23Sep2016-v1_B2GAnaFW_80X_v2p4/161221_155142//0000/B2GEDMNtuple_2.root',
-#'root://eoscms.cern.ch//store/group/phys_b2g/B2GAnaFW_80X_V2p4/SingleMuon/Run2016C-23Sep2016-v1_B2GAnaFW_80X_v2p4/161221_155142//0000/B2GEDMNtuple_3.root',
-#'root://eoscms.cern.ch//store/group/phys_b2g/B2GAnaFW_80X_V2p4/SingleMuon/Run2016C-23Sep2016-v1_B2GAnaFW_80X_v2p4/161221_155142//0000/B2GEDMNtuple_4.root',
-#'root://eoscms.cern.ch//store/group/phys_b2g/B2GAnaFW_80X_V2p4/SingleMuon/Run2016C-23Sep2016-v1_B2GAnaFW_80X_v2p4/161221_155142//0000/B2GEDMNtuple_5.root',
-#'root://eoscms.cern.ch//store/group/phys_b2g/B2GAnaFW_80X_V2p4/SingleMuon/Run2016C-23Sep2016-v1_B2GAnaFW_80X_v2p4/161221_155142//0000/B2GEDMNtuple_6.root',
-#'root://eoscms.cern.ch//store/group/phys_b2g/B2GAnaFW_80X_V2p4/SingleMuon/Run2016C-23Sep2016-v1_B2GAnaFW_80X_v2p4/161221_155142//0000/B2GEDMNtuple_7.root',
-#'root://eoscms.cern.ch//store/group/phys_b2g/B2GAnaFW_80X_V2p4/SingleMuon/Run2016C-23Sep2016-v1_B2GAnaFW_80X_v2p4/161221_155142//0000/B2GEDMNtuple_8.root',
-#'root://eoscms.cern.ch//store/group/phys_b2g/B2GAnaFW_80X_V2p4/SingleMuon/Run2016C-23Sep2016-v1_B2GAnaFW_80X_v2p4/161221_155142//0000/B2GEDMNtuple_9.root',
-#'root://eoscms.cern.ch//store/group/phys_b2g/B2GAnaFW_80X_V2p4/SingleMuon/Run2016C-23Sep2016-v1_B2GAnaFW_80X_v2p4/161221_155142//0000/B2GEDMNtuple_10.root',
-#'root://eoscms.cern.ch//store/group/phys_b2g/B2GAnaFW_80X_V2p4/SingleMuon/Run2016C-23Sep2016-v1_B2GAnaFW_80X_v2p4/161221_155142//0000/B2GEDMNtuple_11.root',
-#'root://eoscms.cern.ch//store/group/phys_b2g/B2GAnaFW_80X_V2p4/SingleMuon/Run2016C-23Sep2016-v1_B2GAnaFW_80X_v2p4/161221_155142//0000/B2GEDMNtuple_12.root',
-#'root://eoscms.cern.ch//store/group/phys_b2g/B2GAnaFW_80X_V2p4/SingleMuon/Run2016C-23Sep2016-v1_B2GAnaFW_80X_v2p4/161221_155142//0000/B2GEDMNtuple_13.root',
-#'root://eoscms.cern.ch//store/group/phys_b2g/B2GAnaFW_80X_V2p4/SingleMuon/Run2016C-23Sep2016-v1_B2GAnaFW_80X_v2p4/161221_155142//0000/B2GEDMNtuple_14.root',
-#'root://eoscms.cern.ch//store/group/phys_b2g/B2GAnaFW_80X_V2p4/SingleMuon/Run2016C-23Sep2016-v1_B2GAnaFW_80X_v2p4/161221_155142//0000/B2GEDMNtuple_15.root',
-#'root://eoscms.cern.ch//store/group/phys_b2g/B2GAnaFW_80X_V2p4/SingleMuon/Run2016C-23Sep2016-v1_B2GAnaFW_80X_v2p4/161221_155142//0000/B2GEDMNtuple_16.root',
-#'root://eoscms.cern.ch//store/group/phys_b2g/B2GAnaFW_80X_V2p4/SingleMuon/Run2016C-23Sep2016-v1_B2GAnaFW_80X_v2p4/161221_155142//0000/B2GEDMNtuple_17.root',
-#'root://eoscms.cern.ch//store/group/phys_b2g/B2GAnaFW_80X_V2p4/SingleMuon/Run2016C-23Sep2016-v1_B2GAnaFW_80X_v2p4/161221_155142//0000/B2GEDMNtuple_18.root',
-#'root://eoscms.cern.ch//store/group/phys_b2g/B2GAnaFW_80X_V2p4/SingleMuon/Run2016C-23Sep2016-v1_B2GAnaFW_80X_v2p4/161221_155142//0000/B2GEDMNtuple_19.root',
-#'root://eoscms.cern.ch//store/group/phys_b2g/B2GAnaFW_80X_V2p4/SingleMuon/Run2016C-23Sep2016-v1_B2GAnaFW_80X_v2p4/161221_155142//0000/B2GEDMNtuple_20.root'
-  FileNames[options.FileNames]
+     FileNames[options.FileNames] 
     ) 
   )
 
 if options.isData:
   import FWCore.PythonUtilities.LumiList as LumiList
   process.source.lumisToProcess = LumiList.LumiList(
-      filename = "/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions16/13TeV/ReReco/Final/Cert_271036-284044_13TeV_23Sep2016ReReco_Collisions16_JSON.txt"
+      filename = "Cert_271036-284044_13TeV_23Sep2016ReReco_Collisions16_JSON.txt"
       ).getVLuminosityBlockRange()
 
 process.TFileService = cms.Service("TFileService",
@@ -197,7 +182,7 @@ process.evtcleaner.File_PUDistMC        = cms.string(os.path.join(dataPath,'PUDi
 process.evtcleaner.isData = options.isData 
 process.evtcleaner.hltPaths = cms.vstring (hltpaths)  
 process.evtcleaner.DoPUReweightingOfficial = cms.bool(options.doPUReweightingOfficial)  
-#process.evtcleaner.storeLHEWts = options.storeLHEWts
+process.evtcleaner.storeLHEWts = options.storeLHEWts
 
 from Analysis.VLQAna.OS2LAna_cfi import * 
 
@@ -273,6 +258,10 @@ if options.maketree:
 else: 
   process.ana.STMin = cms.double(1000.)
   process.ana.HTMin = cms.double(200.)
+if options.filterSignal:
+  process.ana.lheId = cms.int32(1)
+else:
+  process.ana.lheId = cms.int32(1001)
 
 if options.skim: 
   process.ana.jetAK4selParams.jetPtMin = cms.double(20) 
@@ -306,6 +295,21 @@ else:
     process.anaslightDown = process.ana.clone(
         sbtagsf_lDown = cms.bool(True),
         )
+    if options.filterSignal:
+      process.anaScaleUp = process.ana.clone(
+          lheId = cms.int32(5)
+          )
+      process.anaScaleDown = process.ana.clone(
+          lheId = cms.int32(9)
+          )
+    else:
+      process.anaScaleUp = process.ana.clone(
+          lheId = cms.int32(1005),
+          )
+      process.anaScaleDown = process.ana.clone(
+          lheId = cms.int32(1009),
+          )
+ 
     process.anaJecUp = process.ana.clone()
     process.anaJecUp.jetAK4selParams.jecShift = cms.double(1.)
     process.anaJecUp.jetAK4BTaggedselParams.jecShift = cms.double(1.)
@@ -345,12 +349,12 @@ else:
         PileupDown = cms.bool(True),
         )
 
-
 process.load('Analysis.VLQAna.MassReco_cfi')
 process.massReco.ptMin = cms.double(150.)
 process.massReco.zdecaymode = cms.string(options.zdecaymode)
 process.massReco.signalType = cms.string(options.signalType)
 process.massReco.controlReco = cms.bool(options.controlReco)
+
 
 if options.massReco and options.syst:
   process.recobcUp        = process.massReco.clone(btagbcSFup    = cms.bool(True))
@@ -367,6 +371,8 @@ if options.massReco and options.syst:
   process.recoJerDown     = process.massReco.clone(JERdown = cms.bool(True))
   process.recoPileupUp    = process.massReco.clone(pileupUp    = cms.bool(True))
   process.recoPileupDown  = process.massReco.clone(pileupDown  = cms.bool(True))
+  process.recoScaleUp     = process.massReco.clone(ScaleUp     = cms.bool(True))
+  process.recoScaleDown   = process.massReco.clone(ScaleDown   = cms.bool(True))
 
 ## Event counters
 from Analysis.EventCounter.eventcounter_cfi import eventCounter
@@ -399,6 +405,8 @@ if options.syst and not options.skim and not options.massReco:
     *cms.ignore(process.anaJerDown)
     *cms.ignore(process.anaPileupUp)
     *cms.ignore(process.anaPileupDown)
+    *cms.ignore(process.anaScaleUp)
+    *cms.ignore(process.anaScaleDown)
     )
 elif options.massReco:
   if options.syst:
@@ -424,6 +432,8 @@ elif options.massReco:
       *cms.ignore(process.anaJerDown)
       *cms.ignore(process.anaPileupUp)
       *cms.ignore(process.anaPileupDown)
+      *cms.ignore(process.anaScaleUp)
+      *cms.ignore(process.anaScaleDown)
       *process.recobcUp
       *process.recobcDown
       *process.recolightUp
@@ -438,6 +448,8 @@ elif options.massReco:
       *process.recoJerDown
       *process.recoPileupUp
       *process.recoPileupDown
+      *process.recoScaleUp
+      *process.recoScaleDown
       )
   else:
     process.p = cms.Path(
@@ -457,11 +469,13 @@ else:
     *process.finalEvents
     )
 
+
+
 if options.skim: 
   outCommand = ['keep *', 'drop *_evtcleaner_*_*', 'drop *_TriggerResults_*_*']#remove unwanted new branches OS2LAna
   process.out = cms.OutputModule("PoolOutputModule",
     SelectEvents = cms.untracked.PSet(
-      SelectEvents = cms.vstring('p')
+      SelectEvents = cms.vstring('p'),
       ),
     fileName = cms.untracked.string('Os2lana_skim.root'),
     outputCommands = cms.untracked.vstring(outCommand )
