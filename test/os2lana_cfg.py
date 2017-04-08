@@ -154,6 +154,7 @@ process.source = cms.Source(
   "PoolSource",
   fileNames = cms.untracked.vstring(
      FileNames[options.FileNames] 
+#'root://eoscms.cern.ch//store/group/phys_b2g/B2GAnaFW_80X_V2p4/WW_TuneCUETP8M1_13TeV-pythia8/B2GAnaFW_Spring16MiniAODv2_Moriond17_v80x_ext1_v2p4/170122_180941/0000/B2GEDMNtuple_51.root',
     ) 
   )
 
@@ -271,6 +272,9 @@ if options.skim:
   process.ana.STMin = cms.double(0.)
 else: 
   if options.syst: 
+    process.DYdown = process.ana.clone(
+        DYdown = cms.bool(True),
+        )
     process.anabcUp = process.ana.clone(
         btagsf_bcUp = cms.bool(True),
         )
@@ -391,6 +395,7 @@ if options.syst and not options.skim and not options.massReco:
       process.ana
       *process.finalEvents
       )
+    *cms.ignore(process.DYdown)
     *cms.ignore(process.anabcUp)
     *cms.ignore(process.anabcDown)
     *cms.ignore(process.analightUp)
@@ -418,6 +423,7 @@ elif options.massReco:
       *process.massReco
       *process.finalEvents
       
+      *cms.ignore(process.DYdown)
       *cms.ignore(process.anabcUp)
       *cms.ignore(process.anabcDown)
       *cms.ignore(process.analightUp)

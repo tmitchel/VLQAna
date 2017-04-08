@@ -116,6 +116,7 @@ class OS2LAna : public edm::EDFilter {
     const bool applyLeptonTrigSFs_               ;
     const bool applyBTagSFs_                     ;
     const bool applyDYNLOCorr_                   ;
+    const bool DYdown_                           ;
     const std::string fname_DYNLOCorr_           ; 
     const std::string funname_DYNLOCorr_         ; 
     DYNLOEwkKfact dynloewkkfact                  ;
@@ -214,6 +215,7 @@ OS2LAna::OS2LAna(const edm::ParameterSet& iConfig) :
   applyLeptonTrigSFs_     (iConfig.getParameter<bool>              ("applyLeptonTrigSFs")),
   applyBTagSFs_           (iConfig.getParameter<bool>              ("applyBTagSFs")),
   applyDYNLOCorr_         (iConfig.getParameter<bool>              ("applyDYNLOCorr")),
+  DYdown_                 (iConfig.getParameter<bool>              ("DYdown")),
   fname_DYNLOCorr_        (iConfig.getParameter<std::string>       ("File_DYNLOCorr")),
   funname_DYNLOCorr_      (iConfig.getParameter<std::string>       ("Fun_DYNLOCorr")),
   dynloewkkfact           (DYNLOEwkKfact(fname_DYNLOCorr_,funname_DYNLOCorr_)),
@@ -363,11 +365,32 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   if (dileptons.size() > 0) h1_["cutflow"] -> Fill(3, evtwt) ;
   else return false ; //// Presel: dileptons
 
+  //// jets
+  vlq::JetCollection goodAK4Jets;
+  jetAK4maker(evt, goodAK4Jets) ;
+
   //// Get Dy EWK correction
   if ( applyDYNLOCorr_ ) {
     double EWKNLOkfact( dynloewkkfact(dileptons.at(0).getPt()) ) ; ////GetDYNLOCorr(dileptons.at(0).getPt())) ; 
     evtwt *= EWKNLOkfact ;
+    if (!DYdown_){
+      if ( zdecayMode_ == "zmumu"){
+        if (goodAK4Jets.size() == 3) { evtwt *= 1.0105;}
+        else if (goodAK4Jets.size() == 4) { evtwt*= 1.0604;}
+        else if (goodAK4Jets.size() == 5) { evtwt*= 1.1882;}
+        else if (goodAK4Jets.size() == 6) { evtwt*= 1.3290;}
+        else if (goodAK4Jets.size() >= 7) { evtwt*= 1.6049;}
+      }
+      else if ( zdecayMode_ == "zelel"){
+        if (goodAK4Jets.size() == 3) { evtwt *= 0.9730;}
+        else if (goodAK4Jets.size() == 4) { evtwt*= 1.0248;}
+        else if (goodAK4Jets.size() == 5) { evtwt*= 1.1125;}
+        else if (goodAK4Jets.size() == 6) { evtwt*= 1.224;}
+        else if (goodAK4Jets.size() >= 7) { evtwt*= 1.364;}
+      }
+    }
   }
+  
 
   //// Get lepton ID and Iso SF
   if  ( !isData ) {
@@ -395,10 +418,6 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   //// Z mass candidate filter: 75 < M < 105, lead pt > 45, 2nd pt > 25, Z pt > 100
   CandidateFilter zllfilter(ZCandParams_) ; 
   zllfilter(dileptons, zll);
-
-  //// jets
-  vlq::JetCollection goodAK4Jets;
-  jetAK4maker(evt, goodAK4Jets) ;
 
   // b-tagging:
   vlq::JetCollection goodBTaggedAK4Jets;

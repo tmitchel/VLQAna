@@ -194,7 +194,11 @@ bool MassReco::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   else                     evt.getByToken(evtwt_t,  evtwt_h);
 
 	TLorentzVector zllcand = (*zllcands_h.product()).at(0).getP4();
-	double evtwt = *evtwt_h.product();
+	double evtwt;
+  if (evtwt_h.isValid())
+   evtwt = *evtwt_h.product();
+  else
+    return false;
 	double ST = *st_h.product();
 	vector<vlq::Jet> ak8s = *ak8_h.product();
   vector<vlq::Jet> ak4s = *ak4_h.product();
