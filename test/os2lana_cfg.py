@@ -313,6 +313,14 @@ else:
       process.anaScaleDown = process.ana.clone(
           lheId = cms.int32(1009),
           )
+
+    process.anatauUp = process.ana.clone()
+    process.anatauUp.jetHTaggedselParams.tauShift = cms.int32(1)
+    process.anatauUp.jetWTaggedselParams.tauShift = cms.int32(1)
+
+    process.anatauDown = process.ana.clone()
+    process.anatauDown.jetHTaggedselParams.tauShift = cms.int32(-1)
+    process.anatauDown.jetWTaggedselParams.tauShift = cms.int32(-1)
  
     process.anaJecUp = process.ana.clone()
     process.anaJecUp.jetAK4selParams.jecShift = cms.double(1.)
@@ -361,6 +369,7 @@ process.massReco.controlReco = cms.bool(options.controlReco)
 
 
 if options.massReco and options.syst:
+  process.recoDYdown      = process.massReco.clone(DYdown        = cms.bool(True))
   process.recobcUp        = process.massReco.clone(btagbcSFup    = cms.bool(True))
   process.recobcDown      = process.massReco.clone(btagbcSFdown  = cms.bool(True))
   process.recolightUp     = process.massReco.clone(btaglSFup     = cms.bool(True))
@@ -377,6 +386,8 @@ if options.massReco and options.syst:
   process.recoPileupDown  = process.massReco.clone(pileupDown  = cms.bool(True))
   process.recoScaleUp     = process.massReco.clone(ScaleUp     = cms.bool(True))
   process.recoScaleDown   = process.massReco.clone(ScaleDown   = cms.bool(True))
+  process.recotauUp       = process.massReco.clone(tauUp       = cms.bool(True))
+  process.recotauDown     = process.massReco.clone(tauDown     = cms.bool(True))
 
 ## Event counters
 from Analysis.EventCounter.eventcounter_cfi import eventCounter
@@ -412,6 +423,8 @@ if options.syst and not options.skim and not options.massReco:
     *cms.ignore(process.anaPileupDown)
     *cms.ignore(process.anaScaleUp)
     *cms.ignore(process.anaScaleDown)
+    *cms.ignore(process.anatauUp)
+    *cms.ignore(process.anatauDown)
     )
 elif options.massReco:
   if options.syst:
@@ -440,6 +453,9 @@ elif options.massReco:
       *cms.ignore(process.anaPileupDown)
       *cms.ignore(process.anaScaleUp)
       *cms.ignore(process.anaScaleDown)
+      *cms.ignore(process.anatauUp)
+      *cms.ignore(process.anatauDown)
+      *process.recoDYdown
       *process.recobcUp
       *process.recobcDown
       *process.recolightUp
@@ -456,6 +472,8 @@ elif options.massReco:
       *process.recoPileupDown
       *process.recoScaleUp
       *process.recoScaleDown
+      *process.recotauUp
+      *process.recotauDown
       )
   else:
     process.p = cms.Path(

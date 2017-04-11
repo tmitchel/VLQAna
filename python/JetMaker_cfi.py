@@ -16,6 +16,8 @@ defaultAK4JetSelectionParameters = cms.PSet(
     scaledJetMass             = cms.double(125.0), 
     newJECPayloadNames        = cms.vstring(), 
     jecUncPayloadName         = cms.string("Summer16_23Sep2016V4_MC_Uncertainty_AK4PFchs.txt"), 
+    SDMassCorrWt              = cms.string(""),
+    taggingSyst               = cms.bool(False),
     jecAK8GroomedPayloadNames = cms.vstring(), 
     jecShift                  = cms.double(0), 
     jerShift                  = cms.int32(1), 
@@ -47,6 +49,7 @@ defaultAK8CHSJetSelectionParameters = defaultAK4JetSelectionParameters.clone(
     jecAK8GroomedPayloadNames = cms.vstring(
       "Summer16_23Sep2016V4_MC_L2Relative_AK8PFchs.txt", 
       "Summer16_23Sep2016V4_MC_L3Absolute_AK8PFchs.txt"), 
+    SDMassCorrWt              = cms.string(""), 
     jecShift                  = cms.double(0), 
     jerShift                  = cms.int32(1), 
     jetPtMin                  = cms.double(200),
@@ -95,6 +98,7 @@ defaultCHSHJetSelectionParameters = defaultAK8CHSJetSelectionParameters.clone(
     jettau2Bytau1Min    = cms.double(0.0) ,
     jettau2Bytau1Max    = cms.double(0.6) ,
     subjetCSVMin        = cms.double(CSVv2L) ,
+    taggingSyst         = cms.bool(True),
     )
 
 ### https://twiki.cern.ch/twiki/bin/view/CMS/JetWtagging#Recommendation_for_13_TeV_data_a
@@ -104,6 +108,7 @@ defaultCHSWJetSelectionParameters = defaultAK8CHSJetSelectionParameters.clone(
     jetPrunedMassMax    = cms.double(105) ,
     jettau2Bytau1Min    = cms.double(0.0) ,
     jettau2Bytau1Max    = cms.double(0.6) ,
+    taggingSyst         = cms.bool(True),
     )
 
 defaultBTaggedCHSAK8JetSelectionParameters = defaultAK8CHSJetSelectionParameters.clone(
@@ -122,6 +127,7 @@ defaultAK8PuppiJetSelectionParameters = defaultAK4JetSelectionParameters.clone(
     jecAK8GroomedPayloadNames = cms.vstring(
       "Summer16_23Sep2016V4_MC_L2Relative_AK8PFPuppi.txt", 
       "Summer16_23Sep2016V4_MC_L3Absolute_AK8PFPuppi.txt"), 
+    SDMassCorrWt              = cms.string(""), 
     jecShift                  = cms.double(0), 
     jerShift                  = cms.int32(1), 
     jetPtMin                  = cms.double(200),

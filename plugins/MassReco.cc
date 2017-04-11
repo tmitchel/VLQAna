@@ -69,6 +69,9 @@ private:
   edm::EDGetTokenT<double>             JERdown_t;
   edm::EDGetTokenT<double>             ScaleUp_t;
   edm::EDGetTokenT<double>             ScaleDown_t;
+  edm::EDGetTokenT<double>             DYdown_t;
+  edm::EDGetTokenT<double>             tauUp_t;
+  edm::EDGetTokenT<double>             tauDown_t;
 
   const double ptMin_;
 	const double STMaxControl_;
@@ -94,6 +97,9 @@ private:
   const bool JERdown_;
   const bool ScaleUp_;
   const bool ScaleDown_;
+  const bool DYdown_;
+  const bool tauUp_;
+  const bool tauDown_;
 
 	PickGenPart genpart ;
 
@@ -128,6 +134,9 @@ MassReco::MassReco(const edm::ParameterSet& iConfig) :
   JERdown_t     (consumes<double>           (iConfig.getParameter<edm::InputTag>("JERDown"))),
   ScaleUp_t     (consumes<double>           (iConfig.getParameter<edm::InputTag>("scaleUp"))),
   ScaleDown_t   (consumes<double>           (iConfig.getParameter<edm::InputTag>("scaleDown"))),
+  DYdown_t      (consumes<double>           (iConfig.getParameter<edm::InputTag>("DYdownLabel"))),
+  tauUp_t       (consumes<double>           (iConfig.getParameter<edm::InputTag>("tauUpLabel"))),
+  tauDown_t     (consumes<double>           (iConfig.getParameter<edm::InputTag>("tauDownLabel"))),
  
   ptMin_     (iConfig.getParameter<double> ("ptMin")),
 	STMaxControl_ (iConfig.getParameter<double> ("STMaxControl")),
@@ -153,6 +162,9 @@ MassReco::MassReco(const edm::ParameterSet& iConfig) :
   JERdown_      (iConfig.getParameter<bool> ("JERdown")),
   ScaleUp_      (iConfig.getParameter<bool> ("ScaleUp")),
   ScaleDown_    (iConfig.getParameter<bool> ("ScaleDown")),
+  DYdown_       (iConfig.getParameter<bool> ("DYdown")),
+  tauUp_        (iConfig.getParameter<bool> ("tauUp")),
+  tauDown_      (iConfig.getParameter<bool> ("tauDown")),
 
 	genpart    (iConfig.getParameter<edm::ParameterSet>("genParams"),consumesCollector())
 
@@ -191,6 +203,9 @@ bool MassReco::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   else if (JERdown_)       evt.getByToken(JERdown_t,evtwt_h);
   else if (ScaleUp_)       evt.getByToken(ScaleUp_t,evtwt_h);
   else if (ScaleDown_)     evt.getByToken(ScaleDown_t,evtwt_h);
+  else if (DYdown_)        evt.getByToken(DYdown_t, evtwt_h);
+  else if (tauUp_)         evt.getByToken(tauUp_t, evtwt_h);
+  else if (tauDown_)       evt.getByToken(tauDown_t, evtwt_h);
   else                     evt.getByToken(evtwt_t,  evtwt_h);
 
 	TLorentzVector zllcand = (*zllcands_h.product()).at(0).getP4();

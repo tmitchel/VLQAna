@@ -117,6 +117,7 @@ class OS2LAna : public edm::EDFilter {
     const bool applyBTagSFs_                     ;
     const bool applyDYNLOCorr_                   ;
     const bool DYdown_                           ;
+    const int  tauShift_                         ;
     const std::string fname_DYNLOCorr_           ; 
     const std::string funname_DYNLOCorr_         ; 
     DYNLOEwkKfact dynloewkkfact                  ;
@@ -216,6 +217,7 @@ OS2LAna::OS2LAna(const edm::ParameterSet& iConfig) :
   applyBTagSFs_           (iConfig.getParameter<bool>              ("applyBTagSFs")),
   applyDYNLOCorr_         (iConfig.getParameter<bool>              ("applyDYNLOCorr")),
   DYdown_                 (iConfig.getParameter<bool>              ("DYdown")),
+  tauShift_               (iConfig.getParameter<int>               ("tauShift")),
   fname_DYNLOCorr_        (iConfig.getParameter<std::string>       ("File_DYNLOCorr")),
   funname_DYNLOCorr_      (iConfig.getParameter<std::string>       ("Fun_DYNLOCorr")),
   dynloewkkfact           (DYNLOEwkKfact(fname_DYNLOCorr_,funname_DYNLOCorr_)),
@@ -238,7 +240,7 @@ OS2LAna::OS2LAna(const edm::ParameterSet& iConfig) :
   sjbtagsfutils_          (new BTagSFUtils(fnameSJbtagSF_,BTagEntry::OP_LOOSE,30., 450., 30., 450., 20., 1000.,btageffmap_)),
   maketree_               (iConfig.getParameter<bool>("maketree"))
 
-{
+{std::cout << "after constructor" << std::endl;
 	produces<vlq::JetCollection>("ak4jets") ;
 	produces<vlq::JetCollection>("ak8jets") ;
   produces<vlq::JetCollection>("tjets") ; 
@@ -504,10 +506,14 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   cleanjets(goodWTaggedJets, goodMuons); 
   cleanjets(goodWTaggedJets, goodElectrons); 
 
+  evtwt *= (( 1.11 + (tauShift_ * .08)) * goodWTaggedJets.size());
+
   vlq::JetCollection goodHTaggedJets; 
   jetHTaggedmaker(evt, goodHTaggedJets);
   cleanjets(goodHTaggedJets, goodMuons); 
   cleanjets(goodHTaggedJets, goodElectrons); 
+
+  evtwt *= (( 1.11 + (tauShift_ * .08)) * goodHTaggedJets.size());
   
   //// http://cms.cern.ch/iCMS/jsp/openfile.jsp?tp=draft&files=AN2016_245_v3.pdf
   //// SF of 0.93+/-0.09 required for top tag WP with mistag rate 1% (no subjet b tag): AN2016-245v3

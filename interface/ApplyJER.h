@@ -7,6 +7,12 @@ double ApplyJERMass(int jerShift) {
   if (jerShift == -1) massjerscale -= 0.103 ;
   return massjerscale ; 
 }
+double ApplyVJERMass(int jerShift) {
+  double massjerscale(1.07) ;
+  if (jerShift == 2) massjerscale += 0.20 ;
+  if (jerShift == -1) massjerscale -= 0.20 ;
+  return massjerscale ;
+}
 
 double ApplyJERp4 (double eta, int jerShift) {
 
