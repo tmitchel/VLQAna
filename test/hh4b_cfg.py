@@ -82,78 +82,18 @@ process.TFileService = cms.Service("TFileService",
        )
 
 process.load("Analysis.VLQAna.EventCleaner_cff") 
-process.evtcleaner.hltPaths = cms.vstring (hltpaths)  
+process.evtcleaner.File_PUDistData= cms.string('RunII2016Rereco_25ns_PUXsec69000nb.root')
+process.evtcleaner.File_PUDistDataLow =  cms.string('RunII2016Rereco_25ns_PUXsec65550nb.root')
+process.evtcleaner.File_PUDistDataHigh = cms.string('RunII2016Rereco_25ns_PUXsec72450nb.root')
+process.evtcleaner.File_PUDistMC = cms.string('PUDistMC_Summer2016_25ns_Moriond17MC_PoissonOOTPU.root')
 process.evtcleaner.isData = options.isData 
 process.evtcleaner.DoPUReweightingOfficial = options.doPUReweightingOfficial
 process.evtcleaner.storeLHEWts = options.storeLHEWts
 
 from Analysis.VLQAna.HH4b_cff import *
+process.hh4b = hh4b.clone()
 
-process.hh4bchs = hh4b.clone(
-    jetAK8selParams  = defaultAK8CHSJetSelectionParameters.clone(
-      jetPtMin                  = cms.double(0),
-      JetIDParams  = defaultAK8CHSJetIDParameters.clone(
-        quality = cms.string  ("TIGHTLEPVETO"),
-        ), 
-      jetAbsEtaMax = cms.double(100), 
-      ),
-    jetHTaggedselParams = defaultCHSHJetSelectionParameters.clone(
-      JetIDParams  = defaultAK8CHSJetIDParameters.clone(
-      jetPtMin                  = cms.double(0),
-        quality = cms.string  ("TIGHTLEPVETO"),
-        ), 
-      jetAbsEtaMax = cms.double(100), 
-      #jetSoftDropMassMin    = cms.double(90) ,
-      #jetSoftDropMassMax    = cms.double(145) ,
-      ),
-    )
-process.hh4bchs.printEvtNo = cms.bool(options.printEvtNo)
-process.hh4bchs.jetAK8selParams.scaleJetP4 = cms.bool(False)
-process.hh4bchs.jetAK8selParams.jettau2Bytau1Max = cms.double(1.00)
-process.hh4bchs.jetAK8selParams.subjetCSVMin = cms.double(-1000.) 
-process.hh4bchs.jetAK8selParams.jecShift = options.jecShift 
-process.hh4bchs.jetAK8selParams.jerShift = options.jerShift 
-process.hh4bchs.jetHTaggedselParams.scaleJetP4 = cms.bool(False)
-process.hh4bchs.jetHTaggedselParams.jettau2Bytau1Max = cms.double(1.00)
-process.hh4bchs.jetHTaggedselParams.subjetCSVMin = cms.double(-1000.) 
-process.hh4bchs.jetHTaggedselParams.jecShift = options.jecShift 
-process.hh4bchs.jetHTaggedselParams.jerShift = options.jerShift 
-if options.isData:
-  process.hh4bchs.jetAK8selParams.jecUncPayloadName = cms.string("Spring16_25nsV6_DATA_Uncertainty_AK8PFchs.txt")
-  process.hh4bchs.jetAK8selParams.jecAK8GroomedPayloadNames = cms.vstring(
-      "Spring16_25nsV6_DATA_L2Relative_AK8PFchs.txt", 
-      "Spring16_25nsV6_DATA_L3Absolute_AK8PFchs.txt",
-      "Spring16_25nsV6_DATA_L2L3Residual_AK8PFchs.txt")  
-  process.hh4bchs.jetHTaggedselParams.jecUncPayloadName = cms.string("Spring16_25nsV6_DATA_Uncertainty_AK8PFchs.txt")
-  process.hh4bchs.jetHTaggedselParams.jecAK8GroomedPayloadNames = cms.vstring(
-      "Spring16_25nsV6_DATA_L2Relative_AK8PFchs.txt", 
-      "Spring16_25nsV6_DATA_L3Absolute_AK8PFchs.txt",
-      "Spring16_25nsV6_DATA_L2L3Residual_AK8PFchs.txt")  
-
-if options.isData == False: ### Careful, to be reset when B2GAnaFW_v80X_v2.4 MC are used
-  for par in ['jetAK8selParams', 'jetHTaggedselParams']:
-    setattr(getattr(getattr(process.hh4bchs, par), 'JetSubstrParams'), 'jettau1Label'         ,cms.InputTag("jetsAK8CHS", "jetAK8CHStau1"))
-    setattr(getattr(getattr(process.hh4bchs, par), 'JetSubstrParams'), 'jettau2Label'         ,cms.InputTag("jetsAK8CHS", "jetAK8CHStau2"))
-    setattr(getattr(getattr(process.hh4bchs, par), 'JetSubstrParams'), 'jettau3Label'         ,cms.InputTag("jetsAK8CHS", "jetAK8CHStau3"))
-    setattr(getattr(getattr(process.hh4bchs, par), 'JetSubstrParams'), 'jetPrunedMassLabel'   ,cms.InputTag("jetsAK8CHS", "jetAK8CHSprunedMass"))
-    setattr(getattr(getattr(process.hh4bchs, par), 'JetSubstrParams'), 'jetTrimmedMassLabel'  ,cms.InputTag("jetsAK8CHS", "jetAK8CHStrimmedMass"))
-    setattr(getattr(getattr(process.hh4bchs, par), 'JetSubstrParams'), 'jetFilteredMassLabel' ,cms.InputTag("jetsAK8CHS", "jetAK8CHSfilteredMass"))
-    setattr(getattr(getattr(process.hh4bchs, par), 'JetSubstrParams'), 'jetSoftDropMassLabel' ,cms.InputTag("jetsAK8CHS", "jetAK8CHSsoftDropMass"))
-
-process.hh4bpuppi = process.hh4bchs.clone(
-    jetAK8selParams  = defaultAK8PuppiJetSelectionParameters.clone(
-      jetPtMin                  = cms.double(200),
-      JetIDParams  = defaultAK8PuppiJetIDParameters.clone(
-        quality = cms.string  ("TIGHTLEPVETO"),
-        ), 
-      jetAbsEtaMax = cms.double(100), 
-      ),
-    jetHTaggedselParams = defaultPuppiHJetSelectionParameters.clone(
-      JetIDParams  = defaultAK8PuppiJetIDParameters.clone(
-        quality = cms.string  ("TIGHTLEPVETO"),
-        ), 
-      ),
-    )
+process.hh4b = process.hh4b.clone()
 
 from Analysis.EventCounter.eventcounter_cfi import eventCounter
 process.allEvents = eventCounter.clone(isData=options.isData)
@@ -163,9 +103,7 @@ process.finalEvents = eventCounter.clone(isData=options.isData)
 process.p = cms.Path(
     process.allEvents
     *process.evtcleaner
-    *process.cleanedEvents
-    *process.hh4bchs
-    #*process.hh4bpuppi
+    *cms.ignore(process.hh4b)
     * process.finalEvents
     )
 

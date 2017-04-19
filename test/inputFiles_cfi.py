@@ -2,6 +2,10 @@ FileNames = {
     'test': [
       '/store/group/phys_b2g/B2GAnaFW_80X_V2p4/QCD_HT1000to1500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/RunIISummer16MiniAODv2/QCD_HT1000to1500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6_ext1-v1_B2GAnaFW_80X_V2p04/161228_222527/0000/B2GEDMNtuple_2.root',
       ],
+    'FileNames_BG1000': [ 
+      '/store/group/phys_b2g/B2GAnaFW_80X_V2p5/v80x_v2p5/BulkGravTohhTohbbhbb_narrow_M-1000_13TeV-madgraph/RunIISummer16MiniAODv2/BulkGravTohhTohbbhbb_narrow_M-1000_13TeV-madgraph/RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1_v80x_v2p5/170307_165428/0000/B2GEDMNtuple_1.root',
+      '/store/group/phys_b2g/B2GAnaFW_80X_V2p5/v80x_v2p5/BulkGravTohhTohbbhbb_narrow_M-1000_13TeV-madgraph/RunIISummer16MiniAODv2/BulkGravTohhTohbbhbb_narrow_M-1000_13TeV-madgraph/RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1_v80x_v2p5/170307_165428/0000/B2GEDMNtuple_2.root',
+      ],
     'FileNames': [
       ],
     'FileNames_SingleMuon_v2p4':[
@@ -1053,5 +1057,4 @@ FileNames = {
         ],
   }
 files=[]
-
 

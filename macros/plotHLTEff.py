@@ -52,10 +52,10 @@ def compareHLTEff(num, den, samplenum, sampleden, tagnum, tagden, etabin):
   var = sys.argv[1]
   run = sys.argv[2]
 
-  if etabin == "py0": etalabel = "0.0 < |#eta| < 0.434"
-  elif etabin == "py1": etalabel = "0.434 < |#eta| < 0.868"
-  elif etabin == "py2": etalabel = "0.868 < |#eta| < 1.3"
-  else: etalabel = "0.0 < |#eta| < 1.3"
+  if etabin == "py0": etalabel = "0.0 < |#Delta#eta(j_{1}, j_{2})| < 0.434"
+  elif etabin == "py1": etalabel = "0.434 < |#Delta#eta(j_{1}, j_{2})| < 0.868"
+  elif etabin == "py2": etalabel = "0.868 < |#Delta#eta(j_{1}, j_{2})| < 1.3"
+  else: etalabel = "0.0 < |#Delta#eta(j_{1}, j_{2})| < 1.3"
 
   fjetht = ROOT.TFile(num,"READ")
   fqcd = ROOT.TFile(den,"READ")
@@ -182,8 +182,8 @@ def plotHLTEff (den, num, sample, tag) :
   txt0.SetFillColor(0)
   txt0.SetTextFont(42);
   txt0.SetTextSize(0.02);
-  txt0.AddText("Jet p_{T} > 300 GeV, |#eta| < 2.4")
-  txt0.AddText("#Delta#eta| < 1.3 105 < jet SD mass < 135 GeV")
+  txt0.AddText("Jet p_{T} > 300 GeV, |#Delta#eta(j_{1}, j_{2})| < 2.4")
+  txt0.AddText("#Delta#Delta#eta(j_{1}, j_{2})| < 1.3 105 < jet SD mass < 135 GeV")
   txt0.Draw()
   c0.Update()
   c0.RedrawAxis()
@@ -220,7 +220,7 @@ def plotHLTEff (den, num, sample, tag) :
   leg.AddEntry(h,"","")
   leg.AddEntry(h,"","")
   leg.AddEntry(h,"","")
-  leg.AddEntry(gx, "All #eta", "l")
+  leg.AddEntry(gx, "All #Delta#eta(j_{1}, j_{2})", "l")
   leg.Draw()
   c1.Update()
   txt0 = ROOT.TPaveText(0.4,0.35,0.88,0.45,"brNDC")
@@ -228,8 +228,8 @@ def plotHLTEff (den, num, sample, tag) :
   txt0.SetFillColor(10)
   txt0.SetTextFont(42);
   txt0.SetTextSize(0.02);
-  txt0.AddText("Jet p_{T} > 300 GeV, |#eta| < 2.4")
-  txt0.AddText("#Delta#eta| < 1.3 105 < jet SD mass < 135 GeV")
+  txt0.AddText("Jet p_{T} > 300 GeV, |#Delta#eta(j_{1}, j_{2})| < 2.4")
+  txt0.AddText("#Delta#Delta#eta(j_{1}, j_{2})| < 1.3 105 < jet SD mass < 135 GeV")
   txt0.Draw()
   c1.Update()
   hnumx=[None]*ny
@@ -252,7 +252,7 @@ def plotHLTEff (den, num, sample, tag) :
     c1.Update()
     c1.RedrawAxis()
     c1.Update()
-    leg.AddEntry(gr[j], "%f < |#eta| < %f" % (hden.GetYaxis().GetBinLowEdge(j+1), hden.GetYaxis().GetBinUpEdge(j+1)),"l")
+    leg.AddEntry(gr[j], "%f < |#Delta#eta(j_{1}, j_{2})| < %f" % (hden.GetYaxis().GetBinLowEdge(j+1), hden.GetYaxis().GetBinUpEdge(j+1)),"l")
     fout.cd()
     hnumx[j].Write()
     hdenx[j].Write()
