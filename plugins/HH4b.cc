@@ -210,75 +210,75 @@ bool HH4b::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
       << std::endl ; 
   }
 
-  //>>std::vector<double>ak8jets_sjcsvs;
-  //>>std::vector<double>ak8jets_sjpts;
-  //>>std::vector<double>ak8jets_sjetas;
-  //>>std::vector<int>   ak8jets_sjflhads;
+  std::vector<double>ak8jets_sjcsvs;
+  std::vector<double>ak8jets_sjpts;
+  std::vector<double>ak8jets_sjetas;
+  std::vector<int>   ak8jets_sjflhads;
 
-  //>>std::vector<double>ak8jets_doublebs;
-  //>>std::vector<double>ak8jets_pts;
-  //>>std::vector<int>   ak8jets_flhads;
+  std::vector<double>ak8jets_doublebs;
+  std::vector<double>ak8jets_pts;
+  std::vector<int>   ak8jets_flhads;
 
-  //>>ak8jets.njets = goodAK8Jets.size() ; 
-  //>>for (auto ijet : index(goodAK8Jets) ) {
-  //>>  ak8jets.Index[ijet.first] = (ijet.second).getIndex() ;
-  //>>  ak8jets.ParentIndex[ijet.first] = -1 ;
-  //>>  ak8jets.Pt[ijet.first] = (ijet.second).getPt() ;
-  //>>  ak8jets.Eta[ijet.first] = (ijet.second).getEta() ;
-  //>>  ak8jets.Phi[ijet.first] = (ijet.second).getPhi() ;
-  //>>  ak8jets.Energy[ijet.first] = (ijet.second).getEnergy() ;
-  //>>  ak8jets.Mass[ijet.first] = (ijet.second).getMass() ;
-  //>>  ak8jets.MassPruned[ijet.first] = (ijet.second).getPrunedMass() ;
-  //>>  ak8jets.MassSoftDrop[ijet.first] = (ijet.second).getSoftDropMass() ;
-  //>>  ak8jets.tau1[ijet.first] = (ijet.second).getTau1() ;
-  //>>  ak8jets.tau2[ijet.first] = (ijet.second).getTau2() ;
-  //>>  ak8jets.tau3[ijet.first] = (ijet.second).getTau3() ;
-  //>>  ak8jets.hadFlavour[ijet.first] = (ijet.second).getHadronFlavour() ;
-  //>>  ak8jets.CSVIVFv2[ijet.first] = (ijet.second).getCSV() ;
-  //>>  ak8jets.groomedMassCorr[ijet.first] = (ijet.second).getGroomedMassCorr() ;
-  //>>  ak8jets.nsubjets[ijet.first] = (ijet.second).getNSubjets() ;
-  //>>  ak8jets.nsubjetsBTaggedCSVL[ijet.first] = (ijet.second).getNSubjetsBTaggedCSVL() ;
-  //>>  leadingdijets.nsubjetsBTaggedCSVL_  += (ijet.second).getNSubjetsBTaggedCSVL() ;  
-  //>>  ak8jets.hadFlavourSubjet0[ijet.first] = (ijet.second).getHadronFlavourSubjet0() ;
-  //>>  ak8jets.hadFlavourSubjet1[ijet.first] = (ijet.second).getHadronFlavourSubjet1() ;
-  //>>  ak8jets.ptSubjet0[ijet.first] = (ijet.second).getPtSubjet0() ;
-  //>>  ak8jets.ptSubjet1[ijet.first] = (ijet.second).getPtSubjet1() ;
-  //>>  ak8jets.etaSubjet0[ijet.first] = (ijet.second).getEtaSubjet0() ;
-  //>>  ak8jets.etaSubjet1[ijet.first] = (ijet.second).getEtaSubjet1() ;
-  //>>  ak8jets.phiSubjet0[ijet.first] = (ijet.second).getPhiSubjet0() ;
-  //>>  ak8jets.phiSubjet1[ijet.first] = (ijet.second).getPhiSubjet1() ;
-  //>>  ak8jets.energySubjet0[ijet.first] = (ijet.second).getEnergySubjet0() ;
-  //>>  ak8jets.energySubjet1[ijet.first] = (ijet.second).getEnergySubjet1() ;
-  //>>  ak8jets.doublesv[ijet.first] = (ijet.second).getDoubleBAK8();
-  //>>  ak8jets.csvSubjet0[ijet.first] = (ijet.second).getCSVSubjet0() ;
-  //>>  ak8jets.csvSubjet1[ijet.first] = (ijet.second).getCSVSubjet1() ;
+  ak8jets.njets = goodAK8Jets.size() ; 
+  for (auto ijet : index(goodAK8Jets) ) {
+    ak8jets.Index[ijet.first] = (ijet.second).getIndex() ;
+    ak8jets.ParentIndex[ijet.first] = -1 ;
+    ak8jets.Pt[ijet.first] = (ijet.second).getPt() ;
+    ak8jets.Eta[ijet.first] = (ijet.second).getEta() ;
+    ak8jets.Phi[ijet.first] = (ijet.second).getPhi() ;
+    ak8jets.Energy[ijet.first] = (ijet.second).getEnergy() ;
+    ak8jets.Mass[ijet.first] = (ijet.second).getMass() ;
+    ak8jets.MassPruned[ijet.first] = (ijet.second).getPrunedMass() ;
+    ak8jets.MassSoftDrop[ijet.first] = (ijet.second).getSoftDropMass() ;
+    ak8jets.tau1[ijet.first] = (ijet.second).getTau1() ;
+    ak8jets.tau2[ijet.first] = (ijet.second).getTau2() ;
+    ak8jets.tau3[ijet.first] = (ijet.second).getTau3() ;
+    ak8jets.hadFlavour[ijet.first] = (ijet.second).getHadronFlavour() ;
+    ak8jets.CSVIVFv2[ijet.first] = (ijet.second).getCSV() ;
+    ak8jets.groomedMassCorr[ijet.first] = (ijet.second).getGroomedMassCorr() ;
+    ak8jets.nsubjets[ijet.first] = (ijet.second).getNSubjets() ;
+    ak8jets.nsubjetsBTaggedCSVL[ijet.first] = (ijet.second).getNSubjetsBTaggedCSVL() ;
+    leadingdijets.nsubjetsBTaggedCSVL_  += (ijet.second).getNSubjetsBTaggedCSVL() ;  
+    ak8jets.hadFlavourSubjet0[ijet.first] = (ijet.second).getHadronFlavourSubjet0() ;
+    ak8jets.hadFlavourSubjet1[ijet.first] = (ijet.second).getHadronFlavourSubjet1() ;
+    ak8jets.ptSubjet0[ijet.first] = (ijet.second).getPtSubjet0() ;
+    ak8jets.ptSubjet1[ijet.first] = (ijet.second).getPtSubjet1() ;
+    ak8jets.etaSubjet0[ijet.first] = (ijet.second).getEtaSubjet0() ;
+    ak8jets.etaSubjet1[ijet.first] = (ijet.second).getEtaSubjet1() ;
+    ak8jets.phiSubjet0[ijet.first] = (ijet.second).getPhiSubjet0() ;
+    ak8jets.phiSubjet1[ijet.first] = (ijet.second).getPhiSubjet1() ;
+    ak8jets.energySubjet0[ijet.first] = (ijet.second).getEnergySubjet0() ;
+    ak8jets.energySubjet1[ijet.first] = (ijet.second).getEnergySubjet1() ;
+    ak8jets.doublesv[ijet.first] = (ijet.second).getDoubleBAK8();
+    ak8jets.csvSubjet0[ijet.first] = (ijet.second).getCSVSubjet0() ;
+    ak8jets.csvSubjet1[ijet.first] = (ijet.second).getCSVSubjet1() ;
 
-  //>>  if ( !isData ) { 
+    if ( !isData ) { 
 
-  //>>    ak8jets_sjcsvs.push_back((ijet.second).getCSVSubjet0()) ; 
-  //>>    ak8jets_sjcsvs.push_back((ijet.second).getCSVSubjet1()) ; 
+      ak8jets_sjcsvs.push_back((ijet.second).getCSVSubjet0()) ; 
+      ak8jets_sjcsvs.push_back((ijet.second).getCSVSubjet1()) ; 
 
-  //>>    ak8jets_sjpts.push_back((ijet.second).getPtSubjet0()) ;  
-  //>>    ak8jets_sjpts.push_back((ijet.second).getPtSubjet1()) ;  
+      ak8jets_sjpts.push_back((ijet.second).getPtSubjet0()) ;  
+      ak8jets_sjpts.push_back((ijet.second).getPtSubjet1()) ;  
 
-  //>>    ak8jets_sjetas.push_back((ijet.second).getEtaSubjet0()) ;  
-  //>>    ak8jets_sjetas.push_back((ijet.second).getEtaSubjet1()) ;  
+      ak8jets_sjetas.push_back((ijet.second).getEtaSubjet0()) ;  
+      ak8jets_sjetas.push_back((ijet.second).getEtaSubjet1()) ;  
 
-  //>>    ak8jets_sjflhads.push_back(abs((ijet.second).getHadronFlavourSubjet0())) ; 
-  //>>    ak8jets_sjflhads.push_back(abs((ijet.second).getHadronFlavourSubjet1())) ;
+      ak8jets_sjflhads.push_back(abs((ijet.second).getHadronFlavourSubjet0())) ; 
+      ak8jets_sjflhads.push_back(abs((ijet.second).getHadronFlavourSubjet1())) ;
 
-  //>>    ak8jets_doublebs.push_back((ijet.second).getDoubleBAK8());
-  //>>    ak8jets_pts.push_back((ijet.second).getPt());
-  //>>    ak8jets_flhads.push_back((ijet.second).getHadronFlavour());
+      ak8jets_doublebs.push_back((ijet.second).getDoubleBAK8());
+      ak8jets_pts.push_back((ijet.second).getPt());
+      ak8jets_flhads.push_back((ijet.second).getHadronFlavour());
 
-  //>>  } //// if !isData do  b tag SFs
+    } //// if !isData do  b tag SFs
 
-  //>>} //// Loop over all AK8 jets
+  } //// Loop over all AK8 jets
 
   //// Event selection
   if ( !isHltNPV || !isAK8Pt ) return false; 
 
-  //>>leadingdijets.doublebcategory_ = int(doublebcategory.to_ulong()) ; 
+  leadingdijets.doublebcategory_ = int(doublebcategory.to_ulong()) ; 
 
   //// For trigger turn on
   if ( isAK8Pt && isAK8Eta && isAK8DEta && (goodAK8Jets.at(0).getMass() > 50. || goodAK8Jets.at(1).getMass() > 50.)) {
@@ -295,133 +295,133 @@ bool HH4b::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   }
 
   //// Leading 2 jets pass Higgs tagging
-  //>>if ( !passHiggsTagging(goodAK8Jets.at(0)) || !passHiggsTagging(goodAK8Jets.at(1)) ) return false ;
+  if ( !passHiggsTagging(goodAK8Jets.at(0)) || !passHiggsTagging(goodAK8Jets.at(1)) ) return false ;
 
-  //>>vlq::JetCollection goodHTaggedJets ;
-  //>>goodHTaggedJets.push_back(goodAK8Jets.at(0)); 
-  //>>goodHTaggedJets.push_back(goodAK8Jets.at(1)); 
+  vlq::JetCollection goodHTaggedJets ;
+  goodHTaggedJets.push_back(goodAK8Jets.at(0)); 
+  goodHTaggedJets.push_back(goodAK8Jets.at(1)); 
 
-  //>>double btagsf(1) ;
-  //>>double btagsf_bcUp(1) ; 
-  //>>double btagsf_bcDown(1) ; 
-  //>>double btagsf_lUp(1) ; 
-  //>>double btagsf_lDown(1) ; 
+  double btagsf(1) ;
+  double btagsf_bcUp(1) ; 
+  double btagsf_bcDown(1) ; 
+  double btagsf_lUp(1) ; 
+  double btagsf_lDown(1) ; 
 
-  //>>TLorentzVector p4_hjet0 = goodHTaggedJets.at(0).getP4() ; 
-  //>>TLorentzVector p4_hjet1 = goodHTaggedJets.at(1).getP4() ; 
-  //>>TLorentzVector p4_leading2hjets = p4_hjet0+p4_hjet1 ;
+  TLorentzVector p4_hjet0 = goodHTaggedJets.at(0).getP4() ; 
+  TLorentzVector p4_hjet1 = goodHTaggedJets.at(1).getP4() ; 
+  TLorentzVector p4_leading2hjets = p4_hjet0+p4_hjet1 ;
 
-  //>>leadingdijets.deta_leading2hjets_ = aK8DEta ; 
-  //>>leadingdijets.minv_leading2hjets_ = p4_leading2hjets.Mag();
-  //>>leadingdijets.minv_leading2hjets_subtr_ = p4_leading2hjets.Mag() 
-  //>>  - (goodHTaggedJets.at(0).getMass() - 125.) 
-  //>>  - (goodHTaggedJets.at(1).getMass() - 125.);
-  //>>leadingdijets.pt_leading2hjets_ = p4_leading2hjets.Pt();
-  //>>leadingdijets.eta_leading2hjets_ = p4_leading2hjets.Eta();
-  //>>leadingdijets.y_leading2hjets_ = p4_leading2hjets.Rapidity();
-  //>>leadingdijets.phi_leading2hjets_ = p4_leading2hjets.Phi();
-  //>>leadingdijets.energy_leading2hjets_ = p4_leading2hjets.E();
+  leadingdijets.deta_leading2hjets_ = aK8DEta ; 
+  leadingdijets.minv_leading2hjets_ = p4_leading2hjets.Mag();
+  leadingdijets.minv_leading2hjets_subtr_ = p4_leading2hjets.Mag() 
+    - (goodHTaggedJets.at(0).getMass() - 125.) 
+    - (goodHTaggedJets.at(1).getMass() - 125.);
+  leadingdijets.pt_leading2hjets_ = p4_leading2hjets.Pt();
+  leadingdijets.eta_leading2hjets_ = p4_leading2hjets.Eta();
+  leadingdijets.y_leading2hjets_ = p4_leading2hjets.Rapidity();
+  leadingdijets.phi_leading2hjets_ = p4_leading2hjets.Phi();
+  leadingdijets.energy_leading2hjets_ = p4_leading2hjets.E();
 
-  //>>std::vector<std::pair<int, double>> lhe_ids_wts;
-  //>>for (auto idx : index(*h_lhewtids.product()) ) {
-  //>>  int id = (*h_lhewtids.product()).at(idx.first) ; 
-  //>>  double wt = (*h_lhewts.product()).at(idx.first) ; 
-  //>>  lhe_ids_wts.push_back(std::make_pair(id, wt)) ; 
-  //>>}
+  std::vector<std::pair<int, double>> lhe_ids_wts;
+  for (auto idx : index(*h_lhewtids.product()) ) {
+    int id = (*h_lhewtids.product()).at(idx.first) ; 
+    double wt = (*h_lhewts.product()).at(idx.first) ; 
+    lhe_ids_wts.push_back(std::make_pair(id, wt)) ; 
+  }
 
-  //>>selectedevt.runno_ = int(runno);
-  //>>selectedevt.lumisec_ = int(lumisec);
-  //>>selectedevt.evtno_ = int(evtno);
-  //>>selectedevt.evtwt_ = evtwt ; 
-  //>>selectedevt.evtwtPV_ = double(*h_evtwtPV.product()) ; 
-  //>>selectedevt.evtwtPVLow_ = double(*h_evtwtPVLow.product()) ; 
-  //>>selectedevt.evtwtPVHigh_ = double(*h_evtwtPVHigh.product()) ; 
-  //>>selectedevt.npv_ = npv ; 
-  //>>selectedevt.npuTrue_ = int(*h_npuTrue.product()) ; 
-  //>>selectedevt.lhewts_ = lhe_ids_wts;
-  //>>selectedevt.htHat_ = htHat ; 
+  selectedevt.runno_ = int(runno);
+  selectedevt.lumisec_ = int(lumisec);
+  selectedevt.evtno_ = int(evtno);
+  selectedevt.evtwt_ = evtwt ; 
+  selectedevt.evtwtPV_ = double(*h_evtwtPV.product()) ; 
+  selectedevt.evtwtPVLow_ = double(*h_evtwtPVLow.product()) ; 
+  selectedevt.evtwtPVHigh_ = double(*h_evtwtPVHigh.product()) ; 
+  selectedevt.npv_ = npv ; 
+  selectedevt.npuTrue_ = int(*h_npuTrue.product()) ; 
+  selectedevt.lhewts_ = lhe_ids_wts;
+  selectedevt.htHat_ = htHat ; 
 
-  //>>leadingdijets.nsubjetsBTaggedCSVL_ = 0 ;
+  leadingdijets.nsubjetsBTaggedCSVL_ = 0 ;
 
-  //>>std::vector<double>hjets_sjcsvs;
-  //>>std::vector<double>hjets_sjpts;
-  //>>std::vector<double>hjets_sjetas;
-  //>>std::vector<int>hjets_sjflhads;
+  std::vector<double>hjets_sjcsvs;
+  std::vector<double>hjets_sjpts;
+  std::vector<double>hjets_sjetas;
+  std::vector<int>hjets_sjflhads;
 
-  //>>std::vector<double>hjets_doublebs;
-  //>>std::vector<double>hjets_pts;
-  //>>std::vector<int>   hjets_flhads;
+  std::vector<double>hjets_doublebs;
+  std::vector<double>hjets_pts;
+  std::vector<int>   hjets_flhads;
 
-  //>>hjets.njets = goodHTaggedJets.size() ; 
-  //>>for (auto ijet : index(goodHTaggedJets) ) {
-  //>>  hjets.Index[ijet.first] = (ijet.second).getIndex() ;
-  //>>  hjets.ParentIndex[ijet.first] = -1 ;
-  //>>  hjets.Pt[ijet.first] = (ijet.second).getPt() ;
-  //>>  hjets.Eta[ijet.first] = (ijet.second).getEta() ;
-  //>>  hjets.Phi[ijet.first] = (ijet.second).getPhi() ;
-  //>>  hjets.Energy[ijet.first] = (ijet.second).getEnergy() ;
-  //>>  hjets.Mass[ijet.first] = (ijet.second).getMass() ;
-  //>>  hjets.MassPruned[ijet.first] = (ijet.second).getPrunedMass() ;
-  //>>  hjets.MassSoftDrop[ijet.first] = (ijet.second).getSoftDropMass() ;
-  //>>  hjets.tau1[ijet.first] = (ijet.second).getTau1() ;
-  //>>  hjets.tau2[ijet.first] = (ijet.second).getTau2() ;
-  //>>  hjets.tau3[ijet.first] = (ijet.second).getTau3() ;
-  //>>  hjets.hadFlavour[ijet.first] = (ijet.second).getHadronFlavour() ;
-  //>>  hjets.CSVIVFv2[ijet.first] = (ijet.second).getCSV() ;
-  //>>  hjets.groomedMassCorr[ijet.first] = (ijet.second).getGroomedMassCorr() ;
-  //>>  hjets.nsubjets[ijet.first] = (ijet.second).getNSubjets() ;
-  //>>  hjets.nsubjetsBTaggedCSVL[ijet.first] = (ijet.second).getNSubjetsBTaggedCSVL() ;
-  //>>  leadingdijets.nsubjetsBTaggedCSVL_  += (ijet.second).getNSubjetsBTaggedCSVL() ;  
-  //>>  hjets.hadFlavourSubjet0[ijet.first] = (ijet.second).getHadronFlavourSubjet0() ;
-  //>>  hjets.hadFlavourSubjet1[ijet.first] = (ijet.second).getHadronFlavourSubjet1() ;
-  //>>  hjets.ptSubjet0[ijet.first] = (ijet.second).getPtSubjet0() ;
-  //>>  hjets.ptSubjet1[ijet.first] = (ijet.second).getPtSubjet1() ;
-  //>>  hjets.etaSubjet0[ijet.first] = (ijet.second).getEtaSubjet0() ;
-  //>>  hjets.etaSubjet1[ijet.first] = (ijet.second).getEtaSubjet1() ;
-  //>>  hjets.phiSubjet0[ijet.first] = (ijet.second).getPhiSubjet0() ;
-  //>>  hjets.phiSubjet1[ijet.first] = (ijet.second).getPhiSubjet1() ;
-  //>>  hjets.energySubjet0[ijet.first] = (ijet.second).getEnergySubjet0() ;
-  //>>  hjets.energySubjet1[ijet.first] = (ijet.second).getEnergySubjet1() ;
-  //>>  hjets.doublesv[ijet.first] = (ijet.second).getDoubleBAK8();
-  //>>  hjets.csvSubjet0[ijet.first] = (ijet.second).getCSVSubjet0() ;
-  //>>  hjets.csvSubjet1[ijet.first] = (ijet.second).getCSVSubjet1() ;
+  hjets.njets = goodHTaggedJets.size() ; 
+  for (auto ijet : index(goodHTaggedJets) ) {
+    hjets.Index[ijet.first] = (ijet.second).getIndex() ;
+    hjets.ParentIndex[ijet.first] = -1 ;
+    hjets.Pt[ijet.first] = (ijet.second).getPt() ;
+    hjets.Eta[ijet.first] = (ijet.second).getEta() ;
+    hjets.Phi[ijet.first] = (ijet.second).getPhi() ;
+    hjets.Energy[ijet.first] = (ijet.second).getEnergy() ;
+    hjets.Mass[ijet.first] = (ijet.second).getMass() ;
+    hjets.MassPruned[ijet.first] = (ijet.second).getPrunedMass() ;
+    hjets.MassSoftDrop[ijet.first] = (ijet.second).getSoftDropMass() ;
+    hjets.tau1[ijet.first] = (ijet.second).getTau1() ;
+    hjets.tau2[ijet.first] = (ijet.second).getTau2() ;
+    hjets.tau3[ijet.first] = (ijet.second).getTau3() ;
+    hjets.hadFlavour[ijet.first] = (ijet.second).getHadronFlavour() ;
+    hjets.CSVIVFv2[ijet.first] = (ijet.second).getCSV() ;
+    hjets.groomedMassCorr[ijet.first] = (ijet.second).getGroomedMassCorr() ;
+    hjets.nsubjets[ijet.first] = (ijet.second).getNSubjets() ;
+    hjets.nsubjetsBTaggedCSVL[ijet.first] = (ijet.second).getNSubjetsBTaggedCSVL() ;
+    leadingdijets.nsubjetsBTaggedCSVL_  += (ijet.second).getNSubjetsBTaggedCSVL() ;  
+    hjets.hadFlavourSubjet0[ijet.first] = (ijet.second).getHadronFlavourSubjet0() ;
+    hjets.hadFlavourSubjet1[ijet.first] = (ijet.second).getHadronFlavourSubjet1() ;
+    hjets.ptSubjet0[ijet.first] = (ijet.second).getPtSubjet0() ;
+    hjets.ptSubjet1[ijet.first] = (ijet.second).getPtSubjet1() ;
+    hjets.etaSubjet0[ijet.first] = (ijet.second).getEtaSubjet0() ;
+    hjets.etaSubjet1[ijet.first] = (ijet.second).getEtaSubjet1() ;
+    hjets.phiSubjet0[ijet.first] = (ijet.second).getPhiSubjet0() ;
+    hjets.phiSubjet1[ijet.first] = (ijet.second).getPhiSubjet1() ;
+    hjets.energySubjet0[ijet.first] = (ijet.second).getEnergySubjet0() ;
+    hjets.energySubjet1[ijet.first] = (ijet.second).getEnergySubjet1() ;
+    hjets.doublesv[ijet.first] = (ijet.second).getDoubleBAK8();
+    hjets.csvSubjet0[ijet.first] = (ijet.second).getCSVSubjet0() ;
+    hjets.csvSubjet1[ijet.first] = (ijet.second).getCSVSubjet1() ;
 
-  //>>  if ( !isData ) { 
+    if ( !isData ) { 
 
-  //>>    hjets_sjcsvs.push_back((ijet.second).getCSVSubjet0()) ; 
-  //>>    hjets_sjcsvs.push_back((ijet.second).getCSVSubjet1()) ; 
+      hjets_sjcsvs.push_back((ijet.second).getCSVSubjet0()) ; 
+      hjets_sjcsvs.push_back((ijet.second).getCSVSubjet1()) ; 
 
-  //>>    hjets_sjpts.push_back((ijet.second).getPtSubjet0()) ;  
-  //>>    hjets_sjpts.push_back((ijet.second).getPtSubjet1()) ;  
+      hjets_sjpts.push_back((ijet.second).getPtSubjet0()) ;  
+      hjets_sjpts.push_back((ijet.second).getPtSubjet1()) ;  
 
-  //>>    hjets_sjetas.push_back((ijet.second).getEtaSubjet0()) ;  
-  //>>    hjets_sjetas.push_back((ijet.second).getEtaSubjet1()) ;  
+      hjets_sjetas.push_back((ijet.second).getEtaSubjet0()) ;  
+      hjets_sjetas.push_back((ijet.second).getEtaSubjet1()) ;  
 
-  //>>    hjets_sjflhads.push_back(abs((ijet.second).getHadronFlavourSubjet0())) ; 
-  //>>    hjets_sjflhads.push_back(abs((ijet.second).getHadronFlavourSubjet1())) ;
+      hjets_sjflhads.push_back(abs((ijet.second).getHadronFlavourSubjet0())) ; 
+      hjets_sjflhads.push_back(abs((ijet.second).getHadronFlavourSubjet1())) ;
 
-  //>>    hjets_doublebs.push_back((ijet.second).getDoubleBAK8());
-  //>>    hjets_pts.push_back((ijet.second).getPt());
-  //>>    hjets_flhads.push_back((ijet.second).getHadronFlavour());
+      hjets_doublebs.push_back((ijet.second).getDoubleBAK8());
+      hjets_pts.push_back((ijet.second).getPt());
+      hjets_flhads.push_back((ijet.second).getHadronFlavour());
 
-  //>>  } //// if !isData do  b tag SFs
+    } //// if !isData do  b tag SFs
 
-  //>>} //// Loop over all Higgs jets
+  } //// Loop over all Higgs jets
 
-  //>>if ( !isData ) {
-  //>>  btagsfutils_->getBTagSFs (hjets_sjcsvs, hjets_sjpts, hjets_sjetas, hjets_sjflhads, CSVv2L, 
-  //>>      btagsf, btagsf_bcUp, btagsf_bcDown, btagsf_lUp, btagsf_lDown) ; 
-  //>>  //doublebtagsfutils_->getBTagSFs (hjets_sjcsvs, hjets_sjpts, hjets_sjetas, hjets_sjflhads, CSVv2L, 
-  //>>  //    btagsf, btagsf_bcUp, btagsf_bcDown, btagsf_lUp, btagsf_lDown) ; 
-  //>>}
+  //if ( !isData ) {
+  //  btagsfutils_->getBTagSFs (hjets_sjcsvs, hjets_sjpts, hjets_sjetas, hjets_sjflhads, CSVv2L, 
+  //      btagsf, btagsf_bcUp, btagsf_bcDown, btagsf_lUp, btagsf_lDown) ; 
+  //  doublebtagsfutils_->getBTagSFs (hjets_sjcsvs, hjets_sjpts, hjets_sjetas, hjets_sjflhads, CSVv2L, 
+  //      btagsf, btagsf_bcUp, btagsf_bcDown, btagsf_lUp, btagsf_lDown) ; 
+  //}
 
-  //>>selectedevt.btagsf_ = btagsf;
-  //>>selectedevt.btagsf_bcUp_ = btagsf_bcUp ; 
-  //>>selectedevt.btagsf_bcDown_ = btagsf_bcDown ; 
-  //>>selectedevt.btagsf_lUp_ = btagsf_lUp ; 
-  //>>selectedevt.btagsf_lDown_ = btagsf_lDown ; 
+  selectedevt.btagsf_ = btagsf;
+  selectedevt.btagsf_bcUp_ = btagsf_bcUp ; 
+  selectedevt.btagsf_bcDown_ = btagsf_bcDown ; 
+  selectedevt.btagsf_lUp_ = btagsf_lUp ; 
+  selectedevt.btagsf_lDown_ = btagsf_lDown ; 
 
-  //>>tree_->Fill();
+  tree_->Fill();
 
   return true ; 
 }
