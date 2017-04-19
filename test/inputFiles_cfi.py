@@ -933,7 +933,16 @@ FileNames = {
       '/store/group/phys_b2g/B2GAnaFW_80X_V2p4/SingleMuon/Run2016H-PromptReco-v2_B2GAnaFW_80X_v2p4/161221_180745/0001/B2GEDMNtuple_1928.root', 
       ],
    'FileNames_DY':[
-      'root://eoscms.cern.ch//store/group/phys_b2g/B2GAnaFW_80X_V2p4/DYJetsToLL_Pt-650ToInf_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/B2GAnaFW_RunIISpring16MiniAODv2_25ns_v80x_v2p4/170121_175719/0000/B2GEDMNtuple_10.root', 
+      'root://eoscms.cern.ch//store/group/phys_b2g/B2GAnaFW_80X_V2p4/DYJetsToLL_Pt-650ToInf_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/B2GAnaFW_RunIISpring16MiniAODv2_25ns_v80x_v2p4/170121_175719/0000/B2GEDMNtuple_10.root',
+'root://eoscms.cern.ch//store/group/phys_b2g/B2GAnaFW_80X_V2p4/DYJetsToLL_Pt-650ToInf_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/B2GAnaFW_RunIISpring16MiniAODv2_25ns_v80x_v2p4/170121_175719/0000/B2GEDMNtuple_9.root', 
+'root://eoscms.cern.ch//store/group/phys_b2g/B2GAnaFW_80X_V2p4/DYJetsToLL_Pt-650ToInf_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/B2GAnaFW_RunIISpring16MiniAODv2_25ns_v80x_v2p4/170121_175719/0000/B2GEDMNtuple_8.root', 
+'root://eoscms.cern.ch//store/group/phys_b2g/B2GAnaFW_80X_V2p4/DYJetsToLL_Pt-650ToInf_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/B2GAnaFW_RunIISpring16MiniAODv2_25ns_v80x_v2p4/170121_175719/0000/B2GEDMNtuple_7.root', 
+'root://eoscms.cern.ch//store/group/phys_b2g/B2GAnaFW_80X_V2p4/DYJetsToLL_Pt-650ToInf_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/B2GAnaFW_RunIISpring16MiniAODv2_25ns_v80x_v2p4/170121_175719/0000/B2GEDMNtuple_6.root', 
+'root://eoscms.cern.ch//store/group/phys_b2g/B2GAnaFW_80X_V2p4/DYJetsToLL_Pt-650ToInf_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/B2GAnaFW_RunIISpring16MiniAODv2_25ns_v80x_v2p4/170121_175719/0000/B2GEDMNtuple_5.root', 
+'root://eoscms.cern.ch//store/group/phys_b2g/B2GAnaFW_80X_V2p4/DYJetsToLL_Pt-650ToInf_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/B2GAnaFW_RunIISpring16MiniAODv2_25ns_v80x_v2p4/170121_175719/0000/B2GEDMNtuple_4.root', 
+'root://eoscms.cern.ch//store/group/phys_b2g/B2GAnaFW_80X_V2p4/DYJetsToLL_Pt-650ToInf_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/B2GAnaFW_RunIISpring16MiniAODv2_25ns_v80x_v2p4/170121_175719/0000/B2GEDMNtuple_3.root', 
+'root://eoscms.cern.ch//store/group/phys_b2g/B2GAnaFW_80X_V2p4/DYJetsToLL_Pt-650ToInf_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/B2GAnaFW_RunIISpring16MiniAODv2_25ns_v80x_v2p4/170121_175719/0000/B2GEDMNtuple_2.root', 
+
         ],
     'FileNames_TpTp800':[
         '/store/group/phys_b2g/B2GAnaFW_80X_V2p4/TprimeTprime_M-800_TuneCUETP8M1_13TeV-madgraph-pythia8/B2GAnaFW_RunIISpring16MiniAODv2_25ns_v80x_v2p4/170120_195633/0000/B2GEDMNtuple_1.root',

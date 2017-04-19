@@ -240,7 +240,7 @@ OS2LAna::OS2LAna(const edm::ParameterSet& iConfig) :
   sjbtagsfutils_          (new BTagSFUtils(fnameSJbtagSF_,BTagEntry::OP_LOOSE,30., 450., 30., 450., 20., 1000.,btageffmap_)),
   maketree_               (iConfig.getParameter<bool>("maketree"))
 
-{std::cout << "after constructor" << std::endl;
+{
 	produces<vlq::JetCollection>("ak4jets") ;
 	produces<vlq::JetCollection>("ak8jets") ;
   produces<vlq::JetCollection>("tjets") ; 
@@ -327,8 +327,8 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   else                   evtwt = (*h_evtwtGen.product()) * (*h_evtwtPV.product()) ;
 
   if (!isData){
-    for (auto& lhe : lhe_id_wts){
-      if (lhe.first == lheId_)
+    for (auto& lhe : lhe_id_wts)
+      if (lhe.first == lheId_){
         evtwt *= lhe.second;
     }
   }
@@ -506,14 +506,16 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   cleanjets(goodWTaggedJets, goodMuons); 
   cleanjets(goodWTaggedJets, goodElectrons); 
 
-  evtwt *= (( 1.11 + (tauShift_ * .08)) * goodWTaggedJets.size());
+  if (goodWTaggedJets.size() > 0 && !isData)
+    evtwt *= (( 1.11 + (tauShift_ * .08)) * goodWTaggedJets.size());
 
   vlq::JetCollection goodHTaggedJets; 
   jetHTaggedmaker(evt, goodHTaggedJets);
   cleanjets(goodHTaggedJets, goodMuons); 
   cleanjets(goodHTaggedJets, goodElectrons); 
-
-  evtwt *= (( 1.11 + (tauShift_ * .08)) * goodHTaggedJets.size());
+  
+ if (goodHTaggedJets.size() > 0 && !isData)
+    evtwt *= (( 1.11 + (tauShift_ * .08)) * goodHTaggedJets.size());
   
   //// http://cms.cern.ch/iCMS/jsp/openfile.jsp?tp=draft&files=AN2016_245_v3.pdf
   //// SF of 0.93+/-0.09 required for top tag WP with mistag rate 1% (no subjet b tag): AN2016-245v3
@@ -543,9 +545,15 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
       flhads.push_back(jet.getHadronFlavourSubjet0()) ; 
       flhads.push_back(jet.getHadronFlavourSubjet1()) ; 
     }
-
+    cout << "\n\n ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" << endl;
     sjbtagsfutils_->getBTagSFs (csvs, pts, etas, flhads, jetHTaggedmaker.idxsjCSVMin_, sjbtagsf, sjbtagsf_bcUp, sjbtagsf_bcDown, sjbtagsf_lUp, sjbtagsf_lDown) ;
-
+    if (goodHTaggedJets.size() > 0){
+      std::cout << "\n\nbtag SFs: " << btagsf << " " << btagsf_bcUp << " " << btagsf_bcDown << std::endl;
+      std::cout << "sbtag SFs light: " << sjbtagsf << " " << sjbtagsf_lUp << " " << sjbtagsf_lDown << endl;
+      std::cout << "sbtagSFs bc: " << sjbtagsf << " " << sjbtagsf_bcUp << " " << sjbtagsf_bcDown << std::endl;
+      cout << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n\n" << endl;
+    
+    }
     if (sbtagsf_bcUp_)
       evtwt *= sjbtagsf_bcUp;
     else if (sbtagsf_bcDown_)
@@ -623,7 +631,7 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
 		evt.put(std::move(ptr_st), "st") ;
 
   } //// if skim 
-  else if ( !maketree_ ) { 
+  if ( !maketree_ ) { 
 
     std::string lep("");
     if(zdecayMode_ == "zmumu") {lep = "mu";}
@@ -774,13 +782,18 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
       h1_["ntjet"] -> Fill(goodTopTaggedJets.size(), evtwt) ; 
 
       if (goodAK8Jets.size() > 0) {
+
         h1_["ptak8leading"] -> Fill((goodAK8Jets.at(0)).getPt(), evtwt) ; 
+
         h1_["etaak8leading"] -> Fill((goodAK8Jets.at(0)).getEta(), evtwt) ;
         //h1_["mak8leading"] -> Fill((goodAK8Jets.at(0)).getMass(), evtwt) ; 
         //h1_["trimmedmak8leading"] -> Fill((goodAK8Jets.at(0)).getTrimmedMass(), evtwt) ;
+
         h1_["prunedmak8leading"] -> Fill((goodAK8Jets.at(0)).getPrunedMass(), evtwt) ;
+
         h1_["softdropmak8leading"] -> Fill((goodAK8Jets.at(0)).getSoftDropMass(), evtwt) ;
-				h1_["subjetinessak8leading"] -> Fill((goodAK8Jets.at(0)).getTau2()/(goodAK8Jets.at(0)).getTau1(), evtwt);
+
+        h1_["subjetinessak8leading"] -> Fill((goodAK8Jets.at(0)).getTau2()/(goodAK8Jets.at(0)).getTau1(), evtwt);
       }
       if (goodAK8Jets.size() > 1) {
         h1_["ptak82nd"] -> Fill((goodAK8Jets.at(1)).getPt(), evtwt) ; 
@@ -1080,9 +1093,11 @@ void OS2LAna::beginJob() {
 
     h1_["ptak8leading"]  = sig.make<TH1D>("ptak8leading", ";p_{T}(leading AK8 jet) [GeV];;" , 50, 0., 1000.) ; 
     h1_["etaak8leading"] = sig.make<TH1D>("etaak8leading", ";#eta(leading AK8 jet);;" , 80 ,-4. ,4.) ; 
+    h1_["prunedmak8leading"] = sig.make<TH1D>("prunedmak8leading", ";M(leading AK8 jet) [GeV];;", 100,0.,200.);
     h1_["softdropmak8leading"] = sig.make<TH1D>("softdropmak8leading", ";M(leading AK8 jet) [GeV];;" ,100 ,0., 200.) ; 
     h1_["ptak82nd"]  = sig.make<TH1D>("ptak82nd", ";p_{T}(2nd AK8 jet) [GeV];;" , 50, 0., 1000.) ; 
     h1_["etaak82nd"] = sig.make<TH1D>("etaak82nd", ";#eta(2nd AK8 jet);;" , 80 ,-4. ,4.) ; 
+    h1_["prunedmak82nd"] = sig.make<TH1D>("prunedmak82nd", ";M(2nd AK8 jet) [GeV];;", 100,0.,200.);
     h1_["softdropmak82nd"] = sig.make<TH1D>("softdropmak82nd", ";M(2nd AK8 jet) [GeV];;" ,100 ,0., 200.) ;
     h1_["subjetinessak8leading"] = sig.make<TH1D>("subjetinessak8leading", ";#tau 2/1 (leading AK8 jet)", 20, 0., 1.);
     h1_["subjetinessak82nd"]  = sig.make<TH1D>("subjetinessak82nd", "#tau 2/1 (2nd AK8 jet)", 20, 0., 1.);

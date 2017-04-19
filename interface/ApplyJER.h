@@ -8,10 +8,10 @@ double ApplyJERMass(int jerShift) {
   return massjerscale ; 
 }
 double ApplyVJERMass(int jerShift) {
-  double massjerscale(1.07) ;
-  if (jerShift == 2) massjerscale += 0.20 ;
-  if (jerShift == -1) massjerscale -= 0.20 ;
-  return massjerscale ;
+  double massjerscale(1.23) ; 
+  if (jerShift == 2) massjerscale += 0.18 ;
+  if (jerShift == -1) massjerscale -= 0.18 ;
+  return massjerscale ; 
 }
 
 double ApplyJERp4 (double eta, int jerShift) {

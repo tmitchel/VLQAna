@@ -27,7 +27,7 @@ JetMaker::JetMaker (edm::ParameterSet const& iConfig, edm::ConsumesCollector && 
   jecAK8GroomedPayloadNames_(iConfig.getParameter<std::vector<std::string>>("jecAK8GroomedPayloadNames")), 
   doGroomedMassCorr_        (jecAK8GroomedPayloadNames_.size()>0 ? true : false), 
   SDMassCorrWt_             (iConfig.getParameter<std::string>             ("SDMassCorrWt")),
-  taggingSyst_              (iConfig.getParameter<bool>                    ("taggingSyst")),
+  taggingJER_               (iConfig.getParameter<bool>                    ("taggingJER")),
   jetID_(JetIDParams_, iC) 
 {
 
@@ -35,7 +35,7 @@ JetMaker::JetMaker (edm::ParameterSet const& iConfig, edm::ConsumesCollector && 
   if      (jettypeStr == "AK4JET")             type_ = AK4JET; 
   else if (jettypeStr == "AK8JET")             type_ = AK8JET;
   else edm::LogError("JetMaker::JetMaker") << " >>>> WrongJetType: " << type_<< " Check jet type !!!" ; 
-  std::cout << taggingSyst_ << " " << jettypeStr << std::endl;
+
   t_npv               = iC.consumes<int>          (JetIDParams_.getParameter<edm::InputTag> ("npvLabel")              );
   t_rho               = iC.consumes<double>       (JetIDParams_.getParameter<edm::InputTag> ("rhoLabel")              );
   t_jetPt             = iC.consumes<vector<float>>(JetIDParams_.getParameter<edm::InputTag> ("jetPtLabel")            );
@@ -371,12 +371,12 @@ void JetMaker::operator()(edm::Event& evt, vlq::JetCollection& jets) {
       if ( jerShift_ != 0 ) {
         double pt_gen = (h_jetGenJetPt.product())->at(ijet) ;  
         double pt_reco   = uncorrJetP4.Pt() ;
-        double jerscalemass = ApplyJERMass(jerShift_) ; 
-        //double jerscalemass;
-        //if (taggingSyst_)
-          //jerscalemass = ApplyVJERMass(jerShift_);
-        //else
-          //jerscalemass = ApplyJERMass(jerShift_) ;
+        //double jerscalemass = ApplyJERMass(jerShift_) ; 
+        double jerscalemass;
+        if (taggingJER_)
+          jerscalemass = ApplyVJERMass(jerShift_) ;
+        else
+          jerscalemass = ApplyJERMass(jerShift_) ;
         masssmear = std::max( 0.0, pt_gen + jerscalemass*(pt_reco - pt_gen) )/pt_reco ; 
       }
 

@@ -207,8 +207,8 @@ bool MassReco::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   else if (tauUp_)         evt.getByToken(tauUp_t, evtwt_h);
   else if (tauDown_)       evt.getByToken(tauDown_t, evtwt_h);
   else                     evt.getByToken(evtwt_t,  evtwt_h);
-
-	TLorentzVector zllcand = (*zllcands_h.product()).at(0).getP4();
+	
+  TLorentzVector zllcand = (*zllcands_h.product()).at(0).getP4();
 	double evtwt;
   if (evtwt_h.isValid())
    evtwt = *evtwt_h.product();
@@ -229,14 +229,17 @@ bool MassReco::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
 	for (auto& jet : ak8s){
 		h1_["ak8subjetiness"]->Fill(jet.getTau2()/jet.getTau1(), evtwt);
 		h1_["ak8prunedMass"]->Fill(jet.getPrunedMass(), evtwt);
+    h1_["ak8softDropMass"] -> Fill(jet.getSoftDropMass(), evtwt);
 	}
 	for (auto& jet : zjets){
 		h1_["Zsubjetiness"]->Fill(jet.getTau2()/jet.getTau1(), evtwt);
 		h1_["ZprunedMass"]->Fill(jet.getPrunedMass(), evtwt);
+    h1_["ZsoftDropMass"] -> Fill(jet.getSoftDropMass(), evtwt);
 	}
 	for (auto& jet : hjets){
 		h1_["Hsubjetiness"]->Fill(jet.getTau2()/jet.getTau1(), evtwt);
 		h1_["HprunedMass"]->Fill(jet.getPrunedMass(), evtwt);
+    h1_["HsoftDropMass"] -> Fill(jet.getSoftDropMass(), evtwt);
 	}
 
  	////////////////////////
@@ -244,6 +247,22 @@ bool MassReco::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
 	////////////////////////
 
 	if (ak4s.at(0).getPt() > 100 && ak4s.at(1).getPt() > 50 && bjets.size() > 0 && ST > STMin_){
+
+	for (auto& jet : ak8s){
+		h1_["ak8subjetiness_SR"]->Fill(jet.getTau2()/jet.getTau1(), evtwt);
+		h1_["ak8prunedMass_SR"]->Fill(jet.getPrunedMass(), evtwt);
+    h1_["ak8softDropMass_SR"] -> Fill(jet.getSoftDropMass(), evtwt);
+	}
+	for (auto& jet : zjets){
+		h1_["Zsubjetiness_SR"]->Fill(jet.getTau2()/jet.getTau1(), evtwt);
+		h1_["ZprunedMass_SR"]->Fill(jet.getPrunedMass(), evtwt);
+    h1_["ZsoftDropMass_SR"] -> Fill(jet.getSoftDropMass(), evtwt);
+	}
+	for (auto& jet : hjets){
+		h1_["Hsubjetiness_SR"]->Fill(jet.getTau2()/jet.getTau1(), evtwt);
+		h1_["HprunedMass_SR"]->Fill(jet.getPrunedMass(), evtwt);
+    h1_["HsoftDropMass_SR"] -> Fill(jet.getSoftDropMass(), evtwt);
+	}
 
 		pair<double, double> resReco_bZ, boostReco_bZ, mergeReco_bZ;
   	pair<double, double> resReco_bH, boostReco_bH, mergeReco_bH;
@@ -352,6 +371,23 @@ bool MassReco::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
 
 	
 	if (bjets.size() > 0 && ST < STMaxControl_ &&  controlReco_){
+
+	for (auto& jet : ak8s){
+		h1_["ak8subjetiness_CR"]->Fill(jet.getTau2()/jet.getTau1(), evtwt);
+		h1_["ak8prunedMass_CR"]->Fill(jet.getPrunedMass(), evtwt);
+    h1_["ak8softDropMass_CR"] -> Fill(jet.getSoftDropMass(), evtwt);
+	}
+	for (auto& jet : zjets){
+		h1_["Zsubjetiness_CR"]->Fill(jet.getTau2()/jet.getTau1(), evtwt);
+		h1_["ZprunedMass_CR"]->Fill(jet.getPrunedMass(), evtwt);
+    h1_["ZsoftDropMass_CR"] -> Fill(jet.getSoftDropMass(), evtwt);
+	}
+	for (auto& jet : hjets){
+		h1_["Hsubjetiness_CR"]->Fill(jet.getTau2()/jet.getTau1(), evtwt);
+		h1_["HprunedMass_CR"]->Fill(jet.getPrunedMass(), evtwt);
+    h1_["HsoftDropMass_CR"] -> Fill(jet.getSoftDropMass(), evtwt);
+	}
+
 
 		pair<double, double> resCon_bZ, boostCon_bZ, mergeCon_bZ;
 		pair<double, double> resCon_bH, boostCon_bH, mergeCon_bH;
@@ -542,73 +578,98 @@ bool MassReco::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
 }
 
 void MassReco::beginJob(){
-  h1_["resReco_bZ"] = fs->make<TH1D>("resReco_bZ", "Resolved Reconstruction B->bZ", 1000, 0., 3000);
-  h1_["resReco_bH"] = fs->make<TH1D>("resReco_bH", "Resolved Reconstruction B->bH", 1000, 0., 3000);
-  h1_["boostReco_bZ"] = fs->make<TH1D>("boostReco_bZ", "Boosted Reconstruction B->bZ", 1000, 0., 3000);
-  h1_["boostReco_bH"] = fs->make<TH1D>("boostReco_bH", "Boosted Reconstruction B->bH", 1000, 0., 3000);
-  h1_["mergeReco_bZ"] = fs->make<TH1D>("mergeReco_bZ", "Merged Reconstruction B->bZ", 1000, 0., 3000);
-  h1_["mergeReco_bH"] = fs->make<TH1D>("mergeReco_bH", "Merged Reconstruction B->bH", 1000, 0., 3000);
-  h1_["comboReco_bZ"] = fs->make<TH1D>("comboReco_bZ", "Combo Reconstruction B->bZ", 1000, 0., 3000);
-  h1_["comboReco_bH"] = fs->make<TH1D>("comboReco_bH", "Combo Reconstruction B->bH", 1000, 0., 3000);
 
-  h1_["resST_bZ"] = fs->make<TH1D>("resST_bZ", "Resolved ST B->bZ", 1000, 0., 3000);
-  h1_["resST_bH"] = fs->make<TH1D>("resST_bH", "Resolved ST B->bH", 1000, 0., 3000);
-  h1_["boostST_bZ"] = fs->make<TH1D>("boostST_bZ", "Boosted ST B->bZ", 1000, 0., 3000);
-  h1_["boostST_bH"] = fs->make<TH1D>("boostST_bH", "Boosted ST B->bH", 1000, 0., 3000);
-  h1_["mergeST_bZ"] = fs->make<TH1D>("mergeST_bZ", "Merged ST B->bZ", 1000, 0., 3000);
-  h1_["mergeST_bH"] = fs->make<TH1D>("mergeST_bH", "Merged ST B->bH", 1000, 0., 3000);
-  h1_["comboST_bZ"] = fs->make<TH1D>("comboST_bZ", "Combo ST B->bZ", 1000, 0., 3000);
-  h1_["comboST_bH"] = fs->make<TH1D>("comboST_bH", "Combo ST B->bH", 1000, 0., 3000);
+  h1_["resReco_bZ"] = fs->make<TH1D>("resReco_bZ", "Resolved Reconstruction B->bZ;M_{#chi^{2}}(B);;", 1000, 0., 3000);
+  h1_["resReco_bH"] = fs->make<TH1D>("resReco_bH", "Resolved Reconstruction B->bH;M_{#chi^{2}}(B);;", 1000, 0., 3000);
+  h1_["boostReco_bZ"] = fs->make<TH1D>("boostReco_bZ", "Boosted Reconstruction B->bZ;M_{#chi^{2}}(B);;", 1000, 0., 3000);
+  h1_["boostReco_bH"] = fs->make<TH1D>("boostReco_bH", "Boosted Reconstruction B->bH;M_{#chi^{2}}(B);;", 1000, 0., 3000);
+  h1_["mergeReco_bZ"] = fs->make<TH1D>("mergeReco_bZ", "Merged Reconstruction B->bZ;M_{#chi^{2}}(B);;", 1000, 0., 3000);
+  h1_["mergeReco_bH"] = fs->make<TH1D>("mergeReco_bH", "Merged Reconstruction B->bH;M_{#chi^{2}}(B);;", 1000, 0., 3000);
+  h1_["comboReco_bZ"] = fs->make<TH1D>("comboReco_bZ", "Combo Reconstruction B->bZ;M_{#chi^{2}}(B);;", 1000, 0., 3000);
+  h1_["comboReco_bH"] = fs->make<TH1D>("comboReco_bH", "Combo Reconstruction B->bH;M_{#chi^{2}}(B);;", 1000, 0., 3000);
 
-  h2_["resbZ_2d"] = fs->make<TH2D>("resbZ_d2", ";M_{#chi^{2}}(B) vs Min(#chi^{2});;", 100, 0., 50., 400, 0, 2000);
-  h2_["mergebZ_2d"] = fs->make<TH2D>("mergebZ_d2", ";M_{#chi^{2}}(B) vs Min(#chi^{2});;", 100, 0., 50., 400, 0, 2000);
-  h2_["boostbZ_2d"] = fs->make<TH2D>("boostbZ_d2", ";M_{#chi^{2}}(B) vs Min(#chi^{2});;", 100, 0., 50., 400, 0, 2000);
-  h2_["combobZ_2d"] = fs->make<TH2D>("combobZ_d2", ";M_{#chi^{2}}(B) vs Min(#chi^{2});;", 100, 0., 50., 400, 0, 2000);
-  h2_["resbH_2d"] = fs->make<TH2D>("resbH_d2", ";M_{#chi^{2}}(B) vs Min(#chi^{2});;", 100, 0., 50., 400, 0, 2000);
-  h2_["mergebH_2d"] = fs->make<TH2D>("mergebH_d2", ";M_{#chi^{2}}(B) vs Min(#chi^{2});;", 100, 0., 50., 400, 0, 2000);
-  h2_["boostbH_2d"] = fs->make<TH2D>("boostbH_d2", ";M_{#chi^{2}}(B) vs Min(#chi^{2});;", 100, 0., 50., 400, 0, 2000);
-  h2_["combobH_2d"] = fs->make<TH2D>("combobH_d2", ";M_{#chi^{2}}(B) vs Min(#chi^{2});;", 100, 0., 50., 400, 0, 2000);
+  h1_["resST_bZ"] = fs->make<TH1D>("resST_bZ", "Resolved ST B->bZ;S_{T};;", 1000, 0., 3000);
+  h1_["resST_bH"] = fs->make<TH1D>("resST_bH", "Resolved ST B->bH;S_{T};;", 1000, 0., 3000);
+  h1_["boostST_bZ"] = fs->make<TH1D>("boostST_bZ", "Boosted ST B->bZ;S_{T};;", 1000, 0., 3000);
+  h1_["boostST_bH"] = fs->make<TH1D>("boostST_bH", "Boosted ST B->bH;S_{T};;", 1000, 0., 3000);
+  h1_["mergeST_bZ"] = fs->make<TH1D>("mergeST_bZ", "Merged ST B->bZ;S_{T};;", 1000, 0., 3000);
+  h1_["mergeST_bH"] = fs->make<TH1D>("mergeST_bH", "Merged ST B->bH;S_{T};;", 1000, 0., 3000);
+  h1_["comboST_bZ"] = fs->make<TH1D>("comboST_bZ", "Combo ST B->bZ;S_{T};;", 1000, 0., 3000);
+  h1_["comboST_bH"] = fs->make<TH1D>("comboST_bH", "Combo ST B->bH;S_{T};;", 1000, 0., 3000);
 
-  h1_["ST"] = fs->make<TH1D>("ST", "Sum Pt", 1000, 0., 8000.);
+  h2_["resbZ_2d"] = fs->make<TH2D>("resbZ_d2", ";M_{#chi^{2}}(B);Min(#chi^{2});", 100, 0., 50., 400, 0, 2000);
+  h2_["mergebZ_2d"] = fs->make<TH2D>("mergebZ_d2", ";M_{#chi^{2}}(B);Min(#chi^{2});", 100, 0., 50., 400, 0, 2000);
+  h2_["boostbZ_2d"] = fs->make<TH2D>("boostbZ_d2", ";M_{#chi^{2}}(B);Min(#chi^{2});", 100, 0., 50., 400, 0, 2000);
+  h2_["combobZ_2d"] = fs->make<TH2D>("combobZ_d2", ";M_{#chi^{2}}(B);Min(#chi^{2});", 100, 0., 50., 400, 0, 2000);
+  h2_["resbH_2d"] = fs->make<TH2D>("resbH_d2", ";M_{#chi^{2}}(B);Min(#chi^{2});", 100, 0., 50., 400, 0, 2000);
+  h2_["mergebH_2d"] = fs->make<TH2D>("mergebH_d2", ";M_{#chi^{2}}(B);Min(#chi^{2});", 100, 0., 50., 400, 0, 2000);
+  h2_["boostbH_2d"] = fs->make<TH2D>("boostbH_d2", ";M_{#chi^{2}}(B);Min(#chi^{2});", 100, 0., 50., 400, 0, 2000);
+  h2_["combobH_2d"] = fs->make<TH2D>("combobH_d2", ";M_{#chi^{2}}(B);Min(#chi^{2});", 100, 0., 50., 400, 0, 2000);
 
-	h1_["Zresolution"] = fs->make<TH1D>("Zresolution", "reco Z resolution", 100, 20, 160);
-	h1_["Hresolution"] = fs->make<TH1D>("Hresolution", "reco H resolution", 100, 65, 185);
-	h1_["Bhadresolution"] = fs->make<TH1D>("Bhadresolution", "had. reco. B resolution", 200, 0, 2000);
-	h1_["Blepresolution"] = fs->make<TH1D>("Blepresolution", "lep. reco B resolution", 200, 0, 2000);
-	h1_["ztagPlain"] = fs->make<TH1D>("ztagPlain", "ztagged jet mass", 100, 20, 160);
-	h1_["ztagRes"] = fs->make<TH1D>("ztagRes", "tagged Z resolution", 100, 0, 160);
-	h1_["htagRes"] = fs->make<TH1D>("htagRes", "tagged H resolution", 100, 65, 185);
-	h1_["ztagRecores"] = fs->make<TH1D>("ztagRecores", "had reco B resolution w/ Ztag", 200, 0, 2000);
-	h1_["htagRecores"] = fs->make<TH1D>("htagRecores", "had reco B resolution w/ Htag", 200, 0, 2000);
-	h1_["Zmerge"] = fs->make<TH1D>("Zmerge", "merged Z jet", 100, 20, 160);
-	h1_["Hmerge"] = fs->make<TH1D>("Hmerge", "merged H jet", 100, 65, 185);
+  h1_["ST"] = fs->make<TH1D>("ST", "ST;S_{T};;", 1000, 0., 8000.);
 
-	h1_["ak8subjetiness"] = fs->make<TH1D>("ak8subjetiness", "tau2/1", 20, 0., 1.);
-	h1_["ak8prunedMass"] = fs->make<TH1D>("ak8prunedMass", "Pruned M", 100, 0., 250.);
-	h1_["Zsubjetiness"] = fs->make<TH1D>("Zsubjetiness","Z subjetiness", 10, 0, 5);
-	h1_["Hsubjetiness"] = fs->make<TH1D>("Hsubjetiness","H subjetiness", 10, 0, 5);
-	h1_["ZprunedMass"] = fs->make<TH1D>("ZprunedMass","Z pruned Mass", 50, 30, 150);
-	h1_["HprunedMass"] = fs->make<TH1D>("HprunedMass","H pruned Mass", 50, 60, 180);
+	h1_["Zresolution"] = fs->make<TH1D>("Zresolution", "reco Z resolution;#sigma_{Z};;", 100, 20, 160);
+	h1_["Hresolution"] = fs->make<TH1D>("Hresolution", "reco H resolution;#sigma_{H};;", 100, 65, 185);
+	h1_["Bhadresolution"] = fs->make<TH1D>("Bhadresolution", "had. reco. B resolution;#sigma_{B{h}};;", 200, 0, 2000);
+	h1_["Blepresolution"] = fs->make<TH1D>("Blepresolution", "lep. reco B resolution;#sigma_{B{l}};;", 200, 0, 2000);
+	h1_["ztagPlain"] = fs->make<TH1D>("ztagPlain", "ztagged jet mass;M;;", 100, 20, 160);
+	h1_["ztagRes"] = fs->make<TH1D>("ztagRes", "tagged Z resolution;#sigma_{Z};;", 100, 0, 160);
+	h1_["htagRes"] = fs->make<TH1D>("htagRes", "tagged H resolution;#sigma_{H};;", 100, 65, 185);
+	h1_["ztagRecores"] = fs->make<TH1D>("ztagRecores", "had reco B resolution w/ Ztag;#sigma_{Z};;", 200, 0, 2000);
+	h1_["htagRecores"] = fs->make<TH1D>("htagRecores", "had reco B resolution w/ Htag;#sigma_{H};;", 200, 0, 2000);
+	h1_["Zmerge"] = fs->make<TH1D>("Zmerge", "merged Z jet;M;;", 100, 20, 160);
+	h1_["Hmerge"] = fs->make<TH1D>("Hmerge", "merged H jet;M;;", 100, 65, 185);
 
-  h1_["resCon_bZ"] = fs->make<TH1D>("resCon_bZ", "Resolved Reconstruction B->bZ", 1000, 0., 3000);
-  h1_["resCon_bH"] = fs->make<TH1D>("resCon_bH", "Resolved Reconstruction B->bH", 1000, 0., 3000);
-  h1_["boostCon_bZ"] = fs->make<TH1D>("boostCon_bZ", "Boosted Reconstruction B->bZ", 1000, 0., 3000);
-  h1_["boostCon_bH"] = fs->make<TH1D>("boostCon_bH", "Boosted Reconstruction B->bH", 1000, 0., 3000);
-  h1_["mergeCon_bZ"] = fs->make<TH1D>("mergeCon_bZ", "Merged Reconstruction B->bZ", 1000, 0., 3000);
-  h1_["mergeCon_bH"] = fs->make<TH1D>("mergeCon_bH", "Merged Reconstruction B->bH", 1000, 0., 3000);
-  h1_["comboCon_bZ"] = fs->make<TH1D>("comboCon_bZ", "Combo Reconstruction B->bZ", 1000, 0., 3000);
-  h1_["comboCon_bH"] = fs->make<TH1D>("comboCon_bH", "Combo Reconstruction B->bH", 1000, 0., 3000);
+	h1_["ak8subjetiness"] = fs->make<TH1D>("ak8subjetiness", "AK8 Subjetiness;#tau_{21};;", 20, 0., 1.);
+	h1_["ak8prunedMass"] = fs->make<TH1D>("ak8prunedMass", "AK8 Pruned Mass;M;;", 100, 0., 250.);
+  h1_["ak8softDropMass"] = fs->make<TH1D>("ak8softDropMass", "AK8 Soft Drop Mass;M;;", 100, 0., 250.);
+	h1_["Zsubjetiness"] = fs->make<TH1D>("Zsubjetiness","Z subjetiness;M;;", 10, 0, 5);
+	h1_["Hsubjetiness"] = fs->make<TH1D>("Hsubjetiness","H subjetiness;M;;", 10, 0, 5);
+	h1_["ZprunedMass"] = fs->make<TH1D>("ZprunedMass","Z Pruned Mass;M;;", 50, 30, 150);
+	h1_["HprunedMass"] = fs->make<TH1D>("HprunedMass","H Pruned Mass;M;;", 50, 60, 180);
+  h1_["HsoftDropMass"] = fs->make<TH1D>("HsoftDropMass", "H Soft Drop Mass;M;;", 100, 0., 250.);
+  h1_["ZsoftDropMass"] = fs->make<TH1D>("ZsoftDropMass", "Z Soft Drop Mass;M;;", 100, 0., 250.);
 
-  h1_["resSTCon_bZ"] = fs->make<TH1D>("resSTCon_bZ", "Resolved ST B->bZ", 1000, 0., 3000);
-  h1_["resSTCon_bH"] = fs->make<TH1D>("resSTCon_bH", "Resolved ST B->bH", 1000, 0., 3000);
-  h1_["boostSTCon_bZ"] = fs->make<TH1D>("boostSTCon_bZ", "Boosted ST B->bZ", 1000, 0., 3000);
-  h1_["boostSTCon_bH"] = fs->make<TH1D>("boostSTCon_bH", "Boosted ST B->bH", 1000, 0., 3000);
-  h1_["mergeSTCon_bZ"] = fs->make<TH1D>("mergeSTCon_bZ", "Merged ST B->bZ", 1000, 0., 3000);
-  h1_["mergeSTCon_bH"] = fs->make<TH1D>("mergeSTCon_bH", "Merged ST B->bH", 1000, 0., 3000);
-  h1_["comboSTCon_bZ"] = fs->make<TH1D>("comboSTCon_bZ", "Combo ST B->bZ", 1000, 0., 3000);
-  h1_["comboSTCon_bH"] = fs->make<TH1D>("comboSTCon_bH", "Combo ST B->bH", 1000, 0., 3000);
+	h1_["ak8subjetiness_SR"] = fs->make<TH1D>("ak8subjetiness_SR", "AK8 Subjetiness;#tau_{21};;", 20, 0., 1.);
+	h1_["ak8prunedMass_SR"] = fs->make<TH1D>("ak8prunedMass_SR", "AK8 Pruned Mass;M;;", 100, 0., 250.);
+  h1_["ak8softDropMass_SR"] = fs->make<TH1D>("ak8softDropMass_SR", "AK8 Soft Drop Mass;M;;", 100, 0., 250.);
+	h1_["Zsubjetiness_SR"] = fs->make<TH1D>("Zsubjetiness_SR","Z subjetiness;#tau_{21}M;;", 30, 0, 5);
+	h1_["Hsubjetiness_SR"] = fs->make<TH1D>("Hsubjetiness_SR","H subjetiness;#tau_{21};;", 30, 0, 5);
+	h1_["ZprunedMass_SR"] = fs->make<TH1D>("ZprunedMass_SR","Z Pruned Mass;M;;", 50, 30, 150);
+	h1_["HprunedMass_SR"] = fs->make<TH1D>("HprunedMass_SR","H Pruned Mass;M;;", 50, 60, 180);
+  h1_["HsoftDropMass_SR"] = fs->make<TH1D>("HsoftDropMass_SR", "H Soft Drop Mass;M;;", 100, 0., 250.);
+  h1_["ZsoftDropMass_SR"] = fs->make<TH1D>("ZsoftDropMass_SR", "Z Soft Drop Mass;M;;", 100, 0., 250.);
 
-  h1_["STCon"] = fs->make<TH1D>("STCon", "Sum Pt", 1000, 0., 8000.);
+
+	h1_["ak8subjetiness_CR"] = fs->make<TH1D>("ak8subjetiness_CR", "AK8 Subjetiness;#tau_{21};;", 20, 0., 1.);
+	h1_["ak8prunedMass_CR"] = fs->make<TH1D>("ak8prunedMass_CR", "AK8 Pruned Mass;M;;", 100, 0., 250.);
+  h1_["ak8softDropMass_CR"] = fs->make<TH1D>("ak8softDropMass_CR", "AK8 Soft Drop Mass;M;;", 100, 0., 250.);
+	h1_["Zsubjetiness_CR"] = fs->make<TH1D>("Zsubjetiness_CR","Z subjetiness;#tau_{21};;", 30, 0, 5);
+	h1_["Hsubjetiness_CR"] = fs->make<TH1D>("Hsubjetiness_CR","H subjetiness;#tau_{21};;", 30, 0, 5);
+	h1_["ZprunedMass_CR"] = fs->make<TH1D>("ZprunedMass_CR","Z Pruned Mass;M;;", 50, 30, 150);
+	h1_["HprunedMass_CR"] = fs->make<TH1D>("HprunedMass_CR","H Pruned Mass;M;;", 50, 60, 180);
+  h1_["HsoftDropMass_CR"] = fs->make<TH1D>("HsoftDropMass_CR", "H Soft Drop Mass;M;;", 100, 0., 250.);
+  h1_["ZsoftDropMass_CR"] = fs->make<TH1D>("ZsoftDropMass_CR", "Z Soft Drop Mass;M;;", 100, 0., 250.);
+
+  h1_["resCon_bZ"] = fs->make<TH1D>("resCon_bZ", "Resolved Reconstruction B->bZ;M_{#chi^{2}}(B);;", 1000, 0., 3000);
+  h1_["resCon_bH"] = fs->make<TH1D>("resCon_bH", "Resolved Reconstruction B->bH;M_{#chi^{2}}(B);;", 1000, 0., 3000);
+  h1_["boostCon_bZ"] = fs->make<TH1D>("boostCon_bZ", "Boosted Reconstruction B->bZ;M_{#chi^{2}}(B);;", 1000, 0., 3000);
+  h1_["boostCon_bH"] = fs->make<TH1D>("boostCon_bH", "Boosted Reconstruction B->bH;M_{#chi^{2}}(B);;", 1000, 0., 3000);
+  h1_["mergeCon_bZ"] = fs->make<TH1D>("mergeCon_bZ", "Merged Reconstruction B->bZ;M_{#chi^{2}}(B);;", 1000, 0., 3000);
+  h1_["mergeCon_bH"] = fs->make<TH1D>("mergeCon_bH", "Merged Reconstruction B->bH;M_{#chi^{2}}(B);;", 1000, 0., 3000);
+  h1_["comboCon_bZ"] = fs->make<TH1D>("comboCon_bZ", "Combo Reconstruction B->bZ;M_{#chi^{2}}(B);;", 1000, 0., 3000);
+  h1_["comboCon_bH"] = fs->make<TH1D>("comboCon_bH", "Combo Reconstruction B->bH;M_{#chi^{2}}(B);;", 1000, 0., 3000);
+
+  h1_["resSTCon_bZ"] = fs->make<TH1D>("resSTCon_bZ", "Resolved ST B->bZ;S_{T};;", 1000, 0., 3000);
+  h1_["resSTCon_bH"] = fs->make<TH1D>("resSTCon_bH", "Resolved ST B->bH;S_{T};;", 1000, 0., 3000);
+  h1_["boostSTCon_bZ"] = fs->make<TH1D>("boostSTCon_bZ", "Boosted ST B->bZ;S_{T};;", 1000, 0., 3000);
+  h1_["boostSTCon_bH"] = fs->make<TH1D>("boostSTCon_bH", "Boosted ST B->bH;S_{T};;", 1000, 0., 3000);
+  h1_["mergeSTCon_bZ"] = fs->make<TH1D>("mergeSTCon_bZ", "Merged ST B->bZ;S_{T};;", 1000, 0., 3000);
+  h1_["mergeSTCon_bH"] = fs->make<TH1D>("mergeSTCon_bH", "Merged ST B->bH;S_{T};;", 1000, 0., 3000);
+  h1_["comboSTCon_bZ"] = fs->make<TH1D>("comboSTCon_bZ", "Combo ST B->bZ;S_{T};;", 1000, 0., 3000);
+  h1_["comboSTCon_bH"] = fs->make<TH1D>("comboSTCon_bH", "Combo ST B->bH;S_{T};;", 1000, 0., 3000);
+
+  h1_["STCon"] = fs->make<TH1D>("STCon", "Sum Pt;S_{T};;", 1000, 0., 8000.);
 
 
 }

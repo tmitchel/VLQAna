@@ -131,7 +131,7 @@ class JetMaker {
     std::vector<std::string>  jecAK8GroomedPayloadNames_;
     bool                      doGroomedMassCorr_;
     std::string               SDMassCorrWt_   ;
-    bool                      taggingSyst_ ;
+    bool                      taggingJER_ ;
     bool                      doNewJEC_;
     boost::shared_ptr<FactorizedJetCorrector>   ptr_jecAK8_  ;
     boost::shared_ptr<JetCorrectionUncertainty> ptr_jecUnc ; 

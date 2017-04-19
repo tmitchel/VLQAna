@@ -36,7 +36,7 @@ parser.add_option('--skimType', metavar='S', type='string', action='store',
                   help='Skim type: CR_Zelel, CR_Zmumu, SR_Zelel, SR_Zmumu')
 
 parser.add_option('--processDir', metavar='pD', type='string', action='store',
-                  default='massReco',
+                  default='recoDYDown',
                   dest='processDir',
                   help='directory to read histograms from')
 
@@ -108,7 +108,7 @@ vvLeg         = 'Diboson'
 # === create structure ============
 data     = [
 #            [f_Data_Oct2015, 1., 1., 1.], # this corresponds to .53 fb-1
-            [f_Data_PromptReco, 0., 1., 1.],  #addign this should give 2.2 fb-1  
+            [f_Data_PromptReco, 1., 1., 1.],  #addign this should give 2.2 fb-1  
            ]
 
 top      = [[f_ttbar,         Top_xs,            Top_num,            lumi]]
@@ -224,15 +224,6 @@ h_bZbH_1200 = getHisto('BB_bZbH_M1200_', 'BB_bZbH_M1200', pDir, var,  bZbH_1200,
 #h_bZbH_1700 = getHisto('BB_bZbH_M1700_', 'BB_bZbH_M1700', pDir, var,  bZbH_1700, kCyan,    verbose)
 #h_bZbH_1800 = getHisto('BB_bZbH_M1800_', 'BB_bZbH_M1800', pDir, var,  bZbH_1800, kCyan,    verbose)
 
-
-#if forLimits:
-#    h_tZtH_800 = getHisto('TT_tZtH_M800_', 'TT_tZtH_M800', pDir2, var,  tZtH_800, kGreen+2, verbose)
-#    h_tZtH_1000 =getHisto('TT_tZtH_M1000_', 'TT_tZtH_M1000', pDir2, var, tZtH_1000, kYellow+4, verbose)
-#    h_tZtH_1200 = getHisto('TT_tZtH_M1200_', 'TT_tZtH_M1200', pDir2, var,  tZtH_1200, kBlue+2, verbose)
-#    h_bZbH_800 = getHisto('BB_bZbH_M800_', 'BB_bZbH_M800', pDir2, var,  bZbH_800, kRed, verbose)
-#    h_bZbH_1000 = getHisto('BB_bZbH_M1000_', 'BB_bZbH_M1000', pDir2, var,  bZbH_1000, kRed+2,    verbose)
-#    h_bZbH_1200 = getHisto('BB_bZbH_M1200_', 'BB_bZbH_M1200', pDir2, var,  bZbH_1200, kRed+4,    verbose)
-
 templates = []
 templates.append(h_dy)
 templates.append(h_top)
@@ -313,8 +304,9 @@ for ibin in range(0,nBins+1):
 #    st_err   = (0.3*iTop)**2
 #    wjet_err = (0.1*iWJ)**2
     vv_err   = (0.2*iVV)**2
-
-    new_err = stat_err + lumi_err + btag_err + ID_err + JES_err + dy_err + top_err + vv_err
+  
+    new_err = stat_err
+    #new_err = stat_err + lumi_err + btag_err + ID_err + JES_err + dy_err + top_err + vv_err
     #new_err = stat_err + lumi_err + ID_err + JES_err + JER_err + Pileup_err + dy_err + top_err + vv_err# + wjet_err +st_err
 
     if h_bkg.GetBinError(ibin) != 0: h_bkg.SetBinError(ibin, TMath.Sqrt(new_err))
@@ -349,7 +341,7 @@ print 'Sample     & Events  \\\\ '
 print '\hline'
 count = 0
 
-#f = TFile(plotDir+"/"+var+".root", "RECREATE")
+f = TFile(plotDir+"/"+var+".root", "RECREATE")
 
 if 'res' in var:
     suffix = 'Res'
@@ -359,6 +351,8 @@ elif 'merge' in var:
     suffix = 'Merge'
 elif 'combo' in var:
     suffix = 'Combo'
+else:
+    suffix = ''
 
 if var == 'resST':
     num = 6
@@ -415,8 +409,8 @@ for ihist in templates :
         print '{0:<5} & {1:<5.2f} $\pm$ {2:<5.2f} \\\\ '.format(ihist.GetName().split('_')[0], ihist.Integral(bin1,bin2), integralError)
         n=ihist.GetName().split('_')[0]
 
-    #ihist.SetName("diel_"+suffix+"__"+n)
-    #ihist.Write()
+    ihist.SetName("dimu_"+suffix+"__"+n)
+    ihist.Write()
 h_tot.IntegralAndError(bin1, bin2, integralError)
 print '\hline'
 print '{0:<5} & {1:<5.2f} $\pm$ {2:<5.2f}\\\\ '.format('Tot Bkg', h_tot.Integral(bin1,bin2), integralError)
@@ -425,10 +419,10 @@ print '{0:<5} & {1:<5.0f} \\\\ '.format(h_data.GetName().split('_')[0], h_data.I
 print '\end{tabular}'
 #print 'bkg : ', h_bkg.Integral(ibin,bin2), 'tot : ', h_tot.Integral(ibin,bin2)
 
-#h_data.SetName("diel_"+suffix+"__DATA")
+h_data.SetName("dimu_"+suffix+"__DATA")
 
-#h_data.Write()
-#f.Close()
+h_data.Write()
+f.Close()
 
 hs = THStack("","")
 
@@ -486,9 +480,9 @@ if var == 'cutflow':
     for a in range(0, 1):
         h_data.SetBinContent(data_nbins-a, -1)
 
-#h_data.GetXaxis().SetRangeUser(0, 400)
+#h_data.GetXaxis().SetRangeUser(0, 2000)
 #hs.Draw()
-#hs.GetXaxis().SetRangeUser(0, 400)
+#hs.GetXaxis().SetRangeUser(0, 2000)
 hs.Draw("Hist")
 h_bkg.Draw("e2 same")
 h_data.Draw("same")

@@ -3,7 +3,7 @@
 # =====================================================
 #  INPUTS		
 # =====================================================
-path = '/uscms_data/d3/tmitchel/update80X/CMSSW_8_0_20/src/Analysis/VLQAna/test/Macro/2d/'
+path = '/uscms_data/d3/tmitchel/update80X/CMSSW_8_0_20/src/Analysis/VLQAna/test/Macro/rootFiles/Zmumu/Syst/'
 pathS = '/uscms_data/d2/skhalil/MyVLQAna2/CMSSW_7_4_15_patch1/src/Analysis/VLQAna/test/CRAB_On_Skim/Histo/'
 pathR = '/uscms_data/d3/dmendis/Rachitha2/CMSSW_7_4_16_patch2/src/Analysis/VLQAna/test/CRAB_0n_Skim/Histo/'
 
@@ -14,7 +14,7 @@ elif 'mumu' in ch:
     suf = '_mu'
 #f_Data_Oct2015 = TFile(path+'')
 #f_Data_PromptReco = TFile(path+'SingleEG.root')
-f_Data_PromptReco = TFile(path+'WW.root')
+f_Data_PromptReco = TFile(path+'data.root')
 
 f_DY100to200 = TFile(path+'dy_pt100to250.root')
 f_DY200to400 = TFile(path+'dy_pt250to400.root')
@@ -43,30 +43,30 @@ f_WWTo2L2Nu   = TFile(path+'WW.root')
 #f_ZZTo4L            = TFile(path+'ele_ZZto4.root')
 
 #f_ttbar         = TFile(path+'ttbar_Tune1.root')
-f_ttbar = TFile(path+'WW.root')
-#f_BpBp_bZbZ_800 = TFile(path+'bprime800_bZ.root')
-#f_BpBp_bZbZ_900 = TFile(path+'bprime900_bZ.root')
-#f_BpBp_bZbZ_1000 = TFile(path+'bprime1000_bZ.root')
-#f_BpBp_bZbZ_1100 = TFile(path+'bprime1100_bZ.root')
+f_ttbar = TFile(path+'ttbar.root')
+f_BpBp_bZbZ_800 = TFile(path+'bprime800_bZ.root')
+f_BpBp_bZbZ_900 = TFile(path+'bprime900_bZ.root')
+f_BpBp_bZbZ_1000 = TFile(path+'bprime1000_bZ.root')
+f_BpBp_bZbZ_1100 = TFile(path+'bprime1100_bZ.root')
 f_BpBp_bZbZ_1200 = TFile(path+'bprime1200_bZ.root')
-#f_BpBp_bZbZ_1300 = TFile(path+'bprime1300_bZ.root')
-#f_BpBp_bZbZ_1400 = TFile(path+'bprime1400_bZ.root')
-#f_BpBp_bZbZ_1500 = TFile(path+'bprime1500_bZ.root')
-##f_BpBp_bZbZ_1600 = TFile(path+'bprime1600_bZ.root')
-#f_BpBp_bZbZ_1700 = TFile(path+'bprime1700_bZ.root')
-#f_BpBp_bZbZ_1800 = TFile(path+'bprime1800_bZ.root')
+f_BpBp_bZbZ_1300 = TFile(path+'bprime1300_bZ.root')
+f_BpBp_bZbZ_1400 = TFile(path+'bprime1400_bZ.root')
+f_BpBp_bZbZ_1500 = TFile(path+'bprime1500_bZ.root')
+#f_BpBp_bZbZ_1600 = TFile(path+'bprime1600_bZ.root')
+f_BpBp_bZbZ_1700 = TFile(path+'bprime1700_bZ.root')
+f_BpBp_bZbZ_1800 = TFile(path+'bprime1800_bZ.root')
 #
-#f_BpBp_bZbH_800 = TFile(path+'bprime800_bH.root')
-#f_BpBp_bZbH_900 = TFile(path+'bprime900_bH.root')
-#f_BpBp_bZbH_1000 = TFile(path+'bprime1000_bH.root')
-#f_BpBp_bZbH_1100 = TFile(path+'bprime1100_bH.root')
+f_BpBp_bZbH_800 = TFile(path+'bprime800_bH.root')
+f_BpBp_bZbH_900 = TFile(path+'bprime900_bH.root')
+f_BpBp_bZbH_1000 = TFile(path+'bprime1000_bH.root')
+f_BpBp_bZbH_1100 = TFile(path+'bprime1100_bH.root')
 f_BpBp_bZbH_1200 = TFile(path+'bprime1200_bH.root')
-#f_BpBp_bZbH_1300 = TFile(path+'bprime1300_bH.root')
-#f_BpBp_bZbH_1400 = TFile(path+'bprime1400_bH.root')
-#f_BpBp_bZbH_1500 = TFile(path+'bprime1500_bH.root')
-##f_BpBp_bZbH_1600 = TFile(path+'bprime1600_bH.root')
-#f_BpBp_bZbH_1700 = TFile(path+'bprime1700_bH.root')
-#f_BpBp_bZbH_1800 = TFile(path+'bprime1800_bH.root')
+f_BpBp_bZbH_1300 = TFile(path+'bprime1300_bH.root')
+f_BpBp_bZbH_1400 = TFile(path+'bprime1400_bH.root')
+f_BpBp_bZbH_1500 = TFile(path+'bprime1500_bH.root')
+#f_BpBp_bZbH_1600 = TFile(path+'bprime1600_bH.root')
+f_BpBp_bZbH_1700 = TFile(path+'bprime1700_bH.root')
+f_BpBp_bZbH_1800 = TFile(path+'bprime1800_bH.root')
 
 
 #===== cross sections (pb)==========
@@ -116,18 +116,18 @@ BpBp1600_xs       = 0.001148*gSF
 BpBp1700_xs       = 0.000666*gSF
 BpBp1800_xs       = 0.000391*gSF
 
-#BpBp800_xs = 1.
-#BpBp900_xs = 1.
-#BpBp1000_xs = 1.
-#BpBp1100_xs = 1.
-#BpBp1200_xs = 1.
-#BpBp1300_xs = 1.
-#BpBp1400_xs = 1.
-#BpBp1500_xs = 1.
-#BpBp1600_xs = 1.
-#BpBp1700_xs = 1.
-#BpBp1800_xs = 1.
-#TpTp800_xs= 1.
+BpBp800_xs = 1.
+BpBp900_xs = 1.
+BpBp1000_xs = 1.
+BpBp1100_xs = 1.
+BpBp1200_xs = 1.
+BpBp1300_xs = 1.
+BpBp1400_xs = 1.
+BpBp1500_xs = 1.
+BpBp1600_xs = 1.
+BpBp1700_xs = 1.
+BpBp1800_xs = 1.
+TpTp800_xs= 1.
 #TpTp1000_xs = 1.
 #TpTp1200_xs = 1.
 
@@ -143,28 +143,28 @@ ZZTo2L2Nu_num    =  f_ZZTo2L2Nu.Get("allEvents/hEventCount_nowt").GetBinContent(
 WZTo2L2Q_num     =  f_WZTo2L2Q.Get("allEvents/hEventCount_nowt").GetBinContent(1)
 WWTo2L2Nu_num    =  f_WWTo2L2Nu.Get("allEvents/hEventCount_nowt").GetBinContent(1)
 
-#BpBp800_bZ_num      =  f_BpBp_bZbZ_800.Get("ana/signalEvts").GetBinContent(1)
-#BpBp900_bZ_num      =  f_BpBp_bZbZ_900.Get("ana/signalEvts").GetBinContent(1)
-#BpBp1000_bZ_num     =  f_BpBp_bZbZ_1000.Get("ana/signalEvts").GetBinContent(1)
-#BpBp1100_bZ_num     =  f_BpBp_bZbZ_1100.Get("ana/signalEvts").GetBinContent(1)
+BpBp800_bZ_num      =  f_BpBp_bZbZ_800.Get("ana/signalEvts").GetBinContent(1)
+BpBp900_bZ_num      =  f_BpBp_bZbZ_900.Get("ana/signalEvts").GetBinContent(1)
+BpBp1000_bZ_num     =  f_BpBp_bZbZ_1000.Get("ana/signalEvts").GetBinContent(1)
+BpBp1100_bZ_num     =  f_BpBp_bZbZ_1100.Get("ana/signalEvts").GetBinContent(1)
 BpBp1200_bZ_num     =  f_BpBp_bZbZ_1200.Get("ana/signalEvts").GetBinContent(1)
-#BpBp1300_bZ_num     =  f_BpBp_bZbZ_1300.Get("ana/signalEvts").GetBinContent(1)
-#BpBp1400_bZ_num     =  f_BpBp_bZbZ_1400.Get("ana/signalEvts").GetBinContent(1)
-#BpBp1500_bZ_num     =  f_BpBp_bZbZ_1500.Get("ana/signalEvts").GetBinContent(1)
-##BpBp1600_bZ_num     =  f_BpBp_bZbZ_1600.Get("ana/signalEvts").GetBinContent(1)
-#BpBp1700_bZ_num     =  f_BpBp_bZbZ_1700.Get("ana/signalEvts").GetBinContent(1)
-#BpBp1800_bZ_num     =  f_BpBp_bZbZ_1800.Get("ana/signalEvts").GetBinContent(1)
-#BpBp800_bH_num      =  f_BpBp_bZbH_800.Get("ana/signalEvts").GetBinContent(1)
-#BpBp900_bH_num      =  f_BpBp_bZbH_900.Get("ana/signalEvts").GetBinContent(1)
-#BpBp1000_bH_num     =  f_BpBp_bZbH_1000.Get("ana/signalEvts").GetBinContent(1)
-#BpBp1100_bH_num     =  f_BpBp_bZbH_1100.Get("ana/signalEvts").GetBinContent(1)
+BpBp1300_bZ_num     =  f_BpBp_bZbZ_1300.Get("ana/signalEvts").GetBinContent(1)
+BpBp1400_bZ_num     =  f_BpBp_bZbZ_1400.Get("ana/signalEvts").GetBinContent(1)
+BpBp1500_bZ_num     =  f_BpBp_bZbZ_1500.Get("ana/signalEvts").GetBinContent(1)
+#BpBp1600_bZ_num     =  f_BpBp_bZbZ_1600.Get("ana/signalEvts").GetBinContent(1)
+BpBp1700_bZ_num     =  f_BpBp_bZbZ_1700.Get("ana/signalEvts").GetBinContent(1)
+BpBp1800_bZ_num     =  f_BpBp_bZbZ_1800.Get("ana/signalEvts").GetBinContent(1)
+BpBp800_bH_num      =  f_BpBp_bZbH_800.Get("ana/signalEvts").GetBinContent(1)
+BpBp900_bH_num      =  f_BpBp_bZbH_900.Get("ana/signalEvts").GetBinContent(1)
+BpBp1000_bH_num     =  f_BpBp_bZbH_1000.Get("ana/signalEvts").GetBinContent(1)
+BpBp1100_bH_num     =  f_BpBp_bZbH_1100.Get("ana/signalEvts").GetBinContent(1)
 BpBp1200_bH_num     =  f_BpBp_bZbH_1200.Get("ana/signalEvts").GetBinContent(1)
-#BpBp1300_bH_num     =  f_BpBp_bZbH_1300.Get("ana/signalEvts").GetBinContent(1)
-#BpBp1400_bH_num     =  f_BpBp_bZbH_1400.Get("ana/signalEvts").GetBinContent(1)
-#BpBp1500_bH_num     =  f_BpBp_bZbH_1500.Get("ana/signalEvts").GetBinContent(1)
-##BpBp1600_bH_num     =  f_BpBp_bZbH_1600.Get("ana/signalEvts").GetBinContent(1)
-#BpBp1700_bH_num     =  f_BpBp_bZbH_1700.Get("ana/signalEvts").GetBinContent(1)
-#BpBp1800_bH_num     =  f_BpBp_bZbH_1800.Get("ana/signalEvts").GetBinContent(1)
+BpBp1300_bH_num     =  f_BpBp_bZbH_1300.Get("ana/signalEvts").GetBinContent(1)
+BpBp1400_bH_num     =  f_BpBp_bZbH_1400.Get("ana/signalEvts").GetBinContent(1)
+BpBp1500_bH_num     =  f_BpBp_bZbH_1500.Get("ana/signalEvts").GetBinContent(1)
+#BpBp1600_bH_num     =  f_BpBp_bZbH_1600.Get("ana/signalEvts").GetBinContent(1)
+BpBp1700_bH_num     =  f_BpBp_bZbH_1700.Get("ana/signalEvts").GetBinContent(1)
+BpBp1800_bH_num     =  f_BpBp_bZbH_1800.Get("ana/signalEvts").GetBinContent(1)
 
 
 # Legend
@@ -276,7 +276,8 @@ def getHisto( label, leg, dir, var, Samples, color, verbose) :
         #     xs = 0
         #     hist.SetMarkerColorAlpha(color, 100)
         hist.Scale( xs * lumi /nevt)
-        #hist.Rebin(50)
+        hist.Rebin(5)
+        hist.SetAxisRange(0.,2000.,"X")
         histos.append( hist )
         
     histo = histos[0]
