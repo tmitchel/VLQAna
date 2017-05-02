@@ -188,7 +188,7 @@ class BTagSFUtils {
         double sf = reader_->eval(fl,eta,pt) ; 
         double sfUp = readerUp_->eval(fl,eta,pt) ; 
         double sfDown = readerDown_->eval(fl,eta,pt) ; 
-        std::cout << sf << " " << sfUp << " " << pt << " " << eta << " "<< fl << std::endl;
+        //std::cout << sf << " " << sfUp << " " << pt << " " << eta << " "<< fl << std::endl;
         double dsfUp = sfUp - sf ; 
         double dsfDown = sfDown - sf ;
         double eff = 1.0;

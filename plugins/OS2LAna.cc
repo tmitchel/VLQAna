@@ -116,7 +116,7 @@ class OS2LAna : public edm::EDFilter {
     const bool applyLeptonTrigSFs_               ;
     const bool applyBTagSFs_                     ;
     const bool applyDYNLOCorr_                   ;
-    const bool DYdown_                           ;
+    const bool DYDown_                           ;
     const int  tauShift_                         ;
     const std::string fname_DYNLOCorr_           ; 
     const std::string funname_DYNLOCorr_         ; 
@@ -216,7 +216,7 @@ OS2LAna::OS2LAna(const edm::ParameterSet& iConfig) :
   applyLeptonTrigSFs_     (iConfig.getParameter<bool>              ("applyLeptonTrigSFs")),
   applyBTagSFs_           (iConfig.getParameter<bool>              ("applyBTagSFs")),
   applyDYNLOCorr_         (iConfig.getParameter<bool>              ("applyDYNLOCorr")),
-  DYdown_                 (iConfig.getParameter<bool>              ("DYdown")),
+  DYDown_                 (iConfig.getParameter<bool>              ("DYDown")),
   tauShift_               (iConfig.getParameter<int>               ("tauShift")),
   fname_DYNLOCorr_        (iConfig.getParameter<std::string>       ("File_DYNLOCorr")),
   funname_DYNLOCorr_      (iConfig.getParameter<std::string>       ("Fun_DYNLOCorr")),
@@ -375,7 +375,7 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   if ( applyDYNLOCorr_ ) {
     double EWKNLOkfact( dynloewkkfact(dileptons.at(0).getPt()) ) ; ////GetDYNLOCorr(dileptons.at(0).getPt())) ; 
     evtwt *= EWKNLOkfact ;
-    if (!DYdown_){
+    if (!DYDown_){
       if ( zdecayMode_ == "zmumu"){
         if (goodAK4Jets.size() == 3) { evtwt *= 1.0105;}
         else if (goodAK4Jets.size() == 4) { evtwt*= 1.0604;}
@@ -449,6 +449,7 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   if (goodAK4Jets.size()  >= NAK4Min_ ) {h1_["cutflow"] -> Fill(6, evtwt) ;} 
   else return false; //// Presel N(AK4) 
 
+
   vlq::JetCollection goodAK8Jets ;
   jetAK8maker(evt, goodAK8Jets); 
   cleanjets(goodAK8Jets, goodMuons); 
@@ -474,7 +475,6 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
     }
 
     btagsfutils_->getBTagSFs (csvs, pts, etas, flhads, jetAK4BTaggedmaker.idxjetCSVDiscMin_, btagsf, btagsf_bcUp, btagsf_bcDown, btagsf_lUp, btagsf_lDown) ;
-
     //// bTag SF along with sys. unc. options
     if (btagsf_bcUp_)
       evtwt *= btagsf_bcUp;
@@ -506,17 +506,19 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   cleanjets(goodWTaggedJets, goodMuons); 
   cleanjets(goodWTaggedJets, goodElectrons); 
 
-  if (goodWTaggedJets.size() > 0 && !isData)
-    evtwt *= (( 1.11 + (tauShift_ * .08)) * goodWTaggedJets.size());
-
   vlq::JetCollection goodHTaggedJets; 
   jetHTaggedmaker(evt, goodHTaggedJets);
   cleanjets(goodHTaggedJets, goodMuons); 
   cleanjets(goodHTaggedJets, goodElectrons); 
-  
- if (goodHTaggedJets.size() > 0 && !isData)
-    evtwt *= (( 1.11 + (tauShift_ * .08)) * goodHTaggedJets.size());
-  
+
+  if (!isData){
+    for (auto& jet : goodWTaggedJets)
+      evtwt *= ( 1.11 + (tauShift_ * .08) + (0.041 * log(jet.getPt() / 200)));
+    for (auto& jet : goodHTaggedJets)
+      evtwt *= ( 1.11 + (tauShift_ * .08) + (0.041 * log(jet.getPt() / 200)));
+
+  }
+
   //// http://cms.cern.ch/iCMS/jsp/openfile.jsp?tp=draft&files=AN2016_245_v3.pdf
   //// SF of 0.93+/-0.09 required for top tag WP with mistag rate 1% (no subjet b tag): AN2016-245v3
   vlq::JetCollection goodTopTaggedJets;
@@ -545,15 +547,16 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
       flhads.push_back(jet.getHadronFlavourSubjet0()) ; 
       flhads.push_back(jet.getHadronFlavourSubjet1()) ; 
     }
-    cout << "\n\n ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" << endl;
+    //cout << "\n\n ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" << endl;
     sjbtagsfutils_->getBTagSFs (csvs, pts, etas, flhads, jetHTaggedmaker.idxsjCSVMin_, sjbtagsf, sjbtagsf_bcUp, sjbtagsf_bcDown, sjbtagsf_lUp, sjbtagsf_lDown) ;
-    if (goodHTaggedJets.size() > 0){
-      std::cout << "\n\nbtag SFs: " << btagsf << " " << btagsf_bcUp << " " << btagsf_bcDown << std::endl;
-      std::cout << "sbtag SFs light: " << sjbtagsf << " " << sjbtagsf_lUp << " " << sjbtagsf_lDown << endl;
-      std::cout << "sbtagSFs bc: " << sjbtagsf << " " << sjbtagsf_bcUp << " " << sjbtagsf_bcDown << std::endl;
-      cout << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n\n" << endl;
-    
-    }
+    //if (goodHTaggedJets.size() > 0){
+    //  std::cout << "\n\nbtag SFs: " << btagsf << " " << btagsf_bcUp << " " << btagsf_bcDown << std::endl;
+    //  std::cout << "sbtag SFs light: " << sjbtagsf << " " << sjbtagsf_lUp << " " << sjbtagsf_lDown << endl;
+    //  std::cout << "sbtagSFs bc: " << sjbtagsf << " " << sjbtagsf_bcUp << " " << sjbtagsf_bcDown << std::endl;
+    //  cout << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n\n" << endl;
+    //
+    //}
+
     if (sbtagsf_bcUp_)
       evtwt *= sjbtagsf_bcUp;
     else if (sbtagsf_bcDown_)
@@ -1101,6 +1104,20 @@ void OS2LAna::beginJob() {
     h1_["softdropmak82nd"] = sig.make<TH1D>("softdropmak82nd", ";M(2nd AK8 jet) [GeV];;" ,100 ,0., 200.) ;
     h1_["subjetinessak8leading"] = sig.make<TH1D>("subjetinessak8leading", ";#tau 2/1 (leading AK8 jet)", 20, 0., 1.);
     h1_["subjetinessak82nd"]  = sig.make<TH1D>("subjetinessak82nd", "#tau 2/1 (2nd AK8 jet)", 20, 0., 1.);
+
+	h1_["Zresolution"] = fs->make<TH1D>("Zresolution", "reco Z resolution;#sigma_{Z};;", 100, 20, 160);
+	h1_["Hresolution"] = fs->make<TH1D>("Hresolution", "reco H resolution;#sigma_{H};;", 100, 65, 185);
+	h1_["Bhadresolution"] = fs->make<TH1D>("Bhadresolution", "had. reco. B resolution;#sigma_{B{h}};;", 200, 0, 2000);
+	h1_["Blepresolution"] = fs->make<TH1D>("Blepresolution", "lep. reco B resolution;#sigma_{B{l}};;", 200, 0, 2000);
+	h1_["ztagPlain"] = fs->make<TH1D>("ztagPlain", "ztagged jet mass;M;;", 100, 20, 160);
+	h1_["ztagRes"] = fs->make<TH1D>("ztagRes", "tagged Z resolution;#sigma_{Z};;", 100, 0, 160);
+	h1_["htagRes"] = fs->make<TH1D>("htagRes", "tagged H resolution;#sigma_{H};;", 100, 65, 185);
+	h1_["ztagRecores"] = fs->make<TH1D>("ztagRecores", "had reco B resolution w/ Ztag;#sigma_{Z};;", 200, 0, 2000);
+	h1_["htagRecores"] = fs->make<TH1D>("htagRecores", "had reco B resolution w/ Htag;#sigma_{H};;", 200, 0, 2000);
+	h1_["Zmerge"] = fs->make<TH1D>("Zmerge", "merged Z jet;M;;", 100, 20, 160);
+	h1_["Hmerge"] = fs->make<TH1D>("Hmerge", "merged H jet;M;;", 100, 65, 185);
+
+
 
     ////electrons specific varaibles in EE and EB at preselection level
     if (zdecayMode_ == "zelel" && additionalPlots_){

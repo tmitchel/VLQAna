@@ -69,9 +69,11 @@ private:
   edm::EDGetTokenT<double>             JERdown_t;
   edm::EDGetTokenT<double>             ScaleUp_t;
   edm::EDGetTokenT<double>             ScaleDown_t;
-  edm::EDGetTokenT<double>             DYdown_t;
+  edm::EDGetTokenT<double>             DYDown_t;
   edm::EDGetTokenT<double>             tauUp_t;
   edm::EDGetTokenT<double>             tauDown_t;
+  edm::EDGetTokenT<double>             VUp_t;
+  edm::EDGetTokenT<double>             VDown_t;
 
   const double ptMin_;
 	const double STMaxControl_;
@@ -97,9 +99,11 @@ private:
   const bool JERdown_;
   const bool ScaleUp_;
   const bool ScaleDown_;
-  const bool DYdown_;
+  const bool DYDown_;
   const bool tauUp_;
   const bool tauDown_;
+  const bool VUp_;
+  const bool VDown_;
 
 	PickGenPart genpart ;
 
@@ -134,9 +138,11 @@ MassReco::MassReco(const edm::ParameterSet& iConfig) :
   JERdown_t     (consumes<double>           (iConfig.getParameter<edm::InputTag>("JERDown"))),
   ScaleUp_t     (consumes<double>           (iConfig.getParameter<edm::InputTag>("scaleUp"))),
   ScaleDown_t   (consumes<double>           (iConfig.getParameter<edm::InputTag>("scaleDown"))),
-  DYdown_t      (consumes<double>           (iConfig.getParameter<edm::InputTag>("DYdownLabel"))),
+  DYDown_t      (consumes<double>           (iConfig.getParameter<edm::InputTag>("DYDownLabel"))),
   tauUp_t       (consumes<double>           (iConfig.getParameter<edm::InputTag>("tauUpLabel"))),
   tauDown_t     (consumes<double>           (iConfig.getParameter<edm::InputTag>("tauDownLabel"))),
+  VUp_t         (consumes<double>           (iConfig.getParameter<edm::InputTag>("VUpLabel"))),
+  VDown_t       (consumes<double>           (iConfig.getParameter<edm::InputTag>("VDownLabel"))),
  
   ptMin_     (iConfig.getParameter<double> ("ptMin")),
 	STMaxControl_ (iConfig.getParameter<double> ("STMaxControl")),
@@ -162,9 +168,11 @@ MassReco::MassReco(const edm::ParameterSet& iConfig) :
   JERdown_      (iConfig.getParameter<bool> ("JERdown")),
   ScaleUp_      (iConfig.getParameter<bool> ("ScaleUp")),
   ScaleDown_    (iConfig.getParameter<bool> ("ScaleDown")),
-  DYdown_       (iConfig.getParameter<bool> ("DYdown")),
+  DYDown_       (iConfig.getParameter<bool> ("DYDown")),
   tauUp_        (iConfig.getParameter<bool> ("tauUp")),
   tauDown_      (iConfig.getParameter<bool> ("tauDown")),
+  VUp_          (iConfig.getParameter<bool> ("taggingJERUp")),
+  VDown_        (iConfig.getParameter<bool> ("taggingJERDown")),
 
 	genpart    (iConfig.getParameter<edm::ParameterSet>("genParams"),consumesCollector())
 
@@ -203,9 +211,11 @@ bool MassReco::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   else if (JERdown_)       evt.getByToken(JERdown_t,evtwt_h);
   else if (ScaleUp_)       evt.getByToken(ScaleUp_t,evtwt_h);
   else if (ScaleDown_)     evt.getByToken(ScaleDown_t,evtwt_h);
-  else if (DYdown_)        evt.getByToken(DYdown_t, evtwt_h);
+  else if (DYDown_)        evt.getByToken(DYDown_t, evtwt_h);
   else if (tauUp_)         evt.getByToken(tauUp_t, evtwt_h);
   else if (tauDown_)       evt.getByToken(tauDown_t, evtwt_h);
+  else if (VUp_)           evt.getByToken(VUp_t, evtwt_h);
+  else if (VDown_)         evt.getByToken(VDown_t, evtwt_h);
   else                     evt.getByToken(evtwt_t,  evtwt_h);
 	
   TLorentzVector zllcand = (*zllcands_h.product()).at(0).getP4();
@@ -221,8 +231,11 @@ bool MassReco::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   vector<vlq::Jet> zjets = *zjets_h.product();
   vector<vlq::Jet> hjets = *hjets_h.product();
 
-	bool doZ = (signalType_ == "EvtType_MC_bZbZ" || signalType_ == "");
-  bool doH = (signalType_ == "EvtType_MC_bZbH" || signalType_ == "");
+//	bool doZ = (signalType_ == "EvtType_MC_bZbZ" || signalType_ == "");
+//  bool doH = (signalType_ == "EvtType_MC_bZbH" || signalType_ == "");
+
+  bool doZ = true;
+  bool doH = true;
 
 	double chiCut_ = 1000;
 
@@ -299,68 +312,91 @@ bool MassReco::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
     	mergeReco_bH = doBoostedReco(ak4s, ak4s.at(i).getP4(), 125., zllcand, 150.);
   	}
 
+    pair<double, double> comboBZ, comboBH;
+
   	if (resReco_bZ.second > 0 && resReco_bZ.first < chiCut_){
+
     	h1_["resReco_bZ"]->Fill(resReco_bZ.second, evtwt);
       h2_["resbZ_2d"]->Fill(resReco_bZ.first, resReco_bZ.second);
     	h1_["resST_bZ"]->Fill(ST, evtwt);
   	} 
-  	if (resReco_bH.second > 0 && resReco_bH.first < chiCut_){ 
+  	if (resReco_bH.second > 0 && resReco_bH.first < chiCut_){
+
     	h1_["resReco_bH"]->Fill(resReco_bH.second, evtwt);
       h2_["resbH_2d"]->Fill(resReco_bH.first, resReco_bH.second);
     	h1_["resST_bZ"]->Fill(ST, evtwt);
   	}
   	if (boostReco_bZ.second > 0 && boostReco_bZ.first < chiCut_){
+
     	h1_["boostReco_bZ"]->Fill(boostReco_bZ.second, evtwt);
     	h2_["boostbZ_2d"]->Fill(boostReco_bZ.first, boostReco_bZ.second);
       h1_["boostST_bZ"]->Fill(ST, evtwt);
   	}
   	if (boostReco_bH.second > 0 && boostReco_bH.first < chiCut_){
+
     	h1_["boostReco_bH"]->Fill(boostReco_bH.second, evtwt);
     	h2_["boostbH_2d"]->Fill(boostReco_bH.first, boostReco_bH.second);
       h1_["boostST_bH"]->Fill(ST, evtwt);
   	}
-  	if (mergeReco_bZ.second > 0 && mergeReco_bZ.first < chiCut_){ 
+  	if (mergeReco_bZ.second > 0 && mergeReco_bZ.first < chiCut_){
+ 
     	h1_["mergeReco_bZ"]->Fill(mergeReco_bZ.second, evtwt);
     	h2_["mergebZ_2d"]->Fill(mergeReco_bZ.first, mergeReco_bZ.second);
       h1_["mergeST_bZ"]->Fill(ST, evtwt);
   	}
-  	if (mergeReco_bH.second > 0 && mergeReco_bH.first < chiCut_){ 
+  	if (mergeReco_bH.second > 0 && mergeReco_bH.first < chiCut_){
+ 
     	h1_["mergeReco_bH"]->Fill(mergeReco_bH.second, evtwt);
     	h2_["mergebH_2d"]->Fill(mergeReco_bH.first, mergeReco_bH.second);
       h1_["mergeST_bH"]->Fill(ST, evtwt);
   	}
 
   	if (resReco_bZ.first < boostReco_bZ.first && resReco_bZ.first < mergeReco_bZ.first && resReco_bZ.first < chiCut_){
+      comboBZ = resReco_bZ;
     	h1_["comboReco_bZ"]->Fill(resReco_bZ.second, evtwt);
       h2_["combobZ_2d"]->Fill(resReco_bZ.first, resReco_bZ.second);
     	h1_["comboST_bZ"]->Fill(ST, evtwt);
   	}
   	else if (boostReco_bZ.first < resReco_bZ.first && boostReco_bZ.first < mergeReco_bZ.first && boostReco_bZ.first < chiCut_){
+      comboBZ = boostReco_bZ;
     	h1_["comboReco_bZ"]->Fill(boostReco_bZ.second, evtwt);
       h2_["combobZ_2d"]->Fill(boostReco_bZ.first, boostReco_bZ.second);
     	h1_["comboST_bZ"]->Fill(ST, evtwt);
   	}
   	else if (mergeReco_bZ.first < resReco_bZ.first && mergeReco_bZ.first < boostReco_bZ.first && mergeReco_bZ.first < chiCut_){
+      comboBZ = mergeReco_bZ;
     	h1_["comboReco_bZ"]->Fill(mergeReco_bZ.second, evtwt);
       h2_["combobZ_2d"]->Fill(mergeReco_bZ.first, mergeReco_bZ.second);
     	h1_["comboST_bZ"]->Fill(ST, evtwt);
   	}
 
   	if (resReco_bH.first < boostReco_bH.first && resReco_bH.first < mergeReco_bH.first && resReco_bH.first < chiCut_){
+      comboBH = resReco_bH; 
     	h1_["comboReco_bH"]->Fill(resReco_bH.second, evtwt);
       h2_["combobH_2d"]->Fill(resReco_bH.first, resReco_bH.second);
     	h1_["comboST_bH"]->Fill(ST, evtwt);
   	}
   	else if (boostReco_bH.first < resReco_bH.first && boostReco_bH.first < mergeReco_bH.first && boostReco_bH.first < chiCut_){
+      comboBH = boostReco_bH;
     	h1_["comboReco_bH"]->Fill(boostReco_bH.second, evtwt);
       h2_["combobH_2d"]->Fill(boostReco_bH.first, boostReco_bH.second);
     	h1_["comboST_bH"]->Fill(ST, evtwt);
   	}
   	else if (mergeReco_bH.first < resReco_bH.first && mergeReco_bH.first < boostReco_bH.first && mergeReco_bH.first < chiCut_){
+      comboBH = mergeReco_bH;
     	h1_["comboReco_bH"]->Fill(mergeReco_bH.second, evtwt);
       h2_["combobH_2d"]->Fill(mergeReco_bH.first, mergeReco_bH.second);
     	h1_["comboST_bH"]->Fill(ST, evtwt);
   	}
+
+    if (comboBZ.first == 0 && comboBH.first != 0)
+      h1_["comboReco"] -> Fill(comboBH.second, evtwt);
+    else if (comboBH.first == 0 && comboBZ.first != 0)
+      h1_["comboReco"] -> Fill(comboBZ.second, evtwt);
+    else if (comboBZ.first < comboBH.first)
+      h1_["comboReco"] -> Fill(comboBZ.second, evtwt);
+    else if (comboBH.first < comboBZ.first)
+      h1_["comboReco"] -> Fill(comboBH.second, evtwt);
 
  	 	h1_["ST"]->Fill(ST, evtwt);
 
@@ -504,7 +540,7 @@ bool MassReco::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
 				if (gen.getPdgID() <= -1 && gen.getPdgID() >= -5 && abs(gen.getMom0PdgID()) == 23 && gen.getPt() != 0)
 					q2 = gen.getP4();
 			}
-			if (signalType_ == "EvtType_MC_bZbH"){ 
+      else if (signalType_ == "EvtType_MC_bZbH"){ 
  				if (gen.getPdgID() >= 1 && gen.getPdgID() <= 5 && abs(gen.getMom0PdgID()) == 25 && gen.getPt() != 0)
 					q1 = gen.getP4();
 				if (gen.getPdgID() <= -1 && gen.getPdgID() >= -5 && abs(gen.getMom0PdgID()) == 25 && gen.getPt() != 0)
@@ -587,6 +623,7 @@ void MassReco::beginJob(){
   h1_["mergeReco_bH"] = fs->make<TH1D>("mergeReco_bH", "Merged Reconstruction B->bH;M_{#chi^{2}}(B);;", 1000, 0., 3000);
   h1_["comboReco_bZ"] = fs->make<TH1D>("comboReco_bZ", "Combo Reconstruction B->bZ;M_{#chi^{2}}(B);;", 1000, 0., 3000);
   h1_["comboReco_bH"] = fs->make<TH1D>("comboReco_bH", "Combo Reconstruction B->bH;M_{#chi^{2}}(B);;", 1000, 0., 3000);
+  h1_["comboReco"] = fs->make<TH1D>("comboReco", "Combo Reconstruction;M_{#chi^{2}}(B);;", 1000, 0., 3000);
 
   h1_["resST_bZ"] = fs->make<TH1D>("resST_bZ", "Resolved ST B->bZ;S_{T};;", 1000, 0., 3000);
   h1_["resST_bH"] = fs->make<TH1D>("resST_bH", "Resolved ST B->bH;S_{T};;", 1000, 0., 3000);
