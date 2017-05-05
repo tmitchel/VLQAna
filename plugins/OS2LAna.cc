@@ -455,6 +455,24 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   cleanjets(goodAK8Jets, goodMuons); 
   cleanjets(goodAK8Jets, goodElectrons); 
 
+  vlq::JetCollection  goodWTaggedJets;
+  jetWTaggedmaker(evt, goodWTaggedJets);
+  cleanjets(goodWTaggedJets, goodMuons); 
+  cleanjets(goodWTaggedJets, goodElectrons); 
+
+  vlq::JetCollection goodHTaggedJets; 
+  jetHTaggedmaker(evt, goodHTaggedJets);
+  cleanjets(goodHTaggedJets, goodMuons); 
+  cleanjets(goodHTaggedJets, goodElectrons); 
+
+  if (!isData){
+    for (auto& jet : goodWTaggedJets)
+      evtwt *= ( 1.11 + (tauShift_ * .08) + (0.041 * log(jet.getPt() / 200)));
+    for (auto& jet : goodHTaggedJets)
+      evtwt *= ( 1.11 + (tauShift_ * .08) + (0.041 * log(jet.getPt() / 200)));
+
+  }
+
   double presel_wt(evtwt);
   double btagsf(1) ;
   double btagsf_bcUp(1) ; 
@@ -501,24 +519,6 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
     }
   } //// Completing the cutflow
 
-  vlq::JetCollection  goodWTaggedJets;
-  jetWTaggedmaker(evt, goodWTaggedJets);
-  cleanjets(goodWTaggedJets, goodMuons); 
-  cleanjets(goodWTaggedJets, goodElectrons); 
-
-  vlq::JetCollection goodHTaggedJets; 
-  jetHTaggedmaker(evt, goodHTaggedJets);
-  cleanjets(goodHTaggedJets, goodMuons); 
-  cleanjets(goodHTaggedJets, goodElectrons); 
-
-  if (!isData){
-    for (auto& jet : goodWTaggedJets)
-      evtwt *= ( 1.11 + (tauShift_ * .08) + (0.041 * log(jet.getPt() / 200)));
-    for (auto& jet : goodHTaggedJets)
-      evtwt *= ( 1.11 + (tauShift_ * .08) + (0.041 * log(jet.getPt() / 200)));
-
-  }
-
   //// http://cms.cern.ch/iCMS/jsp/openfile.jsp?tp=draft&files=AN2016_245_v3.pdf
   //// SF of 0.93+/-0.09 required for top tag WP with mistag rate 1% (no subjet b tag): AN2016-245v3
   vlq::JetCollection goodTopTaggedJets;
@@ -547,15 +547,9 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
       flhads.push_back(jet.getHadronFlavourSubjet0()) ; 
       flhads.push_back(jet.getHadronFlavourSubjet1()) ; 
     }
-    //cout << "\n\n ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" << endl;
+    
     sjbtagsfutils_->getBTagSFs (csvs, pts, etas, flhads, jetHTaggedmaker.idxsjCSVMin_, sjbtagsf, sjbtagsf_bcUp, sjbtagsf_bcDown, sjbtagsf_lUp, sjbtagsf_lDown) ;
-    //if (goodHTaggedJets.size() > 0){
-    //  std::cout << "\n\nbtag SFs: " << btagsf << " " << btagsf_bcUp << " " << btagsf_bcDown << std::endl;
-    //  std::cout << "sbtag SFs light: " << sjbtagsf << " " << sjbtagsf_lUp << " " << sjbtagsf_lDown << endl;
-    //  std::cout << "sbtagSFs bc: " << sjbtagsf << " " << sjbtagsf_bcUp << " " << sjbtagsf_bcDown << std::endl;
-    //  cout << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n\n" << endl;
-    //
-    //}
+
 
     if (sbtagsf_bcUp_)
       evtwt *= sjbtagsf_bcUp;

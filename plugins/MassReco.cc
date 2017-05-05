@@ -53,27 +53,9 @@ private:
   edm::EDGetTokenT<vector<vlq::Candidate> > zllcands_t;
   edm::EDGetTokenT<double>             st_t;
   edm::EDGetTokenT<double>             evtwt_t;
-  edm::EDGetTokenT<double>             bcUp_t;
-  edm::EDGetTokenT<double>             bcDown_t;
-  edm::EDGetTokenT<double>             lUp_t;
-  edm::EDGetTokenT<double>             lDown_t;
-  edm::EDGetTokenT<double>             sbcUp_t;
-  edm::EDGetTokenT<double>             sbcDown_t;
-  edm::EDGetTokenT<double>             slUp_t;
-  edm::EDGetTokenT<double>             slDown_t;
-  edm::EDGetTokenT<double>             puUp_t;
-  edm::EDGetTokenT<double>             puDown_t;
-  edm::EDGetTokenT<double>             JECup_t;
-  edm::EDGetTokenT<double>             JECdown_t;
-  edm::EDGetTokenT<double>             JERup_t;
-  edm::EDGetTokenT<double>             JERdown_t;
-  edm::EDGetTokenT<double>             ScaleUp_t;
-  edm::EDGetTokenT<double>             ScaleDown_t;
-  edm::EDGetTokenT<double>             DYDown_t;
-  edm::EDGetTokenT<double>             tauUp_t;
-  edm::EDGetTokenT<double>             tauDown_t;
-  edm::EDGetTokenT<double>             VUp_t;
-  edm::EDGetTokenT<double>             VDown_t;
+  edm::EDGetTokenT<double>             bTagwt_t;
+  edm::EDGetTokenT<double>             sjbTagwt_t;
+
 
   const double ptMin_;
 	const double STMaxControl_;
@@ -83,28 +65,6 @@ private:
 	const bool optimizeReco_;
 	const bool controlReco_;
   const bool doSkim_;
-  const bool btagbcSFup_;
-  const bool btagbcSFdown_;
-  const bool btaglSFup_;
-  const bool btaglSFdown_;
-  const bool sbtagbcSFup_;
-  const bool sbtagbcSFdown_;
-  const bool sbtaglSFup_;
-  const bool sbtaglSFdown_;
-  const bool pileupUp_;
-  const bool pileupDown_;
-  const bool JECup_;
-  const bool JECdown_;
-  const bool JERup_;
-  const bool JERdown_;
-  const bool ScaleUp_;
-  const bool ScaleDown_;
-  const bool DYDown_;
-  const bool tauUp_;
-  const bool tauDown_;
-  const bool VUp_;
-  const bool VDown_;
-
 	PickGenPart genpart ;
 
   edm::Service<TFileService> fs;
@@ -121,28 +81,10 @@ MassReco::MassReco(const edm::ParameterSet& iConfig) :
   hjets_t       (consumes<vector<vlq::Jet> > (iConfig.getParameter<edm::InputTag>("hjets"))),
   zllcands_t    (consumes<vector<vlq::Candidate> > (iConfig.getParameter<edm::InputTag>("zllcands"))),
   st_t          (consumes<double>           (iConfig.getParameter<edm::InputTag>("st"))),
-  evtwt_t       (consumes<double>           (iConfig.getParameter<edm::InputTag>("evtwt"))),
-  bcUp_t        (consumes<double>           (iConfig.getParameter<edm::InputTag>("bcUp"))),
-  bcDown_t      (consumes<double>           (iConfig.getParameter<edm::InputTag>("bcDown"))),
-  lUp_t         (consumes<double>           (iConfig.getParameter<edm::InputTag>("lUp"))),
-  lDown_t       (consumes<double>           (iConfig.getParameter<edm::InputTag>("lDown"))),
-  sbcUp_t       (consumes<double>           (iConfig.getParameter<edm::InputTag>("sbcUp"))),
-  sbcDown_t     (consumes<double>           (iConfig.getParameter<edm::InputTag>("sbcDown"))),
-  slUp_t        (consumes<double>           (iConfig.getParameter<edm::InputTag>("slUp"))),
-  slDown_t      (consumes<double>           (iConfig.getParameter<edm::InputTag>("slDown"))),
-  puUp_t        (consumes<double>           (iConfig.getParameter<edm::InputTag>("puUp"))),
-  puDown_t      (consumes<double>           (iConfig.getParameter<edm::InputTag>("puDown"))),
-  JECup_t       (consumes<double>           (iConfig.getParameter<edm::InputTag>("JERUp"))),
-  JECdown_t     (consumes<double>           (iConfig.getParameter<edm::InputTag>("JECDown"))),
-  JERup_t       (consumes<double>           (iConfig.getParameter<edm::InputTag>("JERUp"))),
-  JERdown_t     (consumes<double>           (iConfig.getParameter<edm::InputTag>("JERDown"))),
-  ScaleUp_t     (consumes<double>           (iConfig.getParameter<edm::InputTag>("scaleUp"))),
-  ScaleDown_t   (consumes<double>           (iConfig.getParameter<edm::InputTag>("scaleDown"))),
-  DYDown_t      (consumes<double>           (iConfig.getParameter<edm::InputTag>("DYDownLabel"))),
-  tauUp_t       (consumes<double>           (iConfig.getParameter<edm::InputTag>("tauUpLabel"))),
-  tauDown_t     (consumes<double>           (iConfig.getParameter<edm::InputTag>("tauDownLabel"))),
-  VUp_t         (consumes<double>           (iConfig.getParameter<edm::InputTag>("VUpLabel"))),
-  VDown_t       (consumes<double>           (iConfig.getParameter<edm::InputTag>("VDownLabel"))),
+  evtwt_t       (consumes<double>           (iConfig.getParameter<edm::InputTag>("Prewt"))),
+  bTagwt_t      (consumes<double>           (iConfig.getParameter<edm::InputTag>("bTagwt"))),
+  sjbTagwt_t    (consumes<double>           (iConfig.getParameter<edm::InputTag>("sjbTagwt"))),
+
  
   ptMin_     (iConfig.getParameter<double> ("ptMin")),
 	STMaxControl_ (iConfig.getParameter<double> ("STMaxControl")),
@@ -152,27 +94,6 @@ MassReco::MassReco(const edm::ParameterSet& iConfig) :
 	optimizeReco_ (iConfig.getParameter<bool> ("optimizeReco")),
 	controlReco_  (iConfig.getParameter<bool> ("controlReco")),
   doSkim_       (iConfig.getParameter<bool> ("doSkim")),
-  btagbcSFup_   (iConfig.getParameter<bool> ("btagbcSFup")),
-  btagbcSFdown_ (iConfig.getParameter<bool> ("btagbcSFdown")),
-  btaglSFup_    (iConfig.getParameter<bool> ("btaglSFup")),
-  btaglSFdown_  (iConfig.getParameter<bool> ("btaglSFdown")),
-  sbtagbcSFup_  (iConfig.getParameter<bool> ("sbtagbcSFup")),
-  sbtagbcSFdown_(iConfig.getParameter<bool> ("sbtagbcSFdown")),
-  sbtaglSFup_   (iConfig.getParameter<bool> ("sbtaglSFup")),
-  sbtaglSFdown_ (iConfig.getParameter<bool> ("sbtaglSFdown")),
-  pileupUp_     (iConfig.getParameter<bool> ("pileupUp")),
-  pileupDown_   (iConfig.getParameter<bool> ("pileupDown")),
-  JECup_        (iConfig.getParameter<bool> ("JECup")),
-  JECdown_      (iConfig.getParameter<bool> ("JECdown")),
-  JERup_        (iConfig.getParameter<bool> ("JERup")),
-  JERdown_      (iConfig.getParameter<bool> ("JERdown")),
-  ScaleUp_      (iConfig.getParameter<bool> ("ScaleUp")),
-  ScaleDown_    (iConfig.getParameter<bool> ("ScaleDown")),
-  DYDown_       (iConfig.getParameter<bool> ("DYDown")),
-  tauUp_        (iConfig.getParameter<bool> ("tauUp")),
-  tauDown_      (iConfig.getParameter<bool> ("tauDown")),
-  VUp_          (iConfig.getParameter<bool> ("taggingJERUp")),
-  VDown_        (iConfig.getParameter<bool> ("taggingJERDown")),
 
 	genpart    (iConfig.getParameter<edm::ParameterSet>("genParams"),consumesCollector())
 
@@ -181,10 +102,6 @@ MassReco::MassReco(const edm::ParameterSet& iConfig) :
 MassReco::~MassReco() {}
 
 bool MassReco::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
-
-  //TLorentzVector leptons = (lepP4.at(0) + lepP4.at(1));
-  //  cout << lepP4.at(0).E() << " " << lepP4.at(1).E() << endl;
-
 	
   edm::Handle<vector<vlq::Candidate> > zllcands_h; evt.getByToken(zllcands_t, zllcands_h);
 	edm::Handle<vector<vlq::Jet> > ak8_h      ; evt.getByToken(ak8_t,  ak8_h)     ;
@@ -192,47 +109,31 @@ bool MassReco::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   edm::Handle<vector<vlq::Jet> > bjets_h    ; evt.getByToken(bjets_t,  bjets_h) ;
   edm::Handle<vector<vlq::Jet> > zjets_h    ; evt.getByToken(zjets_t,  zjets_h) ;
   edm::Handle<vector<vlq::Jet> > hjets_h    ; evt.getByToken(hjets_t,  hjets_h) ;
-//  edm::Handle<double>              evtwt_h  ; evt.getByToken(evtwt_t,  evtwt_h) ;
   edm::Handle<double>            st_h       ; evt.getByToken(st_t,     st_h)    ;
-  edm::Handle<double>            evtwt_h    ;
-  if (btagbcSFup_)         evt.getByToken(bcUp_t,   evtwt_h);
-  else if (btagbcSFdown_)  evt.getByToken(bcDown_t, evtwt_h);
-  else if (btaglSFup_)     evt.getByToken(lUp_t,    evtwt_h);
-  else if (btaglSFdown_)   evt.getByToken(lDown_t,  evtwt_h);
-  else if (sbtagbcSFup_)   evt.getByToken(sbcUp_t,  evtwt_h);
-  else if (sbtagbcSFdown_) evt.getByToken(sbcDown_t,evtwt_h);
-  else if (sbtaglSFup_)    evt.getByToken(slUp_t,   evtwt_h);
-  else if (sbtaglSFdown_)  evt.getByToken(slDown_t, evtwt_h);
-  else if (pileupUp_)      evt.getByToken(puUp_t,   evtwt_h);
-  else if (pileupDown_)    evt.getByToken(puDown_t, evtwt_h);
-  else if (JECup_)         evt.getByToken(JECup_t,  evtwt_h);
-  else if (JECdown_)       evt.getByToken(JECdown_t,evtwt_h);
-  else if (JERup_)         evt.getByToken(JERup_t,  evtwt_h);
-  else if (JERdown_)       evt.getByToken(JERdown_t,evtwt_h);
-  else if (ScaleUp_)       evt.getByToken(ScaleUp_t,evtwt_h);
-  else if (ScaleDown_)     evt.getByToken(ScaleDown_t,evtwt_h);
-  else if (DYDown_)        evt.getByToken(DYDown_t, evtwt_h);
-  else if (tauUp_)         evt.getByToken(tauUp_t, evtwt_h);
-  else if (tauDown_)       evt.getByToken(tauDown_t, evtwt_h);
-  else if (VUp_)           evt.getByToken(VUp_t, evtwt_h);
-  else if (VDown_)         evt.getByToken(VDown_t, evtwt_h);
-  else                     evt.getByToken(evtwt_t,  evtwt_h);
-	
+  edm::Handle<double>            evtwt_h    ; evt.getByToken(evtwt_t, evtwt_h);
+  edm::Handle<double>            bTagwt_h   ; evt.getByToken(bTagwt_t, bTagwt_h);
+  edm::Handle<double>            sjbTagwt_h ; evt.getByToken(sjbTagwt_t, sjbTagwt_h);
+
   TLorentzVector zllcand = (*zllcands_h.product()).at(0).getP4();
 	double evtwt;
   if (evtwt_h.isValid())
-   evtwt = *evtwt_h.product();
+   evtwt = *evtwt_h.product() * *bTagwt_h.product() * *sjbTagwt_h.product() ;
   else
     return false;
 	double ST = *st_h.product();
-	vector<vlq::Jet> ak8s = *ak8_h.product();
-  vector<vlq::Jet> ak4s = *ak4_h.product();
-  vector<vlq::Jet> bjets = *bjets_h.product();
-  vector<vlq::Jet> zjets = *zjets_h.product();
-  vector<vlq::Jet> hjets = *hjets_h.product();
 
-//	bool doZ = (signalType_ == "EvtType_MC_bZbZ" || signalType_ == "");
-//  bool doH = (signalType_ == "EvtType_MC_bZbH" || signalType_ == "");
+  vector<vlq::Jet> ak4s, bjets, ak8s, zjets, hjets;
+  if (ak4_h.isValid()){
+    ak4s = *ak4_h.product();
+    bjets = *bjets_h.product();
+  }
+  else
+    return false;
+  if (ak8_h.isValid()) {
+  	ak8s = *ak8_h.product();
+    zjets = *zjets_h.product();
+    hjets = *hjets_h.product();
+  }
 
   bool doZ = true;
   bool doH = true;
@@ -260,6 +161,8 @@ bool MassReco::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
 	////////////////////////
 
 	if (ak4s.at(0).getPt() > 100 && ak4s.at(1).getPt() > 50 && bjets.size() > 0 && ST > STMin_){
+
+    h1_["recoCutflow"] -> Fill(1, evtwt);
 
 	for (auto& jet : ak8s){
 		h1_["ak8subjetiness_SR"]->Fill(jet.getTau2()/jet.getTau1(), evtwt);
@@ -389,9 +292,9 @@ bool MassReco::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
     	h1_["comboST_bH"]->Fill(ST, evtwt);
   	}
 
-    if (comboBZ.first == 0 && comboBH.first != 0)
+    if (comboBZ.first <= 0 && comboBH.first > 0)
       h1_["comboReco"] -> Fill(comboBH.second, evtwt);
-    else if (comboBH.first == 0 && comboBZ.first != 0)
+    else if (comboBH.first <= 0 && comboBZ.first > 0)
       h1_["comboReco"] -> Fill(comboBZ.second, evtwt);
     else if (comboBZ.first < comboBH.first)
       h1_["comboReco"] -> Fill(comboBZ.second, evtwt);
@@ -546,9 +449,9 @@ bool MassReco::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
 				if (gen.getPdgID() <= -1 && gen.getPdgID() >= -5 && abs(gen.getMom0PdgID()) == 25 && gen.getPt() != 0)
 					q2 = gen.getP4();
 			}
-			if (abs(gen.getPdgID()) == 23 && abs(gen.getMom0PdgID()) == 8000002)// && abs(gen.getDau0PdgID()) >=1 && abs(gen.getDau0PdgID()) <= 5 && gen.getPt() != 0)
+			if (abs(gen.getPdgID()) == 23 && abs(gen.getMom0PdgID()) == 8000002 && abs(gen.getDau0PdgID()) >=1 && abs(gen.getDau0PdgID()) <= 5 && gen.getPt() != 0)
 				ZGen = gen.getP4();
-			if (abs(gen.getPdgID()) == 25 && abs(gen.getMom0PdgID()) == 8000002)// && abs(gen.getDau0PdgID()) >=1 && abs(gen.getDau0PdgID()) <= 5 && gen.getPt() != 0)
+			if (abs(gen.getPdgID()) == 25 && abs(gen.getMom0PdgID()) == 8000002 && abs(gen.getDau0PdgID()) >=1 && abs(gen.getDau0PdgID()) <= 5 && gen.getPt() != 0)
 				HGen = gen.getP4();
 			
 		}
@@ -578,35 +481,60 @@ bool MassReco::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
 				HJet = jet.getP4();
 		}
 
-		double vlqMass_ = 1200;
+		double vlqMass_ = 1000;
 		double bcheck = abs((bJet+qJet+qbarJet).M() - vlqMass_);
 		double bbarcheck = abs((bbarJet+qJet+qbarJet).M() - vlqMass_);
 
     if (bcheck < bbarcheck){
       had_bjet = bJet;
       lep_bjet = bbarJet;
+      had_bgen = bGen;
+      lep_bgen = bbarGen;
     }
     else {
       had_bjet = bbarJet;
       lep_bjet = bJet;
+      had_bgen = bbarGen;
+      lep_bgen = bGen;
     }
 		if (qJet != qbarJet){
 			if (signalType_ == "EvtType_MC_bZbZ")
 				h1_["Zresolution"]->Fill((qJet+qbarJet).M(), evtwt);
 			if (signalType_ == "EvtType_MC_bZbH") 
 				h1_["Hresolution"]->Fill((qJet+qbarJet).M(), evtwt);	
-			h1_["Bhadresolution"]->Fill((qJet+qbarJet+had_bjet).M(), evtwt);
-			h1_["Blepresolution"]->Fill((zllcand+lep_bjet).M(), evtwt);
+			h1_["resolveRes"]->Fill((qJet+qbarJet+had_bjet).M(), evtwt);
+      h1_["resolve_genBres"] -> Fill((q1 + q2 + had_bgen).M(), evtwt);
 
 		}
-		if (zjets.size() > 0)
-			h1_["ztagPlain"]->Fill(ZJet.M(), evtwt);
-		h1_["ztagRes"]->Fill(ZGen.M(), evtwt);
-		h1_["htagRes"]->Fill(HJet.M(), evtwt);
-		h1_["ztagRecores"]->Fill((ZJet+had_bjet).M(), evtwt);
-		h1_["htagRecores"]->Fill((HJet+had_bjet).M(), evtwt);
-		h1_["Zmerge"]->Fill(Zmerge.M(), evtwt);
-		h1_["Hmerge"]->Fill(Hmerge.M(), evtwt);
+
+		if (zjets.size() > 0){
+			h1_["ztagRes"]->Fill(ZJet.M(), evtwt);
+  		h1_["boostZRes"]->Fill((ZJet+had_bjet).M(), evtwt);
+    }
+    if (hjets.size() > 0){
+      h1_["htagRes"] -> Fill(HJet.M(), evtwt);
+  		h1_["boostHRes"]->Fill((HJet+had_bjet).M(), evtwt);
+    }
+
+    if (Zmerge.Pt() > 0){
+	  	h1_["Zmerge"]->Fill(Zmerge.M(), evtwt);
+      h1_["mergeZRes"] -> Fill((Zmerge + had_bjet).M(), evtwt);
+    }
+    if (Hmerge.Pt() > 0){
+	  	h1_["Hmerge"]->Fill(Hmerge.M(), evtwt);
+      h1_["mergeHRes"] -> Fill((Hmerge + had_bjet).M(), evtwt);
+    }
+
+    if (ZGen.Pt() > 0){
+  		h1_["ztagGen"]->Fill(ZGen.M(), evtwt);
+      h1_["boost_genBZres"] -> Fill((ZGen + had_bgen).M(), evtwt);
+    }
+    if (HGen.Pt() > 0){
+		  h1_["htagGen"]->Fill(HGen.M(), evtwt);
+      h1_["boost_genBHres"] -> Fill((HGen + had_bgen).M(), evtwt);
+    }
+
+  	h1_["Blepresolution"]->Fill((zllcand+lep_bjet).M(), evtwt);
 	}
 
 
@@ -614,6 +542,8 @@ bool MassReco::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
 }
 
 void MassReco::beginJob(){
+
+  h1_["recoCutflow"] = fs->make<TH1D>("recoCutlow", "Count", 2, -0.5, 1.5);
 
   h1_["resReco_bZ"] = fs->make<TH1D>("resReco_bZ", "Resolved Reconstruction B->bZ;M_{#chi^{2}}(B);;", 1000, 0., 3000);
   h1_["resReco_bH"] = fs->make<TH1D>("resReco_bH", "Resolved Reconstruction B->bH;M_{#chi^{2}}(B);;", 1000, 0., 3000);
@@ -645,17 +575,23 @@ void MassReco::beginJob(){
 
   h1_["ST"] = fs->make<TH1D>("ST", "ST;S_{T};;", 1000, 0., 8000.);
 
-	h1_["Zresolution"] = fs->make<TH1D>("Zresolution", "reco Z resolution;#sigma_{Z};;", 100, 20, 160);
-	h1_["Hresolution"] = fs->make<TH1D>("Hresolution", "reco H resolution;#sigma_{H};;", 100, 65, 185);
-	h1_["Bhadresolution"] = fs->make<TH1D>("Bhadresolution", "had. reco. B resolution;#sigma_{B{h}};;", 200, 0, 2000);
-	h1_["Blepresolution"] = fs->make<TH1D>("Blepresolution", "lep. reco B resolution;#sigma_{B{l}};;", 200, 0, 2000);
-	h1_["ztagPlain"] = fs->make<TH1D>("ztagPlain", "ztagged jet mass;M;;", 100, 20, 160);
-	h1_["ztagRes"] = fs->make<TH1D>("ztagRes", "tagged Z resolution;#sigma_{Z};;", 100, 0, 160);
-	h1_["htagRes"] = fs->make<TH1D>("htagRes", "tagged H resolution;#sigma_{H};;", 100, 65, 185);
-	h1_["ztagRecores"] = fs->make<TH1D>("ztagRecores", "had reco B resolution w/ Ztag;#sigma_{Z};;", 200, 0, 2000);
-	h1_["htagRecores"] = fs->make<TH1D>("htagRecores", "had reco B resolution w/ Htag;#sigma_{H};;", 200, 0, 2000);
-	h1_["Zmerge"] = fs->make<TH1D>("Zmerge", "merged Z jet;M;;", 100, 20, 160);
-	h1_["Hmerge"] = fs->make<TH1D>("Hmerge", "merged H jet;M;;", 100, 65, 185);
+	h1_["Zresolution"] = fs->make<TH1D>("Zresolution", "Reco. Z Mass;M [GeV];;", 100, 20, 160);
+	h1_["Hresolution"] = fs->make<TH1D>("Hresolution", "Reco. H Mass;M [GeV];;", 100, 65, 185);
+	h1_["resolveRes"] = fs->make<TH1D>("resolveRes", "Had. Reco. B Mass;M [GeV];;", 200, 0, 2000);
+  h1_["resolve_genBres"] = fs->make<TH1D>("resolve_genBres", "Gen. Had. Reco. B Mass;M [GeV];;", 200,0,2000);
+	h1_["Blepresolution"] = fs->make<TH1D>("Blepresolution", "Lep. Reco. B Mass;M [GeV];;", 200, 0, 2000);
+	h1_["ztagGen"] = fs->make<TH1D>("ztagGen", "Gen. Ztagged Jet Mass;M [GeV];;", 100, 20, 160);
+  h1_["htagGen"] = fs->make<TH1D>("htagGen", "Gen. Htagged Jet Mass; M[GeV];;", 100, 65, 185);
+	h1_["ztagRes"] = fs->make<TH1D>("ztagRes", "Tagged Z Mass;M [GeV];;", 100, 0, 160);
+	h1_["htagRes"] = fs->make<TH1D>("htagRes", "Tagged H Mass;M [GeV];;", 100, 65, 185);
+	h1_["boostZRes"] = fs->make<TH1D>("boostZRes", "Had. Reco. B Mass;M [GeV];;", 200, 0, 2000);
+	h1_["boostHRes"] = fs->make<TH1D>("boostHRes", "Had. Reco. B Mass;M [GeV];;", 200, 0, 2000);
+	h1_["boost_genBZres"] = fs->make<TH1D>("boost_genBZres", "Gen. Had. Reco. B Mass;M [GeV];;", 200, 0, 2000);
+	h1_["boost_genBHres"] = fs->make<TH1D>("boost_genBHres", "Gen. Had. Reco. B Mass;M [GeV];;", 200, 0, 2000);
+	h1_["Zmerge"] = fs->make<TH1D>("Zmerge", "Merged Z jet;M [GeV];;", 100, 20, 160);
+	h1_["Hmerge"] = fs->make<TH1D>("Hmerge", "Merged H jet;M [GeV];;", 100, 65, 185);
+  h1_["mergeZRes"] = fs->make<TH1D>("mergeZRes", "Gen. Merged Z jet;M [GeV];;", 100, 20, 160);
+  h1_["mergeHRes"] = fs->make<TH1D>("mergeHRes", "Gen. Merged H jet;M [GeV];;", 100, 65, 185);
 
 	h1_["ak8subjetiness"] = fs->make<TH1D>("ak8subjetiness", "AK8 Subjetiness;#tau_{21};;", 20, 0., 1.);
 	h1_["ak8prunedMass"] = fs->make<TH1D>("ak8prunedMass", "AK8 Pruned Mass;M;;", 100, 0., 250.);

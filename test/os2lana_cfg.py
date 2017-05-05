@@ -93,7 +93,7 @@ options.register('controlReco', True,
     VarParsing.varType.bool,
     'Do control region reco'
     )
-options.register('syst', True,
+options.register('syst', False,
     VarParsing.multiplicity.singleton,
     VarParsing.varType.bool,
     "Do systematics"
@@ -154,9 +154,27 @@ process.source = cms.Source(
   "PoolSource",
   fileNames = cms.untracked.vstring(
 #    FileNames[options.FileNames]
-#'root://eoscms.cern.ch//store/group/phys_b2g/B2GAnaFW_80X_V2p4/BprimeBprime_M-1500_TuneCUETP8M1_13TeV-madgraph-pythia8/B2GAnaFW_RunIISpring16MiniAODv2_25ns_v80x_v2p4/170122_193653/0000/B2GEDMNtuple_1.root',
-'root://eoscms.cern.ch//store/group/phys_b2g/B2GAnaFW_80X_V2p4/BprimeBprime_M-1500_TuneCUETP8M1_13TeV-madgraph-pythia8/B2GAnaFW_RunIISpring16MiniAODv2_25ns_v80x_v2p4/170122_193653/0000/B2GEDMNtuple_2.root'
-    ) 
+'root://eoscms.cern.ch//store/group/phys_b2g/B2GAnaFW_80X_V2p4/BprimeBprime_M-1000_TuneCUETP8M1_13TeV-madgraph-pythia8/B2GAnaFW_RunIISpring16MiniAODv2_25ns_v80x_v2p4/170122_193050/0000/B2GEDMNtuple_1.root',
+'root://eoscms.cern.ch//store/group/phys_b2g/B2GAnaFW_80X_V2p4/BprimeBprime_M-1000_TuneCUETP8M1_13TeV-madgraph-pythia8/B2GAnaFW_RunIISpring16MiniAODv2_25ns_v80x_v2p4/170122_193050/0000/B2GEDMNtuple_2.root',
+'root://eoscms.cern.ch//store/group/phys_b2g/B2GAnaFW_80X_V2p4/BprimeBprime_M-1000_TuneCUETP8M1_13TeV-madgraph-pythia8/B2GAnaFW_RunIISpring16MiniAODv2_25ns_v80x_v2p4/170122_193050/0000/B2GEDMNtuple_3.root',
+'root://eoscms.cern.ch//store/group/phys_b2g/B2GAnaFW_80X_V2p4/BprimeBprime_M-1000_TuneCUETP8M1_13TeV-madgraph-pythia8/B2GAnaFW_RunIISpring16MiniAODv2_25ns_v80x_v2p4/170122_193050/0000/B2GEDMNtuple_4.root',
+'root://eoscms.cern.ch//store/group/phys_b2g/B2GAnaFW_80X_V2p4/BprimeBprime_M-1000_TuneCUETP8M1_13TeV-madgraph-pythia8/B2GAnaFW_RunIISpring16MiniAODv2_25ns_v80x_v2p4/170122_193050/0000/B2GEDMNtuple_5.root',
+'root://eoscms.cern.ch//store/group/phys_b2g/B2GAnaFW_80X_V2p4/BprimeBprime_M-1000_TuneCUETP8M1_13TeV-madgraph-pythia8/B2GAnaFW_RunIISpring16MiniAODv2_25ns_v80x_v2p4/170122_193050/0000/B2GEDMNtuple_6.root',
+'root://eoscms.cern.ch//store/group/phys_b2g/B2GAnaFW_80X_V2p4/BprimeBprime_M-1000_TuneCUETP8M1_13TeV-madgraph-pythia8/B2GAnaFW_RunIISpring16MiniAODv2_25ns_v80x_v2p4/170122_193050/0000/B2GEDMNtuple_7.root',
+'root://eoscms.cern.ch//store/group/phys_b2g/B2GAnaFW_80X_V2p4/BprimeBprime_M-1000_TuneCUETP8M1_13TeV-madgraph-pythia8/B2GAnaFW_RunIISpring16MiniAODv2_25ns_v80x_v2p4/170122_193050/0000/B2GEDMNtuple_8.root',
+'root://eoscms.cern.ch//store/group/phys_b2g/B2GAnaFW_80X_V2p4/BprimeBprime_M-1000_TuneCUETP8M1_13TeV-madgraph-pythia8/B2GAnaFW_RunIISpring16MiniAODv2_25ns_v80x_v2p4/170122_193050/0000/B2GEDMNtuple_9.root',
+'root://eoscms.cern.ch//store/group/phys_b2g/B2GAnaFW_80X_V2p4/BprimeBprime_M-1000_TuneCUETP8M1_13TeV-madgraph-pythia8/B2GAnaFW_RunIISpring16MiniAODv2_25ns_v80x_v2p4/170122_193050/0000/B2GEDMNtuple_10.root',
+'root://eoscms.cern.ch//store/group/phys_b2g/B2GAnaFW_80X_V2p4/BprimeBprime_M-1000_TuneCUETP8M1_13TeV-madgraph-pythia8/B2GAnaFW_RunIISpring16MiniAODv2_25ns_v80x_v2p4/170122_193050/0000/B2GEDMNtuple_11.root',
+'root://eoscms.cern.ch//store/group/phys_b2g/B2GAnaFW_80X_V2p4/BprimeBprime_M-1000_TuneCUETP8M1_13TeV-madgraph-pythia8/B2GAnaFW_RunIISpring16MiniAODv2_25ns_v80x_v2p4/170122_193050/0000/B2GEDMNtuple_12.root',
+'root://eoscms.cern.ch//store/group/phys_b2g/B2GAnaFW_80X_V2p4/BprimeBprime_M-1000_TuneCUETP8M1_13TeV-madgraph-pythia8/B2GAnaFW_RunIISpring16MiniAODv2_25ns_v80x_v2p4/170122_193050/0000/B2GEDMNtuple_13.root',
+'root://eoscms.cern.ch//store/group/phys_b2g/B2GAnaFW_80X_V2p4/BprimeBprime_M-1000_TuneCUETP8M1_13TeV-madgraph-pythia8/B2GAnaFW_RunIISpring16MiniAODv2_25ns_v80x_v2p4/170122_193050/0000/B2GEDMNtuple_14.root',
+'root://eoscms.cern.ch//store/group/phys_b2g/B2GAnaFW_80X_V2p4/BprimeBprime_M-1000_TuneCUETP8M1_13TeV-madgraph-pythia8/B2GAnaFW_RunIISpring16MiniAODv2_25ns_v80x_v2p4/170122_193050/0000/B2GEDMNtuple_15.root',
+'root://eoscms.cern.ch//store/group/phys_b2g/B2GAnaFW_80X_V2p4/BprimeBprime_M-1000_TuneCUETP8M1_13TeV-madgraph-pythia8/B2GAnaFW_RunIISpring16MiniAODv2_25ns_v80x_v2p4/170122_193050/0000/B2GEDMNtuple_16.root',
+'root://eoscms.cern.ch//store/group/phys_b2g/B2GAnaFW_80X_V2p4/BprimeBprime_M-1000_TuneCUETP8M1_13TeV-madgraph-pythia8/B2GAnaFW_RunIISpring16MiniAODv2_25ns_v80x_v2p4/170122_193050/0000/B2GEDMNtuple_17.root',
+'root://eoscms.cern.ch//store/group/phys_b2g/B2GAnaFW_80X_V2p4/BprimeBprime_M-1000_TuneCUETP8M1_13TeV-madgraph-pythia8/B2GAnaFW_RunIISpring16MiniAODv2_25ns_v80x_v2p4/170122_193050/0000/B2GEDMNtuple_18.root',
+'root://eoscms.cern.ch//store/group/phys_b2g/B2GAnaFW_80X_V2p4/BprimeBprime_M-1000_TuneCUETP8M1_13TeV-madgraph-pythia8/B2GAnaFW_RunIISpring16MiniAODv2_25ns_v80x_v2p4/170122_193050/0000/B2GEDMNtuple_19.root',
+
+   ) 
   )
 
 if options.isData:
@@ -379,27 +397,47 @@ process.massReco.optimizeReco = cms.bool(True)
 
 
 if options.massReco and options.syst:
-  process.recobcUp        = process.massReco.clone(btagbcSFup    = cms.bool(True))
-  process.recobcDown      = process.massReco.clone(btagbcSFdown  = cms.bool(True))
-  process.recolightUp     = process.massReco.clone(btaglSFup     = cms.bool(True))
-  process.recolightDown   = process.massReco.clone(btaglSFdown   = cms.bool(True))
-  process.recosbcUp       = process.massReco.clone(sbtagbcSFup   = cms.bool(True))
-  process.recosbcDown     = process.massReco.clone(sbtagbcSFdown = cms.bool(True))
-  process.recoslightUp    = process.massReco.clone(sbtaglSFup    = cms.bool(True))
-  process.recoslightDown  = process.massReco.clone(sbtaglSFdown  = cms.bool(True))
-  process.recoJecUp       = process.massReco.clone(JECup   = cms.bool(True))
-  process.recoJecDown     = process.massReco.clone(JECdown = cms.bool(True))
-  process.recoJerUp       = process.massReco.clone(JERup   = cms.bool(True))
-  process.recoJerDown     = process.massReco.clone(JERdown = cms.bool(True))
-  process.recoPileupUp    = process.massReco.clone(pileupUp    = cms.bool(True))
-  process.recoPileupDown  = process.massReco.clone(pileupDown  = cms.bool(True))
-  process.recoScaleUp     = process.massReco.clone(ScaleUp     = cms.bool(True))
-  process.recoScaleDown   = process.massReco.clone(ScaleDown   = cms.bool(True))
-  process.recotauUp       = process.massReco.clone(tauUp       = cms.bool(True))
-  process.recotauDown     = process.massReco.clone(tauDown     = cms.bool(True))
-  process.recoDYDown      = process.massReco.clone(DYDown      = cms.bool(True))
-  process.recoVUp         = process.massReco.clone(taggingJERUp  = cms.bool(True))
-  process.recoVDown       = process.massReco.clone(taggingJERDown  = cms.bool(True))
+  process.recobcUp = process.massReco.clone(
+      bTagwt = cms.InputTag("ana", "btagsfbcUp"),
+      sjbTagwt = cms.InputTag("ana", "sjbtagsfbcUp")
+      )
+  process.recobcDown = process.massReco.clone(
+      bTagwt = cms.InputTag("ana", "btagsfbcDown"),
+      sjbTagwt = cms.InputTag("ana", "sjbtagsfbcDown"),
+      )
+  process.recolightUp = process.massReco.clone(
+      bTagwt = cms.InputTag("ana", "btagsflUp"),
+      sjbTagwt = cms.InputTag("ana", "sjbtagsflUp"),
+      )
+  process.recolightDown = process.massReco.clone(
+      bTagwt = cms.InputTag("ana", "btagsflDown"),
+      sjbTagwt = cms.InputTag("ana", "sjbtagsflDown"),
+      )
+  process.recoJecUp = process.massReco.clone(
+      ak8jets = cms.InputTag("anaJecUp", "ak8jets"),
+      jets = cms.InputTag("anaJecUp", "jets"),
+      )
+  process.recoJecDown = process.massReco.clone(
+      ak8jets = cms.InputTag("anaJecDown","ak8jets"),
+      jets = cms.InputTag("anaJecDown","jets"),
+      )
+  process.recoJerUp = process.massReco.clone(
+      ak8jets = cms.InputTag("anaJerUp","ak8jets"),
+      jets = cms.InputTag("anaJerUp","jets"),
+      )
+  process.recoJerDown = process.massReco.clone(
+      ak8jets = cms.InputTag("anaJerDown","ak8jets"),
+      jets = cms.InputTag("anaJerDown","jets"),
+      )
+  process.recoPileupUp    = process.massReco.clone(Prewt = cms.InputTag("anaPileupUp", "PreWeight"))
+  process.recoPileupDown  = process.massReco.clone(Prewt = cms.InputTag("anaPileupDown", "PreWeight"))
+  process.recoScaleUp     = process.massReco.clone(Prewt = cms.InputTag("anaScaleUp", "PreWeight"))
+  process.recoScaleDown   = process.massReco.clone(Prewt = cms.InputTag("anaScaleDown", "PreWeight"))
+  process.recotauUp       = process.massReco.clone(Prewt = cms.InputTag("anatauUp", "PreWeight"))
+  process.recotauDown     = process.massReco.clone(Prewt = cms.InputTag("anatauDown", "PreWeight"))
+  process.recoDYDown      = process.massReco.clone(Prewt = cms.InputTag("anaDYdown", "PreWeight"))
+  process.recoVUp         = process.massReco.clone(Prewt = cms.InputTag("anaVUp", "PreWeight"))
+  process.recoVDown       = process.massReco.clone(Prewt = cms.InputTag("anaVDown", "PreWeight"))
 
 ## Event counters
 from Analysis.EventCounter.eventcounter_cfi import eventCounter
@@ -473,10 +511,6 @@ elif options.massReco:
       *process.recobcDown
       *process.recolightUp
       *process.recolightDown
-      *process.recosbcUp
-      *process.recosbcDown
-      *process.recoslightUp
-      *process.recoslightDown
       *process.recoJecUp
       *process.recoJecDown
       *process.recoJerUp
