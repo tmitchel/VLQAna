@@ -22,12 +22,12 @@ JetMaker::JetMaker (edm::ParameterSet const& iConfig, edm::ConsumesCollector && 
   scaledJetMass_            (iConfig.getParameter<double>                  ("scaledJetMass")), 
   jecShift_                 (iConfig.getParameter<double>                  ("jecShift")), 
   jerShift_                 (iConfig.getParameter<int>                     ("jerShift")), 
+  jmrShift_                 (iConfig.getParameter<int>                     ("jmrShift")),
   newJECPayloadNames_       (iConfig.getParameter<std::vector<std::string>>("newJECPayloadNames")),
   jecUncPayloadName_        (iConfig.getParameter<std::string>             ("jecUncPayloadName")),
   jecAK8GroomedPayloadNames_(iConfig.getParameter<std::vector<std::string>>("jecAK8GroomedPayloadNames")), 
   doGroomedMassCorr_        (jecAK8GroomedPayloadNames_.size()>0 ? true : false), 
   SDMassCorrWt_             (iConfig.getParameter<std::string>             ("SDMassCorrWt")),
-  taggingJER_               (iConfig.getParameter<bool>                    ("taggingJER")),
   jetID_(JetIDParams_, iC) 
 {
 
@@ -372,15 +372,10 @@ void JetMaker::operator()(edm::Event& evt, vlq::JetCollection& jets) {
       }
 
       double masssmear(1.) ;
-      if ( jerShift_ != 0 ) {
+      if ( jmrShift_ != 0 ) {
         double pt_gen = (h_jetGenJetPt.product())->at(ijet) ;  
         double pt_reco   = uncorrJetP4.Pt() ;
-        //double jerscalemass = ApplyJERMass(jerShift_) ; 
-        double jerscalemass;
-        if (taggingJER_)
-          jerscalemass = ApplyVJERMass(jerShift_) ;
-        else
-          jerscalemass = ApplyJERMass(jerShift_) ;
+        double jerscalemass = ApplyJMR(jmrShift_) ; 
         masssmear = std::max( 0.0, pt_gen + jerscalemass*(pt_reco - pt_gen) )/pt_reco ; 
       }
 

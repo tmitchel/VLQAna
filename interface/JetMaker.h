@@ -126,12 +126,12 @@ class JetMaker {
     edm::EDGetTokenT<std::vector<float>> t_ak8sjGenJetCharge  ; 
     double                    jecShift_ ; 
     int                       jerShift_ ; 
+    int                       jmrShift_ ;
     std::vector<std::string>  newJECPayloadNames_;
     std::string               jecUncPayloadName_;
     std::vector<std::string>  jecAK8GroomedPayloadNames_;
     bool                      doGroomedMassCorr_;
     std::string               SDMassCorrWt_   ;
-    bool                      taggingJER_ ;
     bool                      doNewJEC_;
     boost::shared_ptr<FactorizedJetCorrector>   ptr_jecAK8_  ;
     boost::shared_ptr<JetCorrectionUncertainty> ptr_jecUnc ; 
