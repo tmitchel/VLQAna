@@ -4,8 +4,8 @@
 
 #include <TRandom.h>
 
-#define DEBUGMORE false 
-#define DEBUG false  
+#define DEBUGMORE false
+#define DEBUG false
 
 using namespace std;
 using namespace edm ; 
@@ -221,6 +221,7 @@ void JetMaker::operator()(edm::Event& evt, vlq::JetCollection& jets) {
     else newJetP4 = jetP4 ; 
 
 #if DEBUGMORE
+    if (ijet ==0){
     cout 
       << " \nold jec = " << 1./(h_jetJEC.product())->at(ijet) 
       << " \nnew jec = " << newJEC 
@@ -230,7 +231,7 @@ void JetMaker::operator()(edm::Event& evt, vlq::JetCollection& jets) {
       << " \njet mass before      = " << jetP4.Mag() 
       << " \njet pt newJec        = " << newJetP4.Pt() 
       << " \njet mass newJEC      = " << newJetP4.Mag() 
-      << endl ; 
+      << endl ; }
 #endif 
 
     double ptsmear(1.) ;
@@ -248,6 +249,7 @@ void JetMaker::operator()(edm::Event& evt, vlq::JetCollection& jets) {
       else ptsmear = 1.;
       newJetP4 *= ptsmear ; 
 #if DEBUG
+      if (ijet==0){
       cout 
         << " \n pt reco             = " << pt_reco
         << " \n pt gen              = " << pt_gen
@@ -256,23 +258,25 @@ void JetMaker::operator()(edm::Event& evt, vlq::JetCollection& jets) {
         << " \n jer smear           = " << ptsmear 
         << " \njet pt ptsmear       = " << newJetP4.Pt() 
         << " \njet mass ptsmear     = " << newJetP4.Mag() 
-        << endl ; 
+        << endl ; }
 #endif 
     }
 
     double unc(0);
     if (jecShift_ != 0 ) {
-      ptr_jecUnc->setJetEta( uncorrJetP4.Eta()    );
-      ptr_jecUnc->setJetPt ( uncorrJetP4.Pt()     );
-      unc = ptr_jecUnc->getUncertainty(true);
+      ptr_jecUnc->setJetEta( newJetP4.Eta()    );
+      ptr_jecUnc->setJetPt ( newJetP4.Pt()     );
+      unc = abs(ptr_jecUnc->getUncertainty(true));
       newJetP4 *= (1 + jecShift_*unc) ; 
+      //if (ijet==0) std::cout << "JEC shift: " << jecShift_ << " and Weight: " << jecShift_*unc << std::endl;
     }
 
 #if DEBUGMORE
+    if (ijet==0){
     cout 
       << " \njet pt jecshift      = " << newJetP4.Pt() 
       << " \njet mass jecshift    = " << newJetP4.Mag() 
-      << endl ; 
+      << endl ; }
 #endif 
 
     pat::strbitset retjetid = jetID_.getBitTemplate() ;
@@ -546,12 +550,13 @@ void JetMaker::operator()(edm::Event& evt, vlq::JetCollection& jets) {
     jet.setGenJetP4     (genJetP4);
     jets.push_back(jet) ; 
 
-#if DEBUGMORE
+#if DEBUGMORE 
+    if(ijet ==0){
     cout 
       << " \njet pt finally       = " << jet.getPt() 
       << " \njet eta finally       = " << jet.getEta() 
       << " \njet mass finally     = " << jet.getMass() 
-      << endl ; 
+      << endl ; }
 #endif 
 
   } //// loop over jets 

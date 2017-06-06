@@ -20,6 +20,9 @@ namespace os2l {
       int ta_npv;
       int t_puNtrueInt;
 
+      std::vector<int>    t_lhewtids;
+      std::vector<double> t_lhewts;
+
       std::vector<string> t_TriggerNameTree;
       std::vector<float>  t_TriggerBitTree;
       std::vector<int>    t_TriggerPrescaleTree;
@@ -201,6 +204,9 @@ namespace os2l {
         t_TriggerBitTree      .clear();
         t_TriggerPrescaleTree .clear();
 
+        t_lhewtids            .clear();
+        t_lhewts              .clear();
+
         t_elPt                .clear();
         t_elPhi               .clear();
         t_elEta               .clear();
@@ -372,6 +378,9 @@ namespace os2l {
         tree->Branch("t_TriggerNameTree"     ,&t_TriggerNameTree );
         tree->Branch("t_TriggerBitTree"      ,&t_TriggerBitTree );
         tree->Branch("t_TriggerPrescaleTree" ,&t_TriggerPrescaleTree );
+
+        tree->Branch("t_lhewtids"   ,&t_lhewtids);
+        tree->Branch("t_lhewts"     ,&t_lhewts     ,"t_lhewts/d");
 
         tree->Branch("ta_npv"       ,&ta_npv       ,"ta_npv/I" );
         tree->Branch("t_puNtrueInt" ,&t_puNtrueInt ,"t_puNtrueInt/i");

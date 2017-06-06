@@ -188,7 +188,6 @@ class BTagSFUtils {
         double sf = reader_->eval(fl,eta,pt) ; 
         double sfUp = readerUp_->eval(fl,eta,pt) ; 
         double sfDown = readerDown_->eval(fl,eta,pt) ; 
-        //std::cout << sf << " " << sfUp << " " << pt << " " << eta << " "<< fl << std::endl;
         double dsfUp = sfUp - sf ; 
         double dsfDown = sfDown - sf ;
         double eff = 1.0;
@@ -202,6 +201,7 @@ class BTagSFUtils {
         dsfsUp.push_back(dsfUp) ; 
         dsfsDown.push_back(dsfDown) ; 
         effs.push_back(eff) ; 
+
         double sfUpabs = sf != 0. ? sf  + (uncscale*dsfUp/sf) : 0. ; 
         double sfDownabs = sf != 0. ? sf  + (uncscale*dsfDown/sf) : 0. ; 
         if ( sfUpabs < 0 ) sfUpabs = 0 ;  
@@ -216,7 +216,8 @@ class BTagSFUtils {
 
         double jetcsv = jetcsvs.at(idx.first) ; 
         if ( jetcsv >= csvMin ) { 
-          
+          btagsf *= sf ; 
+
           //// Get uncertainties 
           if ( fl == 0 || fl == 1) {
             btagsf_bcUp *= sfUpabs ; 

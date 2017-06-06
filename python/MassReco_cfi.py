@@ -27,7 +27,7 @@ massReco = cms.EDFilter("MassReco",
     ptMin    = cms.double(0.),
     zdecaymode = cms.string('zmumu'),
     signalType = cms.string(''),
-		optimizeReco = cms.bool(True),
+		optimizeReco = cms.bool(False),
 		controlReco = cms.bool(False),
     doSkim   = cms.bool(False),
 

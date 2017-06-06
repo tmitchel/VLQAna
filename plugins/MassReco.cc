@@ -138,7 +138,7 @@ bool MassReco::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   bool doZ = true;
   bool doH = true;
 
-	double chiCut_ = 1000;
+	double chiCut_ = 100000;
 
 	for (auto& jet : ak8s){
 		h1_["ak8subjetiness"]->Fill(jet.getTau2()/jet.getTau1(), evtwt);
@@ -160,7 +160,7 @@ bool MassReco::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
 	//Begin SR Mass Reco. //	///////////////////////////////////////////////////
 	////////////////////////
 
-	if (ak4s.at(0).getPt() > 100 && ak4s.at(1).getPt() > 50 && bjets.size() > 0 && ST > STMin_){
+	if (ak4s.at(0).getPt() > 100 && ak4s.at(1).getPt() > 50 && bjets.size() == 1 && ST > STMin_){
 
     h1_["recoCutflow"] -> Fill(1, evtwt);
 
@@ -292,18 +292,128 @@ bool MassReco::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
     	h1_["comboST_bH"]->Fill(ST, evtwt);
   	}
 
-    if (comboBZ.first <= 0 && comboBH.first > 0)
+    if (comboBZ.first <= 0 && comboBH.first > 0){
+      h1_["bhReco_final"] -> Fill(comboBH.second, evtwt);
       h1_["comboReco"] -> Fill(comboBH.second, evtwt);
-    else if (comboBH.first <= 0 && comboBZ.first > 0)
+    }
+    else if (comboBH.first <= 0 && comboBZ.first > 0){
+      h1_["bzReco_final"] -> Fill(comboBZ.second,evtwt);
       h1_["comboReco"] -> Fill(comboBZ.second, evtwt);
-    else if (comboBZ.first < comboBH.first)
+    }
+    else if (comboBZ.first < comboBH.first){
+      h1_["bzReco_final"] -> Fill(comboBZ.second,evtwt);
       h1_["comboReco"] -> Fill(comboBZ.second, evtwt);
-    else if (comboBH.first < comboBZ.first)
+    }
+    else if (comboBH.first < comboBZ.first){
+      h1_["bhReco_final"] -> Fill(comboBH.second,evtwt);
       h1_["comboReco"] -> Fill(comboBH.second, evtwt);
+    }
 
  	 	h1_["ST"]->Fill(ST, evtwt);
 
 	}
+  else if (ak4s.at(0).getPt() > 100 && ak4s.at(1).getPt() > 50 && bjets.size() >= 2 && ST > STMin_){
+
+		pair<double, double> resReco_bZ_2b, boostReco_bZ_2b, mergeReco_bZ_2b;
+  	pair<double, double> resReco_bH_2b, boostReco_bH_2b, mergeReco_bH_2b;
+ 
+ 		resReco_bZ_2b.first = 9999;
+  	resReco_bZ_2b.second = -1;
+  	resReco_bH_2b.first = 9999;
+  	resReco_bH_2b.second = -1;
+  	boostReco_bZ_2b.first = 9999;
+  	boostReco_bZ_2b.second = -1;
+  	boostReco_bH_2b.first = 9999;
+  	boostReco_bH_2b.second = -1;
+  	mergeReco_bZ_2b.first = 9999;
+  	mergeReco_bZ_2b.second = -1;
+  	mergeReco_bH_2b.first = 9999;
+  	mergeReco_bH_2b.second = -1;
+
+   	if (zjets.size() > 0 && doZ)
+    	boostReco_bZ_2b = doBoostedReco(ak4s, zjets.at(0).getP4(), 91.2, zllcand, 150.);
+   	if (hjets.size() > 0 && doH)
+    	boostReco_bH_2b = doBoostedReco(ak4s, hjets.at(0).getP4(), 125., zllcand, 150.);
+
+  	if (ak4s.size() > 3){
+    	if (zjets.size() == 0 && doZ)
+      	resReco_bZ_2b = doResolvedReco(ak4s, 91.2, zllcand);
+    	if (hjets.size() == 0 && doH)
+    		resReco_bH_2b = doResolvedReco(ak4s, 125., zllcand);
+  	}
+
+  	for (unsigned i=0; i<ak4s.size(); i++){
+    	if (ak4s.at(i).getP4().M() > 65 && ak4s.at(i).getP4().M() < 105 && ak4s.at(i).getP4().Pt() > 200 && doZ && ak4s.size() < 4 && zjets.size() == 0)
+      	mergeReco_bZ_2b = doBoostedReco(ak4s, ak4s.at(i).getP4(), 91.2, zllcand, 150.);
+    	if (ak4s.at(i).getP4().M() > 105 && ak4s.at(i).getP4().M() < 135 && ak4s.at(i).getP4().Pt() > 200 && doH && ak4s.size() < 4 && hjets.size() == 0)
+      	mergeReco_bH_2b = doBoostedReco(ak4s, ak4s.at(i).getP4(), 125., zllcand, 150.);
+  	}
+
+    pair<double, double> comboBZ_2b, comboBH_2b;
+
+  	if (resReco_bZ_2b.second > 0 && resReco_bZ_2b.first < chiCut_)
+    	h1_["resReco_bZ_2b"]->Fill(resReco_bZ_2b.second, evtwt); 
+
+  	if (resReco_bH_2b.second > 0 && resReco_bH_2b.first < chiCut_)
+    	h1_["resReco_bH_2b"]->Fill(resReco_bH_2b.second, evtwt);
+
+  	if (boostReco_bZ_2b.second > 0 && boostReco_bZ_2b.first < chiCut_)
+    	h1_["boostReco_bZ_2b"]->Fill(boostReco_bZ_2b.second, evtwt);
+
+  	if (boostReco_bH_2b.second > 0 && boostReco_bH_2b.first < chiCut_)
+    	h1_["boostReco_bH_2b"]->Fill(boostReco_bH_2b.second, evtwt);
+
+  	if (mergeReco_bZ_2b.second > 0 && mergeReco_bZ_2b.first < chiCut_)
+    	h1_["mergeReco_bZ_2b"]->Fill(mergeReco_bZ_2b.second, evtwt);
+
+  	if (mergeReco_bH_2b.second > 0 && mergeReco_bH_2b.first < chiCut_)
+    	h1_["mergeReco_bH_2b"]->Fill(mergeReco_bH_2b.second, evtwt);
+
+  	if (resReco_bZ_2b.first < boostReco_bZ_2b.first && resReco_bZ_2b.first < mergeReco_bZ_2b.first && resReco_bZ_2b.first < chiCut_){
+      comboBZ_2b = resReco_bZ_2b;
+    	h1_["comboReco_bZ_2b"]->Fill(resReco_bZ_2b.second, evtwt);
+  	}
+  	else if (boostReco_bZ_2b.first < resReco_bZ_2b.first && boostReco_bZ_2b.first < mergeReco_bZ_2b.first && boostReco_bZ_2b.first < chiCut_){
+      comboBZ_2b = boostReco_bZ_2b;
+    	h1_["comboReco_bZ_2b"]->Fill(boostReco_bZ_2b.second, evtwt);
+  	}
+  	else if (mergeReco_bZ_2b.first < resReco_bZ_2b.first && mergeReco_bZ_2b.first < boostReco_bZ_2b.first && mergeReco_bZ_2b.first < chiCut_){
+      comboBZ_2b = mergeReco_bZ_2b;
+    	h1_["comboReco_bZ_2b"]->Fill(mergeReco_bZ_2b.second, evtwt);
+  	}
+
+  	if (resReco_bH_2b.first < boostReco_bH_2b.first && resReco_bH_2b.first < mergeReco_bH_2b.first && resReco_bH_2b.first < chiCut_){
+      comboBH_2b = resReco_bH_2b; 
+    	h1_["comboReco_bH_2b"]->Fill(resReco_bH_2b.second, evtwt);
+  	}
+  	else if (boostReco_bH_2b.first < resReco_bH_2b.first && boostReco_bH_2b.first < mergeReco_bH_2b.first && boostReco_bH_2b.first < chiCut_){
+      comboBH_2b = boostReco_bH_2b;
+    	h1_["comboReco_bH_2b"]->Fill(boostReco_bH_2b.second, evtwt);
+  	}
+  	else if (mergeReco_bH_2b.first < resReco_bH_2b.first && mergeReco_bH_2b.first < boostReco_bH_2b.first && mergeReco_bH_2b.first < chiCut_){
+      comboBH_2b = mergeReco_bH_2b;
+    	h1_["comboReco_bH_2b"]->Fill(mergeReco_bH_2b.second, evtwt);
+  	}
+
+    if (comboBZ_2b.first <= 0 && comboBH_2b.first > 0){
+      h1_["bhReco_final_2b"] -> Fill(comboBH_2b.second, evtwt);
+      h1_["comboReco_2b"] -> Fill(comboBH_2b.second, evtwt);
+    }
+    else if (comboBH_2b.first <= 0 && comboBZ_2b.first > 0){
+      h1_["bzReco_final_2b"] -> Fill(comboBZ_2b.second,evtwt);
+      h1_["comboReco_2b"] -> Fill(comboBZ_2b.second, evtwt);
+    }
+    else if (comboBZ_2b.first < comboBH_2b.first){
+      h1_["bzReco_final_2b"] -> Fill(comboBZ_2b.second,evtwt);
+      h1_["comboReco_2b"] -> Fill(comboBZ_2b.second, evtwt);
+    }
+    else if (comboBH_2b.first < comboBZ_2b.first){
+      h1_["bhReco_final_2b"] -> Fill(comboBH_2b.second,evtwt);
+      h1_["comboReco_2b"] -> Fill(comboBH_2b.second, evtwt);
+    }
+
+	}
+
 	////////////////////////
 	//Begin CR Mass Reco. //	///////////////////////////////////////////////////
 	////////////////////////
@@ -449,9 +559,9 @@ bool MassReco::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
 				if (gen.getPdgID() <= -1 && gen.getPdgID() >= -5 && abs(gen.getMom0PdgID()) == 25 && gen.getPt() != 0)
 					q2 = gen.getP4();
 			}
-			if (abs(gen.getPdgID()) == 23 && abs(gen.getMom0PdgID()) == 8000002 && abs(gen.getDau0PdgID()) >=1 && abs(gen.getDau0PdgID()) <= 5 && gen.getPt() != 0)
+			if (abs(gen.getPdgID()) == 23 && abs(gen.getMom0PdgID()) == 8000002 && gen.getPt() != 0)
 				ZGen = gen.getP4();
-			if (abs(gen.getPdgID()) == 25 && abs(gen.getMom0PdgID()) == 8000002 && abs(gen.getDau0PdgID()) >=1 && abs(gen.getDau0PdgID()) <= 5 && gen.getPt() != 0)
+			if (abs(gen.getPdgID()) == 25 && abs(gen.getMom0PdgID()) == 8000002 && gen.getPt() != 0)
 				HGen = gen.getP4();
 			
 		}
@@ -545,6 +655,9 @@ void MassReco::beginJob(){
 
   h1_["recoCutflow"] = fs->make<TH1D>("recoCutlow", "Count", 2, -0.5, 1.5);
 
+
+  h1_["bzReco_final"] = fs->make<TH1D>("bzReco_final","Combo Reconstruction B->bZ;M_{#chi^{2}}(B);;", 1000, 0., 3000.);
+  h1_["bhReco_final"] = fs->make<TH1D>("bhReco_final","Combo Reconstruction B->bH;M_{#chi^{2}}(B);;", 1000, 0., 3000.);
   h1_["resReco_bZ"] = fs->make<TH1D>("resReco_bZ", "Resolved Reconstruction B->bZ;M_{#chi^{2}}(B);;", 1000, 0., 3000);
   h1_["resReco_bH"] = fs->make<TH1D>("resReco_bH", "Resolved Reconstruction B->bH;M_{#chi^{2}}(B);;", 1000, 0., 3000);
   h1_["boostReco_bZ"] = fs->make<TH1D>("boostReco_bZ", "Boosted Reconstruction B->bZ;M_{#chi^{2}}(B);;", 1000, 0., 3000);
@@ -554,6 +667,18 @@ void MassReco::beginJob(){
   h1_["comboReco_bZ"] = fs->make<TH1D>("comboReco_bZ", "Combo Reconstruction B->bZ;M_{#chi^{2}}(B);;", 1000, 0., 3000);
   h1_["comboReco_bH"] = fs->make<TH1D>("comboReco_bH", "Combo Reconstruction B->bH;M_{#chi^{2}}(B);;", 1000, 0., 3000);
   h1_["comboReco"] = fs->make<TH1D>("comboReco", "Combo Reconstruction;M_{#chi^{2}}(B);;", 1000, 0., 3000);
+
+  h1_["bzReco_final_2b"] = fs->make<TH1D>("bzReco_final_2b","Combo Reconstruction B->bZ;M_{#chi^{2}}(B);;", 1000, 0., 3000.);
+  h1_["bhReco_final_2b"] = fs->make<TH1D>("bhReco_final_2b","Combo Reconstruction B->bH;M_{#chi^{2}}(B);;", 1000, 0., 3000.);
+  h1_["resReco_bZ_2b"] = fs->make<TH1D>("resReco_bZ_2b", "Resolved Reconstruction B->bZ;M_{#chi^{2}}(B);;", 1000, 0., 3000);
+  h1_["resReco_bH_2b"] = fs->make<TH1D>("resReco_bH_2b", "Resolved Reconstruction B->bH;M_{#chi^{2}}(B);;", 1000, 0., 3000);
+  h1_["boostReco_bZ_2b"] = fs->make<TH1D>("boostReco_bZ_2b", "Boosted Reconstruction B->bZ;M_{#chi^{2}}(B);;", 1000, 0., 3000);
+  h1_["boostReco_bH_2b"] = fs->make<TH1D>("boostReco_bH_2b", "Boosted Reconstruction B->bH;M_{#chi^{2}}(B);;", 1000, 0., 3000);
+  h1_["mergeReco_bZ_2b"] = fs->make<TH1D>("mergeReco_bZ_2b", "Merged Reconstruction B->bZ;M_{#chi^{2}}(B);;", 1000, 0., 3000);
+  h1_["mergeReco_bH_2b"] = fs->make<TH1D>("mergeReco_bH_2b", "Merged Reconstruction B->bH;M_{#chi^{2}}(B);;", 1000, 0., 3000);
+  h1_["comboReco_bZ_2b"] = fs->make<TH1D>("comboReco_bZ_2b", "Combo Reconstruction B->bZ;M_{#chi^{2}}(B);;", 1000, 0., 3000);
+  h1_["comboReco_bH_2b"] = fs->make<TH1D>("comboReco_bH_2b", "Combo Reconstruction B->bH;M_{#chi^{2}}(B);;", 1000, 0., 3000);
+  h1_["comboReco_2b"] = fs->make<TH1D>("comboReco_2b", "Combo Reconstruction;M_{#chi^{2}}(B);;", 1000, 0., 3000);
 
   h1_["resST_bZ"] = fs->make<TH1D>("resST_bZ", "Resolved ST B->bZ;S_{T};;", 1000, 0., 3000);
   h1_["resST_bH"] = fs->make<TH1D>("resST_bH", "Resolved ST B->bH;S_{T};;", 1000, 0., 3000);
@@ -590,8 +715,8 @@ void MassReco::beginJob(){
 	h1_["boost_genBHres"] = fs->make<TH1D>("boost_genBHres", "Gen. Had. Reco. B Mass;M [GeV];;", 200, 0, 2000);
 	h1_["Zmerge"] = fs->make<TH1D>("Zmerge", "Merged Z jet;M [GeV];;", 100, 20, 160);
 	h1_["Hmerge"] = fs->make<TH1D>("Hmerge", "Merged H jet;M [GeV];;", 100, 65, 185);
-  h1_["mergeZRes"] = fs->make<TH1D>("mergeZRes", "Gen. Merged Z jet;M [GeV];;", 100, 20, 160);
-  h1_["mergeHRes"] = fs->make<TH1D>("mergeHRes", "Gen. Merged H jet;M [GeV];;", 100, 65, 185);
+  h1_["mergeZRes"] = fs->make<TH1D>("mergeZRes", "Gen. Merged Z jet;M [GeV];;", 200,0,2000);
+  h1_["mergeHRes"] = fs->make<TH1D>("mergeHRes", "Gen. Merged H jet;M [GeV];;", 200,0,2000);
 
 	h1_["ak8subjetiness"] = fs->make<TH1D>("ak8subjetiness", "AK8 Subjetiness;#tau_{21};;", 20, 0., 1.);
 	h1_["ak8prunedMass"] = fs->make<TH1D>("ak8prunedMass", "AK8 Pruned Mass;M;;", 100, 0., 250.);

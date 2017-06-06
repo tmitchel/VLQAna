@@ -289,7 +289,7 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   const int lumisec(*h_lumisec.product()) ;
   const bool isData(evtno > 0 ? true : false) ; 
   vector<pair<int, double> > lhe_id_wts;
-
+  
   if (!isData){
     for (unsigned i=0; i<(*h_lhewtids.product()).size(); i++){
       int id = (*h_lhewtids.product()).at(i);
@@ -467,9 +467,9 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
 
   if (!isData){
     for (auto& jet : goodWTaggedJets)
-      evtwt *= ( 1.11 + (tauShift_ * .08) + (0.041 * log(jet.getPt() / 200)));
+      evtwt *= ( 1.11 + (tauShift_ * .08) + (tauShift_ * 0.041 * log(jet.getPt() / 200)));
     for (auto& jet : goodHTaggedJets)
-      evtwt *= ( 1.11 + (tauShift_ * .08) + (0.041 * log(jet.getPt() / 200)));
+      evtwt *= ( 1.11 + (tauShift_ * .08) + (tauShift_ * 0.041 * log(jet.getPt() / 200)));
 
   }
 
@@ -550,6 +550,11 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
     
     sjbtagsfutils_->getBTagSFs (csvs, pts, etas, flhads, jetHTaggedmaker.idxsjCSVMin_, sjbtagsf, sjbtagsf_bcUp, sjbtagsf_bcDown, sjbtagsf_lUp, sjbtagsf_lDown) ;
 
+    if (sjbtagsf_bcUp == 0) sjbtagsf_bcUp = 1.0;
+    if (sjbtagsf_bcDown == 0) sjbtagsf_bcDown = 1.0;
+    if (sjbtagsf_lUp == 0) sjbtagsf_lUp = 1.0;
+    if (sjbtagsf_lDown == 0) sjbtagsf_lDown = 1.0;
+    if (sjbtagsf == 0) sjbtagsf = 1.0;
 
     if (sbtagsf_bcUp_)
       evtwt *= sjbtagsf_bcUp;
@@ -561,7 +566,6 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
       evtwt *= sjbtagsf_lDown;
     else
       evtwt *= sjbtagsf;
-
   }
 
   //if ( skim_ ) {
@@ -818,6 +822,11 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
     os2ltree_.t_evtInfoRunNumber = runno ; 
     os2ltree_.t_evtInfoLumiBlock = lumisec ; 
 
+    for (auto& lhe : lhe_id_wts) {
+      os2ltree_.t_lhewts      .push_back(lhe.second);
+      os2ltree_.t_lhewtids    .push_back(lhe.first);
+    }
+
     for (vlq::Electron e : goodElectrons) {
       os2ltree_.t_elPt        .push_back(e.getPt()) ; 
       os2ltree_.t_elPhi       .push_back(e.getPhi());
@@ -957,7 +966,7 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
     os2ltree_.t_sjbtagsf_lUp = sjbtagsf_lUp;
     os2ltree_.t_sjbtagsf_lDown = sjbtagsf_lDown;
 
-    if ( evtno < 0) {
+    if ( false ) {
       vlq::GenParticleCollection vlqGen = genpart(evt) ;
       for(vlq::GenParticle p : vlqGen) { 
         os2ltree_.t_genPartPt        .push_back(p.getP4().Pt());
