@@ -215,59 +215,68 @@ bool MassReco::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
 //    	mergeReco_bH = doBoostedReco(ak4s, ak4s.at(i).getP4(), 125., zllcand, 150.);
 //  	}
 
-    pair<double, double> *comboBZ, *comboBH;
+    pair<double, double> comboBZ, comboBH;
 
   	if (resReco_bZ.second > 0 && resReco_bZ.first < chiCut_){
-    	h1_["resReco_bZ"]->Fill(resReco_bZ.second, evtwt);
-      h2_["resbZ_2d"]->Fill(resReco_bZ.first, resReco_bZ.second);
-    	h1_["resST_bZ"]->Fill(ST, evtwt);
+    	h1_["resReco_bZ_1b"]->Fill(resReco_bZ.second, evtwt);
+      h1_["resReco_bZ"] -> Fill(resReco_bZ.second, evtwt);
+//      h2_["resbZ_2d"]->Fill(resReco_bZ.first, resReco_bZ.second);
+//    	h1_["resST_bZ"]->Fill(ST, evtwt);
   	} 
 
   	if (resReco_bH.second > 0 && resReco_bH.first < chiCut_){
-    	h1_["resReco_bH"]->Fill(resReco_bH.second, evtwt);
-      h2_["resbH_2d"]->Fill(resReco_bH.first, resReco_bH.second);
-    	h1_["resST_bZ"]->Fill(ST, evtwt);
+    	h1_["resReco_bH_1b"]->Fill(resReco_bH.second, evtwt);
+      h1_["resReco_bH"] -> Fill(resReco_bH.second, evtwt);
+
+//      h2_["resbH_2d"]->Fill(resReco_bH.first, resReco_bH.second);
+//    	h1_["resST_bZ"]->Fill(ST, evtwt);
   	}
 
   	if (boostReco_bZ.second > 0 && boostReco_bZ.first < chiCut_){
-    	h1_["boostReco_bZ"]->Fill(boostReco_bZ.second, evtwt);
-    	h2_["boostbZ_2d"]->Fill(boostReco_bZ.first, boostReco_bZ.second);
-      h1_["boostST_bZ"]->Fill(ST, evtwt);
+    	h1_["boostReco_bZ_1b"]->Fill(boostReco_bZ.second, evtwt);
+      h1_["boostReco_bZ"] -> Fill(boostReco_bZ.second, evtwt);
+//    	h2_["boostbZ_2d"]->Fill(boostReco_bZ.first, boostReco_bZ.second);
+//      h1_["boostST_bZ"]->Fill(ST, evtwt);
   	}
 
   	if (boostReco_bH.second > 0 && boostReco_bH.first < chiCut_){
-    	h1_["boostReco_bH"]->Fill(boostReco_bH.second, evtwt);
-    	h2_["boostbH_2d"]->Fill(boostReco_bH.first, boostReco_bH.second);
-      h1_["boostST_bH"]->Fill(ST, evtwt);
+    	h1_["boostReco_bH_1b"]->Fill(boostReco_bH.second, evtwt);
+      h1_["boostReco_bH"] -> Fill(boostReco_bH.second, evtwt);
+//    	h2_["boostbH_2d"]->Fill(boostReco_bH.first, boostReco_bH.second);
+//      h1_["boostST_bH"]->Fill(ST, evtwt);
   	}
 
     // Find if bZbZ or bZbH channel has better reconstruction for each category individually
-    if (boostReco_bZ.first < 9999) {
-      if (boostReco_bH.first < 9999 && boostReco_bH.first < boostReco_bZ.first)  h1_["boostReco"] -> Fill(boostReco_bH.second, evtwt);
-      else  h1_["boostReco"] -> Fill(boostReco_bZ.second, evtwt);
+    if (zjets.size() > 0 && hjets.size() == 0) h1_["boostReco"] -> Fill(boostReco_bZ.second, evtwt);
+    else if (zjets.size() == 0 && hjets.size() > 0) h1_["boostReco"] -> Fill(boostReco_bH.second, evtwt);
+    else if (zjets.size() > 0 && hjets.size() > 0) {
+      if (boostReco_bZ.first < boostReco_bH.first) h1_["boostReco"] -> Fill(boostReco_bZ.second, evtwt);
+      else h1_["boostReco"] -> Fill(boostReco_bH.second, evtwt);
     }
-    else  h1_["boostReco"] -> Fill(boostReco_bH.second, evtwt);
 
-    if (resReco_bZ.first < 9999) {
-      if (resReco_bH.first < 9999 && resReco_bH.first < resReco_bZ.first)  h1_["resReco"] -> Fill(resReco_bH.second, evtwt);
-      else  h1_["resReco"] -> Fill(resReco_bZ.second, evtwt);
+    if (zjets.size() == 0 && hjets.size() > 0) h1_["resReco"] -> Fill(resReco_bZ.second, evtwt);
+    else if (zjets.size() > 0 && hjets.size() == 0) h1_["resReco"] -> Fill(resReco_bH.second, evtwt);
+    else if (zjets.size() == 0 && hjets.size() == 0) {
+      if (resReco_bZ.first < resReco_bH.first) h1_["resReco"] -> Fill(resReco_bZ.second, evtwt);
+      else h1_["resReco"] -> Fill(resReco_bH.second, evtwt);
     }
-    else  h1_["resReco"] -> Fill(resReco_bH.second, evtwt);
 
     // Find if boosted or resolved category does better for each channel individually
-    if (boostReco_bZ.first < 9999) comboBZ = &boostReco_bZ;
-    else comboBZ = &resReco_bZ;
+    if (boostReco_bZ.first < 9999 && boostReco_bZ.first > 0) comboBZ = boostReco_bZ;
+    else if(resReco_bZ.first < 9999 && resReco_bZ.first > 0) comboBZ = resReco_bZ;
 
-    if (boostReco_bH.first < 9999) comboBH = &boostReco_bH;
-    else comboBH = &resReco_bH;
+    if (boostReco_bH.first < 9999 && boostReco_bH.first > 0) comboBH = boostReco_bH;
+    else if (resReco_bH.first < 9999 && resReco_bH.first > 0) comboBH = resReco_bH;
 
-    if (comboBZ->first > 0) h1_["comboReco_bZ"] -> Fill(comboBZ->second, evtwt);
-    if (comboBH->first > 0) h1_["comboReco_bH"] -> Fill(comboBH->second, evtwt);
+
+    if (comboBZ.first > 0) h1_["comboReco_bZ"] -> Fill(comboBZ.second, evtwt);
+    if (comboBH.first > 0) h1_["comboReco_bH"] -> Fill(comboBH.second, evtwt);
 
     // Find best combination of channel and category
-    if (comboBZ->first < comboBH->first)  h1_["comboReco"] -> Fill(comboBZ->second, evtwt);
-    else  h1_["comboReco"] -> Fill(comboBH->second, evtwt);
-
+    if (comboBZ.first <= 0 && comboBH.first > 0)  h1_["comboReco"] -> Fill(comboBH.second, evtwt);
+    else if (comboBZ.first > 0 && comboBH.first <= 0) h1_["comboReco"] -> Fill(comboBZ.second, evtwt);
+    else if (comboBZ.first < comboBH.first)  h1_["comboReco"] -> Fill(comboBZ.second, evtwt);
+    else if (comboBZ.first > comboBH.first)  h1_["comboReco"] -> Fill(comboBH.second, evtwt);
     
     h1_["ST"]->Fill(ST, evtwt);
 
@@ -372,22 +381,26 @@ bool MassReco::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
     		resReco_bH_2b = doResolvedReco(ak4s, 125., zllcand);
   	}
 
-    pair<double, double> *comboBZ_2b, *comboBH_2b;
+    pair<double, double> comboBZ_2b, comboBH_2b;
 
   	if (resReco_bZ_2b.second > 0 && resReco_bZ_2b.first < chiCut_){
     	h1_["resReco_bZ_2b"]->Fill(resReco_bZ_2b.second, evtwt);
+      h1_["resReco_bZ"] -> Fill(resReco_bZ_2b.second, evtwt);
   	} 
 
   	if (resReco_bH_2b.second > 0 && resReco_bH_2b.first < chiCut_){
     	h1_["resReco_bH_2b"]->Fill(resReco_bH_2b.second, evtwt);
+      h1_["resReco_bH"] -> Fill(resReco_bH_2b.second, evtwt);
   	}
 
   	if (boostReco_bZ_2b.second > 0 && boostReco_bZ_2b.first < chiCut_){
     	h1_["boostReco_bZ_2b"]->Fill(boostReco_bZ_2b.second, evtwt);
+      h1_["boostReco_bZ"] -> Fill(boostReco_bZ_2b.second, evtwt);
   	}
 
   	if (boostReco_bH_2b.second > 0 && boostReco_bH_2b.first < chiCut_){
     	h1_["boostReco_bH_2b"]->Fill(boostReco_bH_2b.second, evtwt);
+      h1_["boostReco_bH"] -> Fill(boostReco_bH_2b.second, evtwt);
   	}
 
     // Find if bZbZ or bZbH channel has better reconstruction for each category individually
@@ -404,20 +417,22 @@ bool MassReco::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
     else  h1_["resReco_2b"] -> Fill(resReco_bH_2b.second, evtwt);
 
     // Find if boosted or resolved category does better for each channel individually
-    if (boostReco_bZ_2b.first > 0) comboBZ_2b = &boostReco_bZ_2b;
-    else comboBZ_2b = &resReco_bZ_2b;
+    if (boostReco_bZ_2b.first < 9999 && boostReco_bZ_2b.first > 0) comboBZ_2b = boostReco_bZ_2b;
+    else if(resReco_bZ_2b.first < 9999 && resReco_bZ_2b.first > 0) comboBZ_2b = resReco_bZ_2b;
 
-    if (boostReco_bH_2b.first > 0) comboBH_2b = &boostReco_bH_2b;
-    else comboBH_2b = &resReco_bH_2b;
+    if (boostReco_bH_2b.first < 9999 && boostReco_bH_2b.first > 0) comboBH_2b = boostReco_bH_2b;
+    else if (resReco_bH_2b.first < 9999 && resReco_bH_2b.first > 0) comboBH_2b = resReco_bH_2b;
 
-    if (comboBZ_2b->first > 0) h1_["comboReco_bZ_2b"] -> Fill(comboBZ_2b->second, evtwt);
-    if (comboBH_2b->first > 0) h1_["comboReco_bH_2b"] -> Fill(comboBH_2b->second, evtwt);
+
+    if (comboBZ_2b.first > 0) h1_["comboReco_bZ_2b"] -> Fill(comboBZ_2b.second, evtwt);
+    if (comboBH_2b.first > 0) h1_["comboReco_bH_2b"] -> Fill(comboBH_2b.second, evtwt);
 
     // Find best combination of channel and category
-    if (comboBZ_2b->first < comboBH_2b->first)  h1_["comboReco_2b"] -> Fill(comboBZ_2b->second, evtwt);
-    else  h1_["comboReco_2b"] -> Fill(comboBH_2b->second, evtwt);
+    if (comboBZ_2b.first <= 0 && comboBH_2b.first > 0)  h1_["comboReco_2b"] -> Fill(comboBH_2b.second, evtwt);
+    else if (comboBZ_2b.first > 0 && comboBZ_2b.first <= 0) h1_["comboReco_2b"] -> Fill(comboBZ_2b.second, evtwt);
+    else if (comboBZ_2b.first < comboBH_2b.first)  h1_["comboReco_2b"] -> Fill(comboBZ_2b.second, evtwt);
+    else if (comboBZ_2b.first > comboBH_2b.first)  h1_["comboReco_2b"] -> Fill(comboBH_2b.second, evtwt);
 
-    
 
 //
 //		pair<double, double> resReco_bZ_2b, boostReco_bZ_2b, mergeReco_bZ_2b;
@@ -760,6 +775,11 @@ bool MassReco::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
 void MassReco::beginJob(){
 
   h1_["recoCutflow"] = fs->make<TH1D>("recoCutlow", "Count", 2, -0.5, 1.5);
+
+  h1_["resReco_bZ_1b"] = fs->make<TH1D>("resReco_bZ_1b", "Resolved Reconstruction B->bZ;M_{#chi^{2}}(B);;", 1000, 0., 3000);
+  h1_["resReco_bH_1b"] = fs->make<TH1D>("resReco_bH_1b", "Resolved Reconstruction B->bH;M_{#chi^{2}}(B);;", 1000, 0., 3000);
+  h1_["boostReco_bZ_1b"] = fs->make<TH1D>("boostReco_bZ_1b", "Boosted Reconstruction B->bZ;M_{#chi^{2}}(B);;", 1000, 0., 3000);
+  h1_["boostReco_bH_1b"] = fs->make<TH1D>("boostReco_bH_1b", "Boosted Reconstruction B->bH;M_{#chi^{2}}(B);;", 1000, 0., 3000);
 
 
   h1_["bzReco_final"] = fs->make<TH1D>("bzReco_final","Combo Reconstruction B->bZ;M_{#chi^{2}}(B);;", 1000, 0., 3000.);
