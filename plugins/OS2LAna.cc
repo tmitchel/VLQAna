@@ -655,6 +655,19 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
     }
     h1_["phi_jet1MET_pre"] -> Fill( (goodAK4Jets.at(0).getP4()).DeltaPhi(goodMet.at(0).getP4()), presel_wt);
 
+    if (goodAK8Jets.size() > 0) {
+      h1_["ptak8jet1_pre"] -> Fill(goodAK8Jets.at(0).getPt(), evtwt);
+      h1_["prunedMak8jet1_pre"] -> Fill(goodAK8Jets.at(0).getPrunedMass(), evtwt);
+    }
+    if (goodAK8Jets.size() > 1) {
+      h1_["ptak8jet2_pre"] ->Fill(goodAK8Jets.at(1).getPt(), evtwt);
+      h1_["prunedMak8jet2_pre"] -> Fill(goodAK8Jets.at(1).getPrunedMass(), evtwt);
+    }
+    for (auto& ak8 : goodAK8Jets) {
+      h1_["ptak8_pre"] -> Fill(ak8.getPt(), evtwt);
+      h1_["prunedMak8_pre"] -> Fill(ak8.getPrunedMass(), evtwt);
+    }
+
     //// npv
     h1_["npv_noweight_pre"] -> Fill(npv, *h_evtwtGen.product()); 
     h1_["npv_pre"] -> Fill(npv, presel_wt);
@@ -725,7 +738,18 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
         h1_[Form("cvsak4jet%d_cnt", j+1)] -> Fill(goodAK4Jets.at(j).getCSV(), evtwt) ;
       }
       h1_["phi_jet1MET_cnt"] -> Fill( (goodAK4Jets.at(0).getP4()).DeltaPhi(goodMet.at(0).getP4()), evtwt);
-
+      if (goodAK8Jets.size() > 0) {
+        h1_["ptak8jet1_cnt"] -> Fill(goodAK8Jets.at(0).getPt(), evtwt);
+        h1_["prunedMak8jet1_cnt"] -> Fill(goodAK8Jets.at(0).getPrunedMass(), evtwt);
+      }
+      if (goodAK8Jets.size() > 1) {
+        h1_["ptak8jet2_cnt"] ->Fill(goodAK8Jets.at(1).getPt(), evtwt);
+        h1_["prunedMak8jet2_cnt"] -> Fill(goodAK8Jets.at(1).getPrunedMass(), evtwt);
+      }
+      for (auto& ak8 : goodAK8Jets) {
+        h1_["ptak8_cnt"] -> Fill(ak8.getPt(), evtwt);
+        h1_["prunedMak8_cnt"] -> Fill(ak8.getPrunedMass(), evtwt);
+      }
     } //// Control region 
 
     if ( goodAK4Jets.at(0).getPt() > 100 
@@ -1086,6 +1110,20 @@ void OS2LAna::beginJob() {
         h1_[lepEtaName.c_str()] = bookDir[i]->make<TH1D>(lepEtaName.c_str(), lepEtaTitle.c_str(), 80, -4., 4.) ;
       }
     }
+
+    h1_["ptak8jet1_pre"] = pre.make<TH1D>("ptak8jet1_pre", ";p_{T} leading AK8 jet;;", 100, 0., 1500.);
+    h1_["prunedMak8jet1_pre"] = pre.make<TH1D>("prunedMak8jet1_pre", "Pruned Mass leading AK8 Jet;M [GeV];;", 100, 0., 200.);
+    h1_["ptak8jet2_pre"] = pre.make<TH1D>("ptak8jet2_pre", ";p_{T} 2nd AK8 jet;;", 100, 0., 1500.);
+    h1_["prunedMak8jet2_pre"] = pre.make<TH1D>("prunedMak8jet2_pre", "Pruned Mass 2nd AK8 Jet;M [GeV];;", 100, 0., 200.);
+    h1_["ptak8_pre"] = pre.make<TH1D>("ptak8_pre", ";p_{T} all AK8 jets;;", 100, 0., 1500.);
+    h1_["prunedMak8_pre"] = pre.make<TH1D>("prunedMak8_pre", "Pruned Mass all AK8 Jets;M [GeV];;", 100, 0., 200.);
+
+    h1_["ptak8jet1_cnt"] = cnt.make<TH1D>("ptak8jet1_cnt", ";p_{T} leading AK8 jet;;", 100, 0., 1500.);
+    h1_["prunedMak8jet1_cnt"] = cnt.make<TH1D>("prunedMak8jet1_cnt", "Pruned Mass leading AK8 Jet;M [GeV];;", 100, 0., 200.);
+    h1_["ptak8jet2_cnt"] = cnt.make<TH1D>("ptak8jet2_cnt", ";p_{T} 2nd AK8 jet;;", 100, 0., 1500.);
+    h1_["prunedMak8jet2_cnt"] = cnt.make<TH1D>("prunedMak8jet2_cnt", "Pruned Mass 2nd AK8 Jet;M [GeV];;", 100, 0., 200.);
+    h1_["ptak8_cnt"] = cnt.make<TH1D>("ptak8_cnt", ";p_{T} all AK8 jets;;", 100, 0., 1500.);
+    h1_["prunedMak8_cnt"] = cnt.make<TH1D>("prunedMak8_cnt", "Pruned Mass all AK8 Jets;M [GeV];;", 100, 0., 200.);
 
     //additional plots
     h1_["nbjets"] = sig.make<TH1D>("nbjets", ";N(b jets);;" , 11, -0.5,10.5) ; 

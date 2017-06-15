@@ -663,6 +663,20 @@ bool MassReco::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
 		TLorentzVector bJet, bbarJet, qJet, qbarJet, ZJet, HJet;
 		TLorentzVector had_bjet, lep_bjet, had_bgen, lep_bgen;
 
+
+    // testing H-mass
+    vector<TLorentzVector> genH, matchH;
+    for (auto& gen : genPartsInfo) {
+      if (abs(gen.getPdgID()) == 25 && abs(gen.getMom0PdgID()) == 8000002) 
+        genH.push_back(gen.getP4());
+    }
+    for (auto& jet : ak8s) {
+      if (genH.size() > 0 && jet.getP4().DeltaR(genH.at(0)) < 0.4) {
+        h1_["matchedToH_pt"] -> Fill(jet.getPt(), evtwt);
+        h1_["matchedToH_pMass"] -> Fill(jet.getPrunedMass(), evtwt);
+      }
+    }
+
 		for (auto& gen : genPartsInfo){
 			if (gen.getPdgID() == 5 && abs(gen.getMom0PdgID()) == 8000002 && gen.getPt() != 0)
 				bGen = gen.getP4();
@@ -776,6 +790,10 @@ void MassReco::beginJob(){
 
   h1_["recoCutflow"] = fs->make<TH1D>("recoCutlow", "Count", 2, -0.5, 1.5);
 
+  h1_["matchedToH_pt"] = fs->make<TH1D>("matchedToH_pt", "H-tag Pt", 100, 0., 1000);
+  h1_["matchedToH_pMass"] = fs->make<TH1D>("matchedToH_pMass", "H-tag Pruned Mass", 100, 0., 180.);
+
+
   h1_["resReco_bZ_1b"] = fs->make<TH1D>("resReco_bZ_1b", "Resolved Reconstruction B->bZ;M_{#chi^{2}}(B);;", 1000, 0., 3000);
   h1_["resReco_bH_1b"] = fs->make<TH1D>("resReco_bH_1b", "Resolved Reconstruction B->bH;M_{#chi^{2}}(B);;", 1000, 0., 3000);
   h1_["boostReco_bZ_1b"] = fs->make<TH1D>("boostReco_bZ_1b", "Boosted Reconstruction B->bZ;M_{#chi^{2}}(B);;", 1000, 0., 3000);
@@ -861,12 +879,12 @@ void MassReco::beginJob(){
   h1_["ZsoftDropMass"] = fs->make<TH1D>("ZsoftDropMass", "Z Soft Drop Mass;M;;", 100, 0., 250.);
 
 	h1_["ak8subjetiness_SR"] = fs->make<TH1D>("ak8subjetiness_SR", "AK8 Subjetiness;#tau_{21};;", 20, 0., 1.);
-	h1_["ak8prunedMass_SR"] = fs->make<TH1D>("ak8prunedMass_SR", "AK8 Pruned Mass;M;;", 100, 0., 250.);
+	h1_["ak8prunedMass_SR"] = fs->make<TH1D>("ak8prunedMass_SR", "AK8 Pruned Mass;M;;", 100, 0., 260.);
   h1_["ak8softDropMass_SR"] = fs->make<TH1D>("ak8softDropMass_SR", "AK8 Soft Drop Mass;M;;", 100, 0., 250.);
 	h1_["Zsubjetiness_SR"] = fs->make<TH1D>("Zsubjetiness_SR","Z subjetiness;#tau_{21}M;;", 30, 0, 5);
 	h1_["Hsubjetiness_SR"] = fs->make<TH1D>("Hsubjetiness_SR","H subjetiness;#tau_{21};;", 30, 0, 5);
 	h1_["ZprunedMass_SR"] = fs->make<TH1D>("ZprunedMass_SR","Z Pruned Mass;M;;", 50, 30, 150);
-	h1_["HprunedMass_SR"] = fs->make<TH1D>("HprunedMass_SR","H Pruned Mass;M;;", 50, 60, 180);
+	h1_["HprunedMass_SR"] = fs->make<TH1D>("HprunedMass_SR","H Pruned Mass;M;;", 100, 0, 180);
   h1_["HsoftDropMass_SR"] = fs->make<TH1D>("HsoftDropMass_SR", "H Soft Drop Mass;M;;", 100, 0., 250.);
   h1_["ZsoftDropMass_SR"] = fs->make<TH1D>("ZsoftDropMass_SR", "Z Soft Drop Mass;M;;", 100, 0., 250.);
 

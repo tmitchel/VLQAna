@@ -376,7 +376,8 @@ void JetMaker::operator()(edm::Event& evt, vlq::JetCollection& jets) {
         double pt_gen = (h_jetGenJetPt.product())->at(ijet) ;  
         double pt_reco   = uncorrJetP4.Pt() ;
         double jerscalemass = ApplyJMR(jmrShift_) ; 
-        masssmear = std::max( 0.0, pt_gen + jerscalemass*(pt_reco - pt_gen) )/pt_reco ; 
+        if (pt_gen > 0) masssmear = std::max( 0.0, pt_gen + jerscalemass*(pt_reco - pt_gen) )/pt_reco ; 
+        else masssmear = 1;
       }
 
       newJetP4.SetVectM(newJetP4.Vect(), newJetP4.Mag()*massCorr*masssmear) ; 
