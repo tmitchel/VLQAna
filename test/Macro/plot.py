@@ -26,17 +26,17 @@ parser.add_option('--globalSF', metavar='SF', type='float',
                   help='Global trigger SF (%default default)')
 
 parser.add_option('--plotDir', metavar='P', type='string', action='store',
-                  default='New',
+                  default='printSigTable',
                   dest='plotDir',
                   help='output directory of plots')
 
 parser.add_option('--skimType', metavar='S', type='string', action='store',
-                  default='CR_Zmumu',
+                  default='CR_Zelel',
                   dest='skimType',
                   help='Skim type: CR_Zelel, CR_Zmumu, SR_Zelel, SR_Zmumu')
 
 parser.add_option('--processDir', metavar='pD', type='string', action='store',
-                  default='recoDYDown',
+                  default='massReco',
                   dest='processDir',
                   help='directory to read histograms from')
 
@@ -108,7 +108,7 @@ vvLeg         = 'Diboson'
 # === create structure ============
 data     = [
 #            [f_Data_Oct2015, 1., 1., 1.], # this corresponds to .53 fb-1
-            [f_Data_PromptReco, 1., 1., 1.],  #addign this should give 2.2 fb-1  
+            [f_Data_PromptReco, 0., 1., 1.],  #addign this should give 2.2 fb-1  
            ]
 
 top      = [[f_ttbar,         Top_xs,            Top_num,            lumi]]
@@ -341,7 +341,7 @@ print 'Sample     & Events  \\\\ '
 print '\hline'
 count = 0
 
-f = TFile(plotDir+"/"+var+".root", "RECREATE")
+#f = TFile(plotDir+"/"+var+".root", "RECREATE")
 
 if 'res' in var:
     suffix = 'Res'
@@ -409,8 +409,8 @@ for ihist in templates :
         print '{0:<5} & {1:<5.2f} $\pm$ {2:<5.2f} \\\\ '.format(ihist.GetName().split('_')[0], ihist.Integral(bin1,bin2), integralError)
         n=ihist.GetName().split('_')[0]
 
-    ihist.SetName("dimu_"+suffix+"__"+n)
-    ihist.Write()
+    #ihist.SetName("dimu_"+suffix+"__"+n)
+    #ihist.Write()
 h_tot.IntegralAndError(bin1, bin2, integralError)
 print '\hline'
 print '{0:<5} & {1:<5.2f} $\pm$ {2:<5.2f}\\\\ '.format('Tot Bkg', h_tot.Integral(bin1,bin2), integralError)
@@ -419,10 +419,10 @@ print '{0:<5} & {1:<5.0f} \\\\ '.format(h_data.GetName().split('_')[0], h_data.I
 print '\end{tabular}'
 #print 'bkg : ', h_bkg.Integral(ibin,bin2), 'tot : ', h_tot.Integral(ibin,bin2)
 
-h_data.SetName("dimu_"+suffix+"__DATA")
+#h_data.SetName("dimu_"+suffix+"__DATA")
 
-h_data.Write()
-f.Close()
+#h_data.Write()
+#f.Close()
 
 hs = THStack("","")
 
@@ -472,7 +472,7 @@ if maxh > hs.GetMaximum() and maxh > h_data.GetMaximum():
 
 
 hs.SetMinimum(0.1)
-#gPad.SetLogy()
+gPad.SetLogy()
 
 if var == 'cutflow':
     data_nbins = h_data.GetNbinsX()

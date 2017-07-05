@@ -97,6 +97,7 @@ defaultCHSHJetSelectionParameters = defaultAK8CHSJetSelectionParameters.clone(
     jetPrunedMassMax    = cms.double(135) ,
     jettau2Bytau1Min    = cms.double(0.0) ,
     jettau2Bytau1Max    = cms.double(0.6) ,
+    #subjetCSVMin        = cms.double(0) ,
     subjetCSVMin        = cms.double(CSVv2L) ,
     )
 

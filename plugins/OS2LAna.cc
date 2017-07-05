@@ -111,7 +111,8 @@ class OS2LAna : public edm::EDFilter {
     const bool sbtagsf_lDown_                    ;
     const bool PileupUp_                         ;
     const bool PileupDown_                       ;   
-    const int lheId_ ;
+    const int lheId_                             ;
+    const int pdfId_                             ;
     const bool applyLeptonIDSFs_                 ;
     const bool applyLeptonTrigSFs_               ;
     const bool applyBTagSFs_                     ;
@@ -212,6 +213,7 @@ OS2LAna::OS2LAna(const edm::ParameterSet& iConfig) :
   PileupUp_               (iConfig.getParameter<bool>              ("PileupUp")),
   PileupDown_             (iConfig.getParameter<bool>              ("PileupDown")),
   lheId_                  (iConfig.getParameter<int>               ("lheId")),
+  pdfId_                  (iConfig.getParameter<int>               ("pdfId")),
   applyLeptonIDSFs_       (iConfig.getParameter<bool>              ("applyLeptonIDSFs")), 
   applyLeptonTrigSFs_     (iConfig.getParameter<bool>              ("applyLeptonTrigSFs")),
   applyBTagSFs_           (iConfig.getParameter<bool>              ("applyBTagSFs")),
@@ -329,6 +331,8 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   if (!isData){
     for (auto& lhe : lhe_id_wts)
       if (lhe.first == lheId_){
+        evtwt *= lhe.second;
+      if (lhe.first == pdfId_)
         evtwt *= lhe.second;
     }
   }
@@ -698,11 +702,52 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
     //// Z pt
     for (auto izll : zll) h1_["pt_z"+lep+lep+"_pre"] -> Fill(izll.getPt(), presel_wt) ;
 
+    // =======================================================
+    // H-tagging Study  ======================================
+    // =======================================================
+    
+    for (auto& H : goodHTaggedJets) {
+      h1_["H_pt_pre"] -> Fill(H.getPt(), evtwt);
+      h1_["H_M_pre"] -> Fill(H.getPrunedMass(), evtwt);
+      if (H.getTau1() > 0) h1_["H_tau21_pre"] -> Fill(H.getTau2()/H.getTau1(), evtwt);
+      h1_["H_csv0_pre"] -> Fill(H.getCSVSubjet0(), evtwt);
+      h1_["H_csv1_pre"] -> Fill(H.getCSVSubjet1(), evtwt);
+    }
+    h1_["nhjets_pre"] -> Fill(goodHTaggedJets.size(), evtwt);
+
+    if (!isData) {
+      vlq::GenParticleCollection vlqGen = genpart(evt);
+      TLorentzVector genH;
+      for (auto& gen : vlqGen) {
+        if (gen.getPdgID() == 25) genH = gen.getP4();
+      }
+
+      for (auto& ak8 : goodAK8Jets) {
+        if (ak8.getP4().DeltaR(genH) < 0.8) {
+          h1_["match8_pt"] -> Fill(ak8.getPt(), evtwt);
+          h1_["match8_eta"] -> Fill(ak8.getEta(), evtwt);
+          h1_["match8_M"] -> Fill(ak8.getPrunedMass(), evtwt);
+          h1_["match8_tau"] -> Fill(ak8.getTau1()/ak8.getTau2(), evtwt);
+          h1_["match8_csv"] -> Fill(ak8.getCSV(), evtwt);
+        }
+      }
+    }
+
     //========================================================
     // Preselection done, proceeding with control selections
     //========================================================
     //fill control plots
     if ( goodBTaggedAK4Jets.size() > 0 && ST < STMaxControl_  ) {
+
+    for (auto& H : goodHTaggedJets) {
+      h1_["H_pt_cnt"] -> Fill(H.getPt(), evtwt);
+      h1_["H_M_cnt"] -> Fill(H.getPrunedMass(), evtwt);
+      if (H.getTau1() > 0) h1_["H_tau21_cnt"] -> Fill(H.getTau2()/H.getTau1(), evtwt);
+      h1_["H_csv0_cnt"] -> Fill(H.getCSVSubjet0(), evtwt);
+      h1_["H_csv1_cnt"] -> Fill(H.getCSVSubjet1(), evtwt);
+    }
+    h1_["nhjets_cnt"] -> Fill(goodHTaggedJets.size(), evtwt);
+
       for (auto izll : zll) {
         h1_["mass_z"+lep+lep+"_cnt"] -> Fill(izll.getMass(), evtwt) ;  
         h1_["pt_z"+lep+lep+"_cnt"] -> Fill(izll.getPt(), evtwt) ; 
@@ -1110,6 +1155,26 @@ void OS2LAna::beginJob() {
         h1_[lepEtaName.c_str()] = bookDir[i]->make<TH1D>(lepEtaName.c_str(), lepEtaTitle.c_str(), 80, -4., 4.) ;
       }
     }
+
+    h1_["H_pt_pre"] = pre.make<TH1D>("H_pt_pre", "H p_{T}", 100, 0., 1000.);
+    h1_["H_M_pre"] = pre.make<TH1D>("H_M_pre", "H M", 100, 0., 180);
+    h1_["H_tau21_pre"] = pre.make<TH1D>("H_tau21_pre", "H tau21", 50, 0., 2.);
+    h1_["H_csv0_pre"] = pre.make<TH1D>("H_csv0_pre", "H Subjet 0 CSV", 50, 0., 1.);
+    h1_["H_csv1_pre"] = pre.make<TH1D>("H_csv1_pre", "H Subjet 1 CSV", 50, 0., 1.);
+    h1_["nhjets_pre"] = pre.make<TH1D>("nhjets_pre", "N H-tagged Jets", 5, -0.5, 4.5);
+
+    h1_["match8_pt"] = pre.make<TH1D>("match8_pt", "match8_pt", 100, 0., 800.);
+    h1_["match8_eta"] = pre.make<TH1D>("match8_eta", "match8_eta", 80, -4., 4.);
+    h1_["match8_M"] = pre.make<TH1D>("match8_M", "match8_M", 100, 0., 180.);
+    h1_["match8_tau"] = pre.make<TH1D>("match8_tau", "match8_tau", 50, 0., 1.5);
+    h1_["match8_csv"] = pre.make<TH1D>("match8_csv", "match8_csv", 50, 0., 1.);
+
+    h1_["H_pt_cnt"] = cnt.make<TH1D>("H_pt_cnt", "H p_{T}", 100, 0., 1000.);
+    h1_["H_M_cnt"] = cnt.make<TH1D>("H_M_cnt", "H M", 100, 0., 180);
+    h1_["H_tau21_cnt"] = cnt.make<TH1D>("H_tau21_cnt", "H tau21", 50, 0., 2.);
+    h1_["H_csv0_cnt"] = cnt.make<TH1D>("H_csv0_cnt", "H Subjet 0 CSV", 50, 0., 1.);
+    h1_["H_csv1_cnt"] = cnt.make<TH1D>("H_csv1_cnt", "H Subjet 1 CSV", 50, 0., 1.);
+    h1_["nhjets_cnt"] = cnt.make<TH1D>("nhjets_cnt", "N H-tagged Jets", 5, -0.5, 4.5);
 
     h1_["ptak8jet1_pre"] = pre.make<TH1D>("ptak8jet1_pre", ";p_{T} leading AK8 jet;;", 100, 0., 1500.);
     h1_["prunedMak8jet1_pre"] = pre.make<TH1D>("prunedMak8jet1_pre", "Pruned Mass leading AK8 Jet;M [GeV];;", 100, 0., 200.);

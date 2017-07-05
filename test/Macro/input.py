@@ -3,11 +3,11 @@
 # =====================================================
 #  INPUTS		
 # =====================================================
-path = '/uscms_data/d3/tmitchel/update80X/CMSSW_8_0_20/src/Analysis/VLQAna/test/Macro/rootFiles/Zmumu/Syst/'
+path = '/uscms_data/d3/tmitchel/update80X/CMSSW_8_0_20/src/Analysis/VLQAna/test/Macro/rootFiles/Zelel/June6_dropMerge/btag/'
 pathS = '/uscms_data/d2/skhalil/MyVLQAna2/CMSSW_7_4_15_patch1/src/Analysis/VLQAna/test/CRAB_On_Skim/Histo/'
 pathR = '/uscms_data/d3/dmendis/Rachitha2/CMSSW_7_4_16_patch2/src/Analysis/VLQAna/test/CRAB_0n_Skim/Histo/'
 
-ch = 'CR_Zmumu:'
+ch = 'CR_Zelel:'
 if 'elel' in ch:
     suf = '_el'
 elif 'mumu' in ch:
@@ -116,20 +116,20 @@ BpBp1600_xs       = 0.001148*gSF
 BpBp1700_xs       = 0.000666*gSF
 BpBp1800_xs       = 0.000391*gSF
 
-BpBp800_xs = 1.
-BpBp900_xs = 1.
-BpBp1000_xs = 1.
-BpBp1100_xs = 1.
-BpBp1200_xs = 1.
-BpBp1300_xs = 1.
-BpBp1400_xs = 1.
-BpBp1500_xs = 1.
-BpBp1600_xs = 1.
-BpBp1700_xs = 1.
-BpBp1800_xs = 1.
+#BpBp800_xs = 1.
+#BpBp900_xs = 1.
+##BpBp1000_xs = 1.
+#BpBp1100_xs = 1.
+#BpBp1200_xs = 1.
+#BpBp1300_xs = 1.
+#BpBp1400_xs = 1.
+#BpBp1500_xs = 1.
+#BpBp1600_xs = 1.
+#BpBp1700_xs = 1.
+#BpBp1800_xs = 1.
 TpTp800_xs= 1.
-#TpTp1000_xs = 1.
-#TpTp1200_xs = 1.
+TpTp1000_xs = 1.
+TpTp1200_xs = 1.
 
 #===== Number of generated events ======
 
@@ -165,6 +165,8 @@ BpBp1500_bH_num     =  f_BpBp_bZbH_1500.Get("ana/signalEvts").GetBinContent(1)
 #BpBp1600_bH_num     =  f_BpBp_bZbH_1600.Get("ana/signalEvts").GetBinContent(1)
 BpBp1700_bH_num     =  f_BpBp_bZbH_1700.Get("ana/signalEvts").GetBinContent(1)
 BpBp1800_bH_num     =  f_BpBp_bZbH_1800.Get("ana/signalEvts").GetBinContent(1)
+#
+#print BpBp800_bZ_num, BpBp800_bH_num
 
 
 # Legend
@@ -271,12 +273,13 @@ def getHisto( label, leg, dir, var, Samples, color, verbose) :
                 hist.GetName(),
                 hist.Integral(), hist.GetEntries(), xs * lumi /nevt
                 )
+            print xs, lumi, nevt, xs*lumi/nevt
         hist.Sumw2()    
         # if ifile == 'f_Data_PromptReco':
         #     xs = 0
         #     hist.SetMarkerColorAlpha(color, 100)
         hist.Scale( xs * lumi /nevt)
-        hist.Rebin(5)
+        hist.Rebin(50)
         hist.SetAxisRange(0.,2000.,"X")
         histos.append( hist )
         
@@ -288,7 +291,7 @@ def getHisto( label, leg, dir, var, Samples, color, verbose) :
         histo.Add( histos[ihisto] )
         #print 'after addition', histo.Integral()
 
-    if verbose:    
-        print 'newName: {0:<5}, Entries:{1:5.2f},  newIntegral: {2:5.2f}'.format(label+var, histo.GetEntries(), histo.Integral() )   
+    #if verbose:    
+     #   print 'newName: {0:<5}, Entries:{1:5.2f},  newIntegral: {2:5.2f}'.format(label+var, histo.GetEntries(), histo.Integral() )   
     return histo
 
