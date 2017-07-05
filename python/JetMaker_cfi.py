@@ -16,7 +16,6 @@ defaultAK4JetSelectionParameters = cms.PSet(
     scaledJetMass             = cms.double(125.0), 
     newJECPayloadNames        = cms.vstring(), 
     jecUncPayloadName         = cms.string("Summer16_23Sep2016V4_MC_Uncertainty_AK4PFchs.txt"),
-#    SDMassCorrWt              = cms.string(""),
     jecAK8GroomedPayloadNames = cms.vstring(), 
     jecShift                  = cms.double(0), 
     jerShift                  = cms.int32(1), 
