@@ -260,8 +260,10 @@ else:
   process.ana.HTMin = cms.double(200.)
 if options.filterSignal:
   process.ana.lheId = cms.int32(1)
+  process.ana.pdfId = cms.int32(-1)
 else:
   process.ana.lheId = cms.int32(1001)
+  process.ana.pdfId = cms.int32(-1)
 
 if options.skim: 
   process.ana.jetAK4selParams.jetPtMin = cms.double(20) 
@@ -360,6 +362,18 @@ else:
     process.anatauDown = process.ana.clone(
         tauShift = cms.int32(-1),
         )
+   
+    for i in range(10, 111):
+      setattr(process, 'pdfProcess'+str(i), process.ana.clone(pdfId = i))
+
+    pdfProcesses = []
+    for proc in dir(process):
+      if 'pdf' in proc:
+        pdfProcesses.append(getattr(process, proc))
+ 
+    pdfPath = cms.ignore(process.pdfProcess10)
+    for pdf in pdfProcesses:
+      pdfPath *= cms.ignore(pdf)
 
 process.load('Analysis.VLQAna.MassReco_cfi')
 process.massReco.ptMin = cms.double(150.)
@@ -486,7 +500,6 @@ elif options.massReco:
       *process.evtcleaner
       *process.cleanedEvents
       *process.ana
-      *process.massReco
       *process.finalEvents
       
       *cms.ignore(process.anabcUp)
@@ -506,23 +519,25 @@ elif options.massReco:
       *cms.ignore(process.anatauDown)
       *cms.ignore(process.anaJmrUp)
       *cms.ignore(process.anaJmrDown)
+      *pdfPath
 
-      *process.recobcUp
-      *process.recobcDown
-      *process.recolightUp
-      *process.recolightDown
-      *process.recoJecUp
-      *process.recoJecDown
-      *process.recoJerUp
-      *process.recoJerDown
-      *process.recoPileupUp
-      *process.recoPileupDown
-      *process.recoScaleUp
-      *process.recoScaleDown 
-      *process.recotauUp
-      *process.recotauDown 
-      *process.recoJmrUp
-      *process.recoJmrDown
+      *process.massReco
+      *cms.ignore(process.recobcUp)
+      *cms.ignore(process.recobcDown)
+      *cms.ignore(process.recolightUp)
+      *cms.ignore(process.recolightDown)
+      *cms.ignore(process.recoJecUp)
+      *cms.ignore(process.recoJecDown)
+      *cms.ignore(process.recoJerUp)
+      *cms.ignore(process.recoJerDown)
+      *cms.ignore(process.recoPileupUp)
+      *cms.ignore(process.recoPileupDown)
+      *cms.ignore(process.recoScaleUp)
+      *cms.ignore(process.recoScaleDown) 
+      *cms.ignore(process.recotauUp)
+      *cms.ignore(process.recotauDown) 
+      *cms.ignore(process.recoJmrUp)
+      *cms.ignore(process.recoJmrDown)
 
 
       )
