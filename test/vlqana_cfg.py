@@ -73,7 +73,7 @@ options.register('storeLHEWts', False,
     VarParsing.varType.bool,
     "Store LHE wts?"
     )
-options.register('FileNames', 'FileNames_TbtH1500',
+options.register('FileNames', 'test',
     VarParsing.multiplicity.singleton,
     VarParsing.varType.string,
     "Name of list of input files"
@@ -209,7 +209,7 @@ process.out = cms.OutputModule("PoolOutputModule",
         SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('evtcleaner')),
             )
 
-process.schedule = cms.Schedule(process.p,process.pPuppi,process.pDoubleB)
+process.schedule = cms.Schedule(process.p)
 
 #process.outpath = cms.EndPath(process.out)
 

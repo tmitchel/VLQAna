@@ -33,6 +33,8 @@ class TtHEventInfoBranches {
     double btagsf_lDown_;
     double mtprime_;
     double mtprimeDummy_;
+    double mtprimeDummyA_;
+    double mtprimeDummyC_;
     double ht_ ; 
     int    nAK4_;
     int    nAK8_;
@@ -69,6 +71,8 @@ class TtHEventInfoBranches {
       cutTree->Branch((name+"_btagsf_lDown").c_str(), &btagsf_lDown_, "btagsf_lDown/D");
       cutTree->Branch((name+"_mtprime").c_str(), &mtprime_, "mtprime/D");
       cutTree->Branch((name+"_mtprimeDummy").c_str(), &mtprimeDummy_, "mtprimeDummy/D");
+      cutTree->Branch((name+"_mtprimeDummyA").c_str(), &mtprimeDummyA_, "mtprimeDummyA/D");
+      cutTree->Branch((name+"_mtprimeDummyC").c_str(), &mtprimeDummyC_, "mtprimeDummyC/D");
       cutTree->Branch((name+"_ht").c_str(), &ht_, "ht/D");
       cutTree->Branch((name+"_nAK4").c_str(), &nAK4_, "nAK4/I");
       cutTree->Branch((name+"_nAK8").c_str(), &nAK8_, "nAK8/I");
@@ -174,6 +178,26 @@ class TtHJetInfoBranches {
     std::vector<double> hadronFlavourSJ0TopTagged; 
     std::vector<double> hadronFlavourSJ1TopTagged; 
 
+    std::vector<int> idxAntiTopTagged; 
+    std::vector<double> ptAntiTopTagged;
+    std::vector<double> etaAntiTopTagged;
+    std::vector<double> phiAntiTopTagged;
+    std::vector<double> MAntiTopTagged;
+    std::vector<double> SoftDropMassAntiTopTagged;
+    std::vector<double> PrunedMassAntiTopTagged;
+    std::vector<double> tau1AntiTopTagged;
+    std::vector<double> tau2AntiTopTagged;
+    std::vector<double> tau3AntiTopTagged;
+    std::vector<double> csvAntiTopTagged;
+    std::vector<double> partonFlavourAntiTopTagged; 
+    std::vector<double> hadronFlavourAntiTopTagged; 
+
+    std::vector<double> doubleBAntiTopTagged;
+    std::vector<double> sj0CSVAntiTopTagged;
+    std::vector<double> sj1CSVAntiTopTagged;
+    std::vector<double> hadronFlavourSJ0AntiTopTagged; 
+    std::vector<double> hadronFlavourSJ1AntiTopTagged;
+ 
     void RegisterTree(TTree *cutTree, std::string name="JetInfo") {
 
       cutTree->Branch("idxAK4", &idxAK4); 
@@ -264,6 +288,27 @@ class TtHJetInfoBranches {
       cutTree->Branch("sj1CSVTopTagged",&sj1CSVTopTagged);
       cutTree->Branch("hadronFlavourSJ0TopTagged",&hadronFlavourSJ0TopTagged);
       cutTree->Branch("hadronFlavourSJ1TopTagged",&hadronFlavourSJ1TopTagged);
+
+      cutTree->Branch("idxAntiTopTagged", &idxAntiTopTagged); 
+      cutTree->Branch("ptAntiTopTagged", &ptAntiTopTagged); 
+      cutTree->Branch("etaAntiTopTagged", &etaAntiTopTagged);
+      cutTree->Branch("phiAntiTopTagged", &phiAntiTopTagged);
+      cutTree->Branch("MAntiTopTagged", &MAntiTopTagged);
+      cutTree->Branch("SoftDropMassAntiTopTagged", &SoftDropMassAntiTopTagged);
+      cutTree->Branch("PrunedMassAntiTopTagged", &PrunedMassAntiTopTagged);
+      cutTree->Branch("tau1AntiTopTagged", &tau1AntiTopTagged);
+      cutTree->Branch("tau2AntiTopTagged", &tau2AntiTopTagged);
+      cutTree->Branch("tau3AntiTopTagged", &tau3AntiTopTagged);
+      cutTree->Branch("csvAntiTopTagged", &csvAntiTopTagged);
+      cutTree->Branch("partonFlavourAntiTopTagged", &partonFlavourAntiTopTagged);
+      cutTree->Branch("hadronFlavourAntiTopTagged", &hadronFlavourAntiTopTagged);
+
+      cutTree->Branch("doubleBAntiTopTagged",&doubleBAntiTopTagged);
+      cutTree->Branch("sj0CSVAntiTopTagged",&sj0CSVAntiTopTagged);
+      cutTree->Branch("sj1CSVAntiTopTagged",&sj1CSVAntiTopTagged);
+      cutTree->Branch("hadronFlavourSJ0AntiTopTagged",&hadronFlavourSJ0AntiTopTagged);
+      cutTree->Branch("hadronFlavourSJ1AntiTopTagged",&hadronFlavourSJ1AntiTopTagged);
+
     }
 
     //void ReadTree(TTree* tree, std::string name="JetInfo") {

@@ -510,6 +510,18 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
 
     sjbtagsfutils_->getBTagSFs (csvs, pts, etas, flhads, jetHTaggedmaker.idxsjCSVMin_, sjbtagsf, sjbtagsf_bcUp, sjbtagsf_bcDown, sjbtagsf_lUp, sjbtagsf_lDown) ;
 
+    //// bTag SF along with sys. unc. options
+    if (btagsf_bcUp_)
+      evtwt *= sjbtagsf_bcUp;
+    else if (btagsf_bcDown_)
+      evtwt *= sjbtagsf_bcDown;
+    else  if (btagsf_lUp_)
+      evtwt *= sjbtagsf_lUp;
+    else if (btagsf_lDown_)
+      evtwt *= sjbtagsf_lDown;
+    else
+      evtwt *= sjbtagsf;
+
   }
 
   if ( skim_ ) {

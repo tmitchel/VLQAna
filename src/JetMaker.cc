@@ -26,7 +26,6 @@ JetMaker::JetMaker (edm::ParameterSet const& iConfig, edm::ConsumesCollector && 
   jecUncPayloadName_        (iConfig.getParameter<std::string>             ("jecUncPayloadName")),
   jecAK8GroomedPayloadNames_(iConfig.getParameter<std::vector<std::string>>("jecAK8GroomedPayloadNames")), 
   doGroomedMassCorr_        (jecAK8GroomedPayloadNames_.size()>0 ? true : false), 
-  SDMassCorrWt_             (iConfig.getParameter<std::string>             ("SDMassCorrWt")),
   jetID_(JetIDParams_, iC) 
 {
 
@@ -66,6 +65,7 @@ JetMaker::JetMaker (edm::ParameterSet const& iConfig, edm::ConsumesCollector && 
   t_jetGenJetCharge   = iC.consumes<vector<float>>(JetIDParams_.getParameter<edm::InputTag> ("jetGenJetChargeLabel")  );
 
   if ( type_ == AK8JET ) {
+    SDMassCorrWt_       = iConfig.getParameter<std::string>("SDMassCorrWt") ; 
     t_jetDoubleBAK8     = iC.consumes<vector<float>>(JetIDParams_.getParameter<edm::InputTag>     ("jetDoubleBAK8Label")   );
     t_jetDoubleBCA15    = iC.consumes<vector<float>>(JetIDParams_.getParameter<edm::InputTag>     ("jetDoubleBCA15Label")  );
     t_jettau1           = iC.consumes<vector<float>>(JetSubstrParams_.getParameter<edm::InputTag> ("jettau1Label")         );
