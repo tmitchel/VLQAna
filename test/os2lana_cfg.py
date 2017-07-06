@@ -99,7 +99,7 @@ options.register('storeLHEWts', True,
     "Store LHE weights",
     )
 
-options.setDefault('maxEvents', 50000)
+options.setDefault('maxEvents', -1)
 options.parseArguments()
 
 dataPath = '../data/'
