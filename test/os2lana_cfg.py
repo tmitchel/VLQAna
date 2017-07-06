@@ -99,7 +99,7 @@ options.register('storeLHEWts', True,
     "Store LHE weights",
     )
 
-options.setDefault('maxEvents', -1)
+options.setDefault('maxEvents', 50000)
 options.parseArguments()
 
 dataPath = '../data/'
@@ -255,8 +255,10 @@ else:
   process.ana.HTMin = cms.double(200.)
 if options.filterSignal:
   process.ana.lheId = cms.int32(1)
+  process.ana.pdfId = cms.int32(-1)
 else:
   process.ana.lheId = cms.int32(1001)
+  process.ana.pdfId = cms.int32(-1)
 
 if options.skim: 
   process.ana.jetAK4selParams.jetPtMin = cms.double(20) 
@@ -331,6 +333,18 @@ else:
           lheId = cms.int32(1009),
           )
 
+    for i in range(10, 111):
+      setattr(process, 'pdfProcess'+str(i), process.ana.clone(pdfId = i))
+
+    pdfProcesses = []
+    for proc in dir(process):
+      if 'pdf' in proc:
+        pdfProcesses.append(getattr(process, proc))
+
+    pdfPath = cms.ignore(process.pdfProcess10)
+    for pdf in pdfProcesses:
+      pdfPath *= cms.ignore(pdf)
+
 ## Event counters
 from Analysis.EventCounter.eventcounter_cfi import eventCounter
 process.allEvents = eventCounter.clone(isData=options.isData)
@@ -360,6 +374,7 @@ if options.syst and not options.skim:
     *cms.ignore(process.anaPileupDown)
     *cms.ignore(process.anaScaleUp)
     *cms.ignore(process.anaScaleDown)
+    *pdfPath
     )
 elif options.massReco:
   process.load('Analysis.VLQAna.MassReco_cfi')

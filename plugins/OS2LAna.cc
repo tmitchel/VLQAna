@@ -108,6 +108,7 @@ class OS2LAna : public edm::EDFilter {
     const bool PileupUp_                         ;
     const bool PileupDown_                       ; 
     const int  lheId_                            ;  
+    const int  pdfId_                            ;
     const bool applyLeptonIDSFs_                 ;
     const bool applyLeptonTrigSFs_               ;
     const bool applyBTagSFs_                     ;
@@ -202,6 +203,7 @@ OS2LAna::OS2LAna(const edm::ParameterSet& iConfig) :
   PileupUp_               (iConfig.getParameter<bool>              ("PileupUp")),
   PileupDown_             (iConfig.getParameter<bool>              ("PileupDown")),
   lheId_                  (iConfig.getParameter<int>               ("lheId")),
+  pdfId_                  (iConfig.getParameter<int>               ("pdfId")),
   applyLeptonIDSFs_       (iConfig.getParameter<bool>              ("applyLeptonIDSFs")), 
   applyLeptonTrigSFs_     (iConfig.getParameter<bool>              ("applyLeptonTrigSFs")),
   applyBTagSFs_           (iConfig.getParameter<bool>              ("applyBTagSFs")),
@@ -314,6 +316,8 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   if (!isData){
     for (auto& lhe : lhe_id_wts){
       if (lhe.first == lheId_)
+        evtwt *= lhe.second;
+      if (lhe.first == pdfId_)
         evtwt *= lhe.second;
     }
   }
