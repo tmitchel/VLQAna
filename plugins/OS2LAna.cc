@@ -97,6 +97,7 @@ class OS2LAna : public edm::EDFilter {
     const double STMin_                          ; 
     const double STMaxControl_                   ;
     const bool skim_                             ;
+    const bool isData_                           ;
     const bool filterSignal_                     ;
     const bool additionalPlots_                  ;
     const std::string signalType_                ;
@@ -198,6 +199,7 @@ OS2LAna::OS2LAna(const edm::ParameterSet& iConfig) :
   STMin_                  (iConfig.getParameter<double>            ("STMin")), 
   STMaxControl_           (iConfig.getParameter<double>            ("STMaxControl")), 
   skim_                   (iConfig.getParameter<bool>              ("skim")), 
+  isData_                 (iConfig.getParameter<bool>              ("isData")),
   filterSignal_           (iConfig.getParameter<bool>              ("filterSignal")), 
   additionalPlots_        (iConfig.getParameter<bool>              ("additionalPlots")), 
   signalType_             (iConfig.getParameter<std::string>       ("signalType")), 
@@ -292,7 +294,7 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   const bool isData(evtno > 0 ? true : false) ; 
   vector<pair<int, double> > lhe_id_wts;
   
-  if (!isData){
+  if (!isData_){
     for (unsigned i=0; i<(*h_lhewtids.product()).size(); i++){
       int id = (*h_lhewtids.product()).at(i);
       double wt = (*h_lhewts.product()).at(i);
@@ -328,14 +330,16 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   else if (PileupDown_)  evtwt = (*h_evtwtGen.product()) * (*h_evtwtPVLow.product()) ;
   else                   evtwt = (*h_evtwtGen.product()) * (*h_evtwtPV.product()) ;
 
-  if (!isData){
-    for (auto& lhe : lhe_id_wts)
-      if (lhe.first == lheId_){
+  if (!isData_){
+    for (auto& lhe : lhe_id_wts){
+      if (lhe.first == lheId_)
         evtwt *= lhe.second;
       if (lhe.first == pdfId_)
         evtwt *= lhe.second;
     }
   }
+
+  h1_["pre_pdf"] -> Fill(1, evtwt);
 
   h1_["cutflow"] -> Fill(1, evtwt) ;
 
@@ -399,7 +403,7 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   
 
   //// Get lepton ID and Iso SF
-  if  ( !isData ) {
+  if  ( !isData_ ) {
 
     if (applyLeptonIDSFs_) {
       if ( zdecayMode_ == "zmumu" ) {
@@ -469,7 +473,7 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   cleanjets(goodHTaggedJets, goodMuons); 
   cleanjets(goodHTaggedJets, goodElectrons); 
 
-  if (!isData){
+  if (!isData_){
     for (auto& jet : goodWTaggedJets)
       evtwt *= ( 1.11 + (tauShift_ * .08) + (tauShift_ * 0.041 * log(jet.getPt() / 200)));
     for (auto& jet : goodHTaggedJets)
@@ -715,7 +719,7 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
     }
     h1_["nhjets_pre"] -> Fill(goodHTaggedJets.size(), evtwt);
 
-    if (!isData) {
+    if (!isData_) {
       vlq::GenParticleCollection vlqGen = genpart(evt);
       TLorentzVector genH;
       for (auto& gen : vlqGen) {
@@ -802,6 +806,9 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
         && goodBTaggedAK4Jets.size() > 0
         && ST > STMin_ 
        ) { //// Signal region 
+
+      h1_["post_pdf"] -> Fill(1, evtwt);
+
 
       //// fill all the plots in signal region
       for (auto izll : zll) {
@@ -1108,6 +1115,11 @@ void OS2LAna::beginJob() {
 
     h1_["ht_preSel_bfFit"] = fs->make<TH1D>("ht_preSel_bfFit", ";H_{T} (AK4 jets) [GeV]", 100, 0., 4000.) ; 
   }
+
+  h1_["pre_pdf"] = fs->make<TH1D>("pre_pdf", "Preselection Event Yield", 1, 0.5, 1.5);
+
+  h1_["post_pdf"] = fs->make<TH1D>("post_pdf", "Signal Event Yield", 1, 0.5, 1.5);
+
 
   if (!skim_ and !maketree_) {
     TFileDirectory pre = fs->mkdir ("pre");

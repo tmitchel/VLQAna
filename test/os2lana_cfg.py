@@ -103,6 +103,11 @@ options.register('storeLHEWts', True,
     VarParsing.varType.bool,
     "Store LHE weights",
     )
+options.register('optimizeReco', False,
+    VarParsing.multiplicity.singleton,
+    VarParsing.varType.bool,
+    'meh'
+    )
 
 options.setDefault('maxEvents', -1)
 options.parseArguments()
@@ -197,6 +202,7 @@ process.ana = ana.clone(
     btageffmap = cms.string(os.path.join(dataPath,options.btageffmap)), 
     applyDYNLOCorr = cms.bool(options.applyDYNLOCorr),
     skim = cms.bool(options.skim),
+    isData = cms.bool(options.isData),
     maketree = cms.bool(options.maketree), 
     fnamebtagSF = cms.string(os.path.join(dataPath,'CSVv2_Moriond17_B_H.csv')),
     fnameSJbtagSF = cms.string(os.path.join(dataPath,'subjet_CSVv2_Moriond17_B_H.csv')),
@@ -380,7 +386,7 @@ process.massReco.ptMin = cms.double(150.)
 process.massReco.zdecaymode = cms.string(options.zdecaymode)
 process.massReco.signalType = cms.string(options.signalType)
 process.massReco.controlReco = cms.bool(options.controlReco)
-process.massReco.optimizeReco = cms.bool(True)
+process.massReco.optimizeReco = cms.bool(options.optimizeReco)
 
 if options.massReco and options.syst:
   process.recobcUp = process.massReco.clone(
@@ -491,6 +497,7 @@ if options.syst and not options.skim and not options.massReco:
     *cms.ignore(process.anatauDown) 
     *cms.ignore(process.anaJmrUp)
     *cms.ignore(process.anaJmrDown)
+    *pdfPath
 
     )
 elif options.massReco:
