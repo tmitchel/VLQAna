@@ -1,4 +1,5 @@
 import os, sys
+from readVars import *
 import FWCore.ParameterSet.Config as cms
 from FWCore.ParameterSet.VarParsing import VarParsing
 
@@ -78,7 +79,7 @@ options.register('applyDYNLOCorr', False, ### Set to true only for DY process ##
     VarParsing.varType.bool,
     "Apply DY EWK k-factor to DY MC"
     )
-options.register('FileNames', 'FileNames_DY',
+options.register('FileNames', 'bprime800_bZ',
     VarParsing.multiplicity.singleton,
     VarParsing.varType.string,
     "Name of list of input files"
@@ -158,8 +159,9 @@ from inputFiles_cfi import *
 process.source = cms.Source(
   "PoolSource",
   fileNames = cms.untracked.vstring(
-    FileNames[options.FileNames]
-    ) 
+ #   FileNames[options.FileNames]
+  FileNames['FileNames_DY']
+ ) 
   )
 
 if options.isData:
@@ -343,17 +345,17 @@ else:
         PileupDown = cms.bool(True),
         )
     if options.filterSignal:
-      process.anaScaleUp = process.ana.clone(
+      process.ScaleUp = process.ana.clone(
           lheId = cms.int32(5)
           )
-      process.anaScaleDown = process.ana.clone(
+      process.ScaleDown = process.ana.clone(
           lheId = cms.int32(9)
           )
     else:
-      process.anaScaleUp = process.ana.clone(
+      process.ScaleUp = process.ana.clone(
           lheId = cms.int32(1005),
           )
-      process.anaScaleDown = process.ana.clone(
+      process.ScaleDown = process.ana.clone(
           lheId = cms.int32(1009),
           )
 
@@ -368,7 +370,24 @@ else:
     process.anatauDown = process.ana.clone(
         tauShift = cms.int32(-1),
         )
-   
+
+    pdfUp, pdfDn = getPdfWeight(options.FileNames)
+    print pdfUp, pdfDn
+
+    process.anaScaleUp = process.ana.clone(
+        scaleVal = cms.double(pdfUp)
+        )
+    process.anaScaleDown = process.ana.clone(
+        scaleVal = cms.double(pdfDn)
+        )
+
+    process.anaPdfUp = process.ana.clone(
+        pdfVal = cms.double(1.)
+        )
+    process.anaPdfDown = process.ana.clone(
+        pdfVal = cms.double(1.)
+        )
+
     for i in range(10, 111):
       setattr(process, 'pdfProcess'+str(i), process.ana.clone(pdfId = i))
 
@@ -458,6 +477,8 @@ if options.massReco and options.syst:
   process.recoPileupDown  = process.massReco.clone(Prewt = cms.InputTag("anaPileupDown", "PreWeight"))
   process.recoScaleUp     = process.massReco.clone(Prewt = cms.InputTag("anaScaleUp", "PreWeight"))
   process.recoScaleDown   = process.massReco.clone(Prewt = cms.InputTag("anaScaleDown", "PreWeight"))
+  process.recoPdfUp       = process.massReco.clone(Prewt = cms.InputTag("anaPdfUp", "PreWeight"))
+  process.recoPdfDown     = process.massReco.clone(Prewt = cms.InputTag("anaPdfDown", "PreWeight"))
   process.recotauUp       = process.massReco.clone(Prewt = cms.InputTag("anatauUp", "PreWeight"))
   process.recotauDown     = process.massReco.clone(Prewt = cms.InputTag("anatauDown", "PreWeight"))
   process.recoDYDown      = process.massReco.clone(Prewt = cms.InputTag("anaDYdown", "PreWeight"))
@@ -519,8 +540,12 @@ elif options.massReco:
       *cms.ignore(process.anaJerDown)
       *cms.ignore(process.anaPileupUp)
       *cms.ignore(process.anaPileupDown)
+      *cms.ignore(process.ScaleUp)
+      *cms.ignore(process.ScaleDown)
       *cms.ignore(process.anaScaleUp)
       *cms.ignore(process.anaScaleDown) 
+      *cms.ignore(process.anaPdfUp)
+      *cms.ignore(process.anaPdfDown)
       *cms.ignore(process.anaDYDown)
       *cms.ignore(process.anatauUp)
       *cms.ignore(process.anatauDown)
@@ -540,7 +565,9 @@ elif options.massReco:
       *cms.ignore(process.recoPileupUp)
       *cms.ignore(process.recoPileupDown)
       *cms.ignore(process.recoScaleUp)
-      *cms.ignore(process.recoScaleDown) 
+      *cms.ignore(process.recoScaleDown)
+      *cms.ignore(process.recoPdfUp)
+      *cms.ignore(process.recoPdfDown)
       *cms.ignore(process.recotauUp)
       *cms.ignore(process.recotauDown) 
       *cms.ignore(process.recoJmrUp)

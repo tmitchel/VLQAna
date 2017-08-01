@@ -113,8 +113,8 @@ bool MassReco::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   edm::Handle<double>            evtwt_h    ; evt.getByToken(evtwt_t, evtwt_h);
   edm::Handle<double>            bTagwt_h   ; evt.getByToken(bTagwt_t, bTagwt_h);
   edm::Handle<double>            sjbTagwt_h ; evt.getByToken(sjbTagwt_t, sjbTagwt_h);
-
-	double evtwt;
+	
+  double evtwt;
   if (evtwt_h.isValid())
    evtwt = *evtwt_h.product() * *bTagwt_h.product() * *sjbTagwt_h.product() ;
   else
@@ -553,7 +553,6 @@ bool MassReco::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
       h1_["HsoftDropMass_CR"] -> Fill(jet.getSoftDropMass(), evtwt);
   	}
   
-  
 		pair<double, double> resCon1_bZ(9999,-1), boostCon1_bZ(9999,-1), mergeCon1_bZ(9999,-1);
 		pair<double, double> resCon1_bH(9999,-1), boostCon1_bH(9999,-1), mergeCon1_bH(9999,-1);
 					
@@ -623,10 +622,9 @@ bool MassReco::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
 	}
 
 	if (bjets.size() == 0 && ST > STMin_ &&  controlReco_){
-  
+
 		pair<double, double> resCon2_bZ(9999,-1), boostCon2_bZ(9999,-1), mergeCon2_bZ(9999,-1);
 		pair<double, double> resCon2_bH(9999,-1), boostCon2_bH(9999,-1), mergeCon2_bH(9999,-1);
-					
 
 		if (zjets.size() > 0)
 			boostCon2_bZ = doBoostedReco(ak4s, zjets.at(0).getP4(), 91.2, zllcand, 150.);
@@ -645,15 +643,12 @@ bool MassReco::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   	if (resCon2_bZ.second > 0){
       h1_["resCon2_bZ"] -> Fill(resCon2_bZ.second, evtwt);
   	} 
-
   	if (resCon2_bH.second > 0){
       h1_["resCon2_bH"] -> Fill(resCon2_bH.second, evtwt);
   	}
-
   	if (boostCon2_bZ.second > 0){
       h1_["boostCon2_bZ"] -> Fill(boostCon2_bZ.second, evtwt);
   	}
-
   	if (boostCon2_bH.second > 0){
       h1_["boostCon2_bH"] -> Fill(boostCon2_bH.second, evtwt);
   	}
@@ -680,7 +675,6 @@ bool MassReco::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
     if (boostCon2_bH.first < 9999 && boostCon2_bH.first > 0) comboBH_con2 = boostCon2_bH;
     else if (resCon2_bH.first < 9999 && resCon2_bH.first > 0) comboBH_con2 = resCon2_bH;
 
-
     if (comboBZ_con2.first > 0) h1_["comboCon2_bZ"] -> Fill(comboBZ_con2.second, evtwt);
     if (comboBH_con2.first > 0) h1_["comboCon2_bH"] -> Fill(comboBH_con2.second, evtwt);
 
@@ -689,7 +683,6 @@ bool MassReco::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
     else if (comboBZ_con2.first > 0 && comboBH_con2.first <= 0) h1_["comboCon2"] -> Fill(comboBZ_con2.second, evtwt);
     else if (comboBZ_con2.first < comboBH_con2.first)  h1_["comboCon2"] -> Fill(comboBZ_con2.second, evtwt);
     else if (comboBZ_con2.first > comboBH_con2.first)  h1_["comboCon2"] -> Fill(comboBH_con2.second, evtwt);
-
 	}
 
 
@@ -925,7 +918,7 @@ void MassReco::beginJob(){
 	h1_["ak8prunedMass_SR"] = fs->make<TH1D>("ak8prunedMass_SR", "AK8 Pruned Mass;M;;", 100, 0., 260.);
   h1_["ak8softDropMass_SR"] = fs->make<TH1D>("ak8softDropMass_SR", "AK8 Soft Drop Mass;M;;", 100, 0., 250.);
 	h1_["Zsubjetiness_SR"] = fs->make<TH1D>("Zsubjetiness_SR","Z subjetiness;#tau_{21}M;;", 30, 0, 5);
-	h1_["Hsubjetiness_SR"] = fs->make<TH1D>("Hsubjetiness_SR","H subjetiness;#tau_{21};;", 30, 0, 5);
+  h1_["Hsubjetiness_SR"] = fs->make<TH1D>("Hsubjetiness_SR","H subjetiness;#tau_{21};;", 30, 0, 5);
 	h1_["ZprunedMass_SR"] = fs->make<TH1D>("ZprunedMass_SR","Z Pruned Mass;M;;", 50, 30, 150);
 	h1_["HprunedMass_SR"] = fs->make<TH1D>("HprunedMass_SR","H Pruned Mass;M;;", 100, 0, 180);
   h1_["HsoftDropMass_SR"] = fs->make<TH1D>("HsoftDropMass_SR", "H Soft Drop Mass;M;;", 100, 0., 250.);
@@ -946,7 +939,7 @@ void MassReco::beginJob(){
   h1_["resCon1_bH"] = fs->make<TH1D>("resCon1_bH", "Resolved Reconstruction B->bH;M_{#chi^{2}}(B);;", 1000, 0., 3000);
   h1_["resCon1"] = fs->make<TH1D>("resCon1", "Resolved Reconstruction B->bZ;M_{#chi^{2}}(B);;", 1000, 0., 3000);
   h1_["boostCon1"] = fs->make<TH1D>("boostCon1", "Boosted Reconstruction B->bZ;M_{#chi^{2}}(B);;", 1000, 0., 3000);
-  h1_["comboCon"] = fs->make<TH1D>("comboCon1", "Combo Reconstruction B->bZ;M_{#chi^{2}}(B);;", 1000, 0., 3000);
+  h1_["comboCon1"] = fs->make<TH1D>("comboCon1", "Combo Reconstruction B->bZ;M_{#chi^{2}}(B);;", 1000, 0., 3000);
   h1_["boostCon1_bZ"] = fs->make<TH1D>("boostCon1_bZ", "Boosted Reconstruction B->bZ;M_{#chi^{2}}(B);;", 1000, 0., 3000);
   h1_["boostCon1_bH"] = fs->make<TH1D>("boostCon1_bH", "Boosted Reconstruction B->bH;M_{#chi^{2}}(B);;", 1000, 0., 3000);
   h1_["comboCon1_bZ"] = fs->make<TH1D>("comboCon1_bZ", "Combo Reconstruction B->bZ;M_{#chi^{2}}(B);;", 1000, 0., 3000);
@@ -956,7 +949,7 @@ void MassReco::beginJob(){
   h1_["resCon2_bH"] = fs->make<TH1D>("resCon2_bH", "Resolved Reconstruction B->bH;M_{#chi^{2}}(B);;", 1000, 0., 3000);
   h1_["resCon2"] = fs->make<TH1D>("resCon2", "Resolved Reconstruction B->bZ;M_{#chi^{2}}(B);;", 1000, 0., 3000);
   h1_["boostCon2"] = fs->make<TH1D>("boostCon2", "Boosted Reconstruction B->bZ;M_{#chi^{2}}(B);;", 1000, 0., 3000);
-  h1_["comboCon"] = fs->make<TH1D>("comboCon2", "Combo Reconstruction B->bZ;M_{#chi^{2}}(B);;", 1000, 0., 3000);
+  h1_["comboCon2"] = fs->make<TH1D>("comboCon2", "Combo Reconstruction B->bZ;M_{#chi^{2}}(B);;", 1000, 0., 3000);
   h1_["boostCon2_bZ"] = fs->make<TH1D>("boostCon2_bZ", "Boosted Reconstruction B->bZ;M_{#chi^{2}}(B);;", 1000, 0., 3000);
   h1_["boostCon2_bH"] = fs->make<TH1D>("boostCon2_bH", "Boosted Reconstruction B->bH;M_{#chi^{2}}(B);;", 1000, 0., 3000);
   h1_["comboCon2_bZ"] = fs->make<TH1D>("comboCon2_bZ", "Combo Reconstruction B->bZ;M_{#chi^{2}}(B);;", 1000, 0., 3000);

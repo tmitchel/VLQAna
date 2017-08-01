@@ -120,6 +120,8 @@ class OS2LAna : public edm::EDFilter {
     const bool applyDYNLOCorr_                   ;
     const bool DYDown_                           ;
     const int  tauShift_                         ;
+    const double scaleVal_                       ;
+    const double pdfVal_                         ;
     const std::string fname_DYNLOCorr_           ; 
     const std::string funname_DYNLOCorr_         ; 
     DYNLOEwkKfact dynloewkkfact                  ;
@@ -222,6 +224,8 @@ OS2LAna::OS2LAna(const edm::ParameterSet& iConfig) :
   applyDYNLOCorr_         (iConfig.getParameter<bool>              ("applyDYNLOCorr")),
   DYDown_                 (iConfig.getParameter<bool>              ("DYDown")),
   tauShift_               (iConfig.getParameter<int>               ("tauShift")),
+  scaleVal_               (iConfig.getParameter<double>            ("scaleVal")),
+  pdfVal_               (iConfig.getParameter<double>            ("pdfVal")),
   fname_DYNLOCorr_        (iConfig.getParameter<std::string>       ("File_DYNLOCorr")),
   funname_DYNLOCorr_      (iConfig.getParameter<std::string>       ("Fun_DYNLOCorr")),
   dynloewkkfact           (DYNLOEwkKfact(fname_DYNLOCorr_,funname_DYNLOCorr_)),
@@ -341,6 +345,9 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
 
   h1_["pre_pdf"] -> Fill(1, evtwt);
 
+  evtwt *= scaleVal_;
+  evtwt *= pdfVal_;
+
   h1_["cutflow"] -> Fill(1, evtwt) ;
 
   const bool hltdecision(*h_hltdecision.product()) ; 
@@ -400,7 +407,6 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
       }
     }
   }
-  
 
   //// Get lepton ID and Iso SF
   if  ( !isData_ ) {
@@ -456,7 +462,6 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   //// At least 3 AK4 jets in event
   if (goodAK4Jets.size()  >= NAK4Min_ ) {h1_["cutflow"] -> Fill(6, evtwt) ;} 
   else return false; //// Presel N(AK4) 
-
 
   vlq::JetCollection goodAK8Jets ;
   jetAK8maker(evt, goodAK8Jets); 
@@ -594,7 +599,6 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
 //        }
 //      }
 //    }
-
     std::unique_ptr<double> ptr_fevtwt ( new double(evtwt) ) ;
     std::unique_ptr<double> ptr_prewt ( new double(presel_wt) ) ;
     std::unique_ptr<double> ptr_btagsf          ( new double(btagsf         ) ) ;
@@ -640,8 +644,8 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
 		evt.put(std::move(ptr_st), "st") ;
 
   } //// if skim 
+  
   if ( !maketree_ ) { 
-
     std::string lep("");
     if(zdecayMode_ == "zmumu") {lep = "mu";}
     else if ( zdecayMode_ == "zelel") {lep = "el";}
