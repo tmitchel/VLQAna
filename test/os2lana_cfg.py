@@ -44,7 +44,7 @@ options.register('doPUReweightingOfficial', True,
     VarParsing.varType.bool,
     "Do pileup reweighting using official recipe"
     )
-options.register('filterSignal', True,
+options.register('filterSignal', False,
     VarParsing.multiplicity.singleton,
     VarParsing.varType.bool,
     "Select only tZXX or bZXX modes"
@@ -108,6 +108,11 @@ options.register('optimizeReco', False,
     VarParsing.multiplicity.singleton,
     VarParsing.varType.bool,
     'meh'
+    )
+options.register('pdfFile', 'ttbar',
+    VarParsing.multiplicity.singleton, 
+    VarParsing.varType.string,
+    "name of file with pdfs and scales"
     )
 
 options.setDefault('maxEvents', -1)
@@ -351,17 +356,17 @@ else:
         PileupDown = cms.bool(True),
         )
     if options.filterSignal:
-      process.ScaleUp = process.ana.clone(
+      process.preAnaScaleUp = process.ana.clone(
           lheId = cms.int32(5)
           )
-      process.ScaleDown = process.ana.clone(
+      process.preAnaScaleDown = process.ana.clone(
           lheId = cms.int32(9)
           )
     else:
-      process.ScaleUp = process.ana.clone(
+      process.preAnaScaleUp = process.ana.clone(
           lheId = cms.int32(1005),
           )
-      process.ScaleDown = process.ana.clone(
+      process.preAnaScaleDown = process.ana.clone(
           lheId = cms.int32(1009),
           )
 
@@ -405,22 +410,21 @@ else:
       pdfPath = cms.ignore(process.dummy)
       pdfRecoPath = cms.ignore(process.dummyReco)
 
-    pdfUp, pdfDn = getPdfWeight('bprime800_bZ')
-    #pdfUp, pdfDn = getPdfWeight(options.FileNames)
-    print pdfUp, pdfDn
+    scaleUp, scaleDn, pdfUp, pdfDn = getPdfWeight(options.pdfFile, options.zdecaymode)
+    print scaleUp, scaleDn, pdfUp, pdfDn
 
     process.anaScaleUp = process.ana.clone(
-        scaleVal = cms.double(pdfUp)
+        scaleVal = cms.double(scaleUp)
         )
     process.anaScaleDown = process.ana.clone(
-        scaleVal = cms.double(pdfDn)
+        scaleVal = cms.double(scaleDn)
         )
 
     process.anaPdfUp = process.ana.clone(
-        pdfVal = cms.double(1.)
+        pdfVal = cms.double(pdfUp)
         )
     process.anaPdfDown = process.ana.clone(
-        pdfVal = cms.double(1.)
+        pdfVal = cms.double(pdfDn)
         )
 
 if options.massReco and options.syst:
@@ -491,6 +495,8 @@ if options.massReco and options.syst:
   
   process.recoPileupUp    = process.massReco.clone(Prewt = cms.InputTag("anaPileupUp", "PreWeight"))
   process.recoPileupDown  = process.massReco.clone(Prewt = cms.InputTag("anaPileupDown", "PreWeight"))
+  process.preRecoScaleUp  = process.massReco.clone(Prewt = cms.InputTag("preAnaScaleUp", "PreWeight"))
+  process.preRecoScaleDown= process.massReco.clone(Prewt = cms.InputTag("preAnaScaleDown", "PreWeight"))
   process.recoScaleUp     = process.massReco.clone(Prewt = cms.InputTag("anaScaleUp", "PreWeight"))
   process.recoScaleDown   = process.massReco.clone(Prewt = cms.InputTag("anaScaleDown", "PreWeight"))
   process.recoPdfUp       = process.massReco.clone(Prewt = cms.InputTag("anaPdfUp", "PreWeight"))
@@ -527,6 +533,8 @@ if options.syst and not options.skim and not options.massReco:
     *cms.ignore(process.anaJerDown)
     *cms.ignore(process.anaPileupUp)
     *cms.ignore(process.anaPileupDown)
+    *cms.ignore(process.preAnaScaleUp)
+    *cms.ignore(process.preAnaScaleDown)
     *cms.ignore(process.anaScaleUp)
     *cms.ignore(process.anaScaleDown)
     *cms.ignore(process.anaDYDown)
@@ -555,8 +563,10 @@ elif options.massReco:
       *cms.ignore(process.anaJerDown)
       *cms.ignore(process.anaPileupUp)
       *cms.ignore(process.anaPileupDown)
-      *cms.ignore(process.ScaleUp)
-      *cms.ignore(process.ScaleDown)
+      *cms.ignore(process.preAnaScaleUp)
+      *cms.ignore(process.preAnaScaleDown) 
+      *cms.ignore(process.anaScaleUp)
+      *cms.ignore(process.anaScaleDown)
       *cms.ignore(process.anaScaleUp)
       *cms.ignore(process.anaScaleDown) 
       *cms.ignore(process.anaPdfUp)
@@ -578,6 +588,8 @@ elif options.massReco:
       *cms.ignore(process.recoJerDown)
       *cms.ignore(process.recoPileupUp)
       *cms.ignore(process.recoPileupDown)
+      *cms.ignore(process.preRecoScaleUp)
+      *cms.ignore(process.preRecoScaleDown)
       *cms.ignore(process.recoScaleUp)
       *cms.ignore(process.recoScaleDown)
       *cms.ignore(process.recoPdfUp)

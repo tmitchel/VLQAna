@@ -1085,7 +1085,7 @@ pair<double, double> MassReco::doResolvedReco(vector<vlq::Jet> collection, doubl
 
   int index_array[] = {0, 1, 2, 3, 4};
 
-  for (int mass = 0; mass <= 2000; mass+=5){
+  for (int mass = 0; mass <= 3000; mass+=5){
 
     double loop_check = 10000;
     int n = 0;
