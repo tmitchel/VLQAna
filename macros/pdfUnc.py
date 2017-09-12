@@ -13,9 +13,9 @@ parser.add_option('-d', '--dir', dest = 'dir',
 (options, args) = parser.parse_args()
 
 def getPDF(fin):
-  print fin
+  #print fin
   ifile = ROOT.TFile(fin)
-  pdfs = range(10, 111)
+  pdfs = range(11, 111)
 
   upPdfs_pre = []
   upPdfs_post = []
@@ -32,8 +32,10 @@ def getPDF(fin):
       dnPdfs_pre.append(ifile.Get('pdfProcess'+pdf+'/pre_pdf').Integral())
       dnPdfs_post.append(ifile.Get('pdfProcess'+pdf+'/post_pdf').Integral())
 
-  nom_pre = ifile.Get('pdfProcess10/pre_pdf').Integral()
-  nom_post = ifile.Get('pdfProcess10/post_pdf').Integral()
+
+  nom_pre = ifile.Get('ana/pre_pdf').Integral()
+  nom_post = ifile.Get('ana/post_pdf').Integral()
+  print fin, nom_pre, nom_post, upPdfs_pre[0], upPdfs_post[0], dnPdfs_pre[0], dnPdfs_post[0]
 
   nom_ratio = nom_post / nom_pre
   preUp_sum, postUp_sum, preDn_sum, postDn_sum = 0, 0, 0, 0
@@ -57,11 +59,41 @@ def getPDF(fin):
   up_ratio = postUp_sum / preUp_sum
   dn_ratio = postDn_sum / preDn_sum
 
-  return up_ratio/nom_ratio, dn_ratio/nom_ratio
+  #print fin, nom_post,'/', nom_pre, '\t', postUp_sum,'/', preUp_sum, '\t', postDn_sum,'/', preDn_sum, '\t'
+  if nom_ratio == 0:
+    return -9999, -9999
+  else:
+    return up_ratio/nom_ratio, dn_ratio/nom_ratio
+
+def getScale(fin):
+  ifile = ROOT.TFile(fin)
+
+  nom_pre = ifile.Get('ana/pre_pdf').Integral()
+  up_pre = ifile.Get('anaScaleUp/pre_pdf').Integral()
+  dn_pre = ifile.Get('anaScaleDown/pre_pdf').Integral()
+  nom_post = ifile.Get('ana/post_pdf').Integral()
+  up_post = ifile.Get('anaScaleUp/post_pdf').Integral()
+  dn_post = ifile.Get('anaScaleDown/post_pdf').Integral()
+
+  nom_ratio = nom_post / nom_pre
+  up_ratio = up_post / up_pre
+  dn_ratio = dn_post / dn_pre
+
+  if nom_ratio > 0:
+    return up_ratio / nom_ratio, dn_ratio / nom_ratio
+  else:
+    return -9999, -9999
 
 fins = glob('*.root')
-out = open('pdfuncerts_v3.log', 'w')
+out = open('pdfuncerts_v4.log', 'w')
 for fin in fins:
+  if 'W' in fin or 'ZZ' in fin:
+    continue
+  sup, sdown = getScale(fin)
   up, down = getPDF(fin)
   #out.write('mass %s: \n \t scales: up - %1.3f, down - %1.3f\n\n' % (fin.split('/')[-1], up, down))
-  out.write("%s %1.3f %1.3f  -\n" % (fin.split('/')[-1], up, down))
+  out.write("%s %1.3f %1.3f %1.3f %1.3f  -\n" % (fin.split('/')[-1], sup, sdown, up, down))
+
+
+
+
