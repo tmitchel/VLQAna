@@ -15,7 +15,7 @@ parser.add_option('-d', '--dir', dest = 'dir',
 def getPDF(fin):
   print fin
   ifile = ROOT.TFile(fin)
-  pdfs = range(11, 111)
+  pdfs = range(10, 111)
 
   upPdfs_pre = []
   upPdfs_post = []
