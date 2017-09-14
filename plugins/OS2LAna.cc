@@ -334,16 +334,18 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   else if (PileupDown_)  evtwt = (*h_evtwtGen.product()) * (*h_evtwtPVLow.product()) ;
   else                   evtwt = (*h_evtwtGen.product()) * (*h_evtwtPV.product()) ;
 
+  double pdfShift(1.);
   if (!isData_){
     for (auto& lhe : lhe_id_wts){
       if (lhe.first == lheId_)
         evtwt *= lhe.second;
-      if (lhe.first == pdfId_)
-        evtwt *= lhe.second;
+      if (lhe.first == pdfId_) 
+        pdfShift = lhe.second;
     }
   }
 
-  h1_["pre_pdf"] -> Fill(1, evtwt);
+  evtwt *= pdfShift;
+  h1_["pre_pdf"] -> Fill(1, pdfShift);
 
   evtwt *= scaleVal_;
   evtwt *= pdfVal_;
@@ -811,7 +813,7 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
         && ST > STMin_ 
        ) { //// Signal region 
 
-      h1_["post_pdf"] -> Fill(1, evtwt);
+      h1_["post_pdf"] -> Fill(1, pdfShift);
 
 
       //// fill all the plots in signal region

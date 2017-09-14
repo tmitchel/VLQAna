@@ -33,8 +33,8 @@ def getPDF(fin):
       dnPdfs_post.append(ifile.Get('pdfProcess'+pdf+'/post_pdf').Integral())
 
 
-  nom_pre = ifile.Get('ana/pre_pdf').Integral()
-  nom_post = ifile.Get('ana/post_pdf').Integral()
+  nom_pre = ifile.Get('pdfProcess10/pre_pdf').Integral()
+  nom_post = ifile.Get('pdfProcess10/post_pdf').Integral()
   print fin, nom_pre, nom_post, upPdfs_pre[0], upPdfs_post[0], dnPdfs_pre[0], dnPdfs_post[0]
 
   nom_ratio = nom_post / nom_pre
@@ -85,7 +85,7 @@ def getScale(fin):
     return -9999, -9999
 
 fins = glob('*.root')
-out = open('pdfuncerts_v4.log', 'w')
+out = open('pdfuncerts_v5.log', 'w')
 for fin in fins:
   if 'W' in fin or 'ZZ' in fin:
     continue
