@@ -109,11 +109,6 @@ options.register('optimizeReco', False,
     VarParsing.varType.bool,
     'meh'
     )
-options.register('pdfFile', 'ttbar',
-    VarParsing.multiplicity.singleton, 
-    VarParsing.varType.string,
-    "name of file with pdfs and scales"
-    )
 
 options.setDefault('maxEvents', -1)
 options.parseArguments()
@@ -164,7 +159,8 @@ from inputFiles_cfi import *
 process.source = cms.Source(
   "PoolSource",
   fileNames = cms.untracked.vstring(
-    FileNames[options.FileNames]
+    'root://eoscms.cern.ch//store/group/phys_b2g/B2GAnaFW_80X_V2p4/BprimeBprime_M-800_TuneCUETP8M1_13TeV-madgraph-pythia8/B2GAnaFW_RunIISpring16MiniAODv2_25ns_v80x_v2p4/170122_192852/0000/B2GEDMNtuple_1.root'
+    #FileNames[options.FileNames]
  ) 
   )
 
@@ -270,12 +266,9 @@ if options.maketree:
 else: 
   process.ana.STMin = cms.double(1000.)
   process.ana.HTMin = cms.double(200.)
-if options.filterSignal:
-  process.ana.lheId = cms.int32(1)
-  process.ana.pdfId = cms.int32(-1)
-else:
-  process.ana.lheId = cms.int32(1001)
-  process.ana.pdfId = cms.int32(-1)
+
+process.ana.pdfID_offset = cms.int32(9)
+process.ana.scale_offset = cms.int32(0)
 
 process.load('Analysis.VLQAna.MassReco_cfi')
 process.massReco.ptMin = cms.double(150.)
@@ -283,6 +276,7 @@ process.massReco.zdecaymode = cms.string(options.zdecaymode)
 process.massReco.signalType = cms.string(options.signalType)
 process.massReco.controlReco = cms.bool(options.controlReco)
 process.massReco.optimizeReco = cms.bool(options.optimizeReco)
+process.massReco.isData = cms.bool(options.isData)
 
 if options.skim: 
   process.ana.jetAK4selParams.jetPtMin = cms.double(20) 
@@ -355,21 +349,6 @@ else:
     process.anaPileupDown = process.ana.clone(
         PileupDown = cms.bool(True),
         )
-    if options.filterSignal:
-      process.preAnaScaleUp = process.ana.clone(
-          lheId = cms.int32(5)
-          )
-      process.preAnaScaleDown = process.ana.clone(
-          lheId = cms.int32(9)
-          )
-    else:
-      process.preAnaScaleUp = process.ana.clone(
-          lheId = cms.int32(1005),
-          )
-      process.preAnaScaleDown = process.ana.clone(
-          lheId = cms.int32(1009),
-          )
-
     process.anaDYDown = process.ana.clone(
         DYDown = cms.bool(True),
         )
@@ -380,51 +359,6 @@ else:
 
     process.anatauDown = process.ana.clone(
         tauShift = cms.int32(-1),
-        )
-
-    for i in range(10, 111):
-      if options.filterSignal:
-        setattr(process, 'pdfProcess'+str(i), process.ana.clone(pdfId = i))
-        setattr(process, 'pdfReco'+str(i), process.massReco.clone(Prewt = cms.InputTag("pdfProcess"+str(i), "PreWeight")))
-      elif not options.filterSignal and not 'vv' in options.btageffmap:
-        setattr(process, 'pdfProcess'+str(i), process.ana.clone(pdfId = 1991+i))
-        setattr(process, 'pdfReco'+str(i), process.massReco.clone(Prewt = cms.InputTag("pdfProcess"+str(i), "PreWeight")))
-
-    pdfProcesses = []
-    pdfRecos = []
-    for proc in dir(process):
-      if 'pdfProcess' in proc:
-        pdfProcesses.append(getattr(process, proc))
-      elif 'pdfReco' in proc: 
-        pdfRecos.append(getattr(process, proc))
- 
-    if len(pdfProcesses) > 0:
-      pdfPath = cms.ignore(process.pdfProcess10)
-      pdfRecoPath = cms.ignore(process.pdfReco10)
-      for pdf in range(1, len(pdfProcesses)):
-        pdfPath *= cms.ignore(pdfProcesses[pdf])
-        pdfRecoPath *= cms.ignore(pdfRecos[pdf])
-    else:
-      process.dummy = process.ana.clone()
-      process.dummyReco = process.massReco.clone()
-      pdfPath = cms.ignore(process.dummy)
-      pdfRecoPath = cms.ignore(process.dummyReco)
-
-    scaleUp, scaleDn, pdfUp, pdfDn = getPdfWeight(options.pdfFile, options.zdecaymode)
-    print scaleUp, scaleDn, pdfUp, pdfDn
-
-    process.anaScaleUp = process.ana.clone(
-        scaleVal = cms.double(scaleUp)
-        )
-    process.anaScaleDown = process.ana.clone(
-        scaleVal = cms.double(scaleDn)
-        )
-
-    process.anaPdfUp = process.ana.clone(
-        pdfVal = cms.double(pdfUp)
-        )
-    process.anaPdfDown = process.ana.clone(
-        pdfVal = cms.double(pdfDn)
         )
 
 if options.massReco and options.syst:
@@ -495,12 +429,6 @@ if options.massReco and options.syst:
   
   process.recoPileupUp    = process.massReco.clone(Prewt = cms.InputTag("anaPileupUp", "PreWeight"))
   process.recoPileupDown  = process.massReco.clone(Prewt = cms.InputTag("anaPileupDown", "PreWeight"))
-  process.preRecoScaleUp  = process.massReco.clone(Prewt = cms.InputTag("preAnaScaleUp", "PreWeight"))
-  process.preRecoScaleDown= process.massReco.clone(Prewt = cms.InputTag("preAnaScaleDown", "PreWeight"))
-  process.recoScaleUp     = process.massReco.clone(Prewt = cms.InputTag("anaScaleUp", "PreWeight"))
-  process.recoScaleDown   = process.massReco.clone(Prewt = cms.InputTag("anaScaleDown", "PreWeight"))
-  process.recoPdfUp       = process.massReco.clone(Prewt = cms.InputTag("anaPdfUp", "PreWeight"))
-  process.recoPdfDown     = process.massReco.clone(Prewt = cms.InputTag("anaPdfDown", "PreWeight"))
   process.recotauUp       = process.massReco.clone(Prewt = cms.InputTag("anatauUp", "PreWeight"))
   process.recotauDown     = process.massReco.clone(Prewt = cms.InputTag("anatauDown", "PreWeight"))
   process.recoDYDown      = process.massReco.clone(Prewt = cms.InputTag("anaDYdown", "PreWeight"))
@@ -533,16 +461,11 @@ if options.syst and not options.skim and not options.massReco:
     *cms.ignore(process.anaJerDown)
     *cms.ignore(process.anaPileupUp)
     *cms.ignore(process.anaPileupDown)
-    *cms.ignore(process.preAnaScaleUp)
-    *cms.ignore(process.preAnaScaleDown)
-    *cms.ignore(process.anaScaleUp)
-    *cms.ignore(process.anaScaleDown)
     *cms.ignore(process.anaDYDown)
     *cms.ignore(process.anatauUp)
     *cms.ignore(process.anatauDown) 
     *cms.ignore(process.anaJmrUp)
     *cms.ignore(process.anaJmrDown)
-    *pdfPath
 
     )
 elif options.massReco:
@@ -563,20 +486,11 @@ elif options.massReco:
       *cms.ignore(process.anaJerDown)
       *cms.ignore(process.anaPileupUp)
       *cms.ignore(process.anaPileupDown)
-      *cms.ignore(process.preAnaScaleUp)
-      *cms.ignore(process.preAnaScaleDown) 
-      *cms.ignore(process.anaScaleUp)
-      *cms.ignore(process.anaScaleDown)
-      *cms.ignore(process.anaScaleUp)
-      *cms.ignore(process.anaScaleDown) 
-      *cms.ignore(process.anaPdfUp)
-      *cms.ignore(process.anaPdfDown)
       *cms.ignore(process.anaDYDown)
       *cms.ignore(process.anatauUp)
       *cms.ignore(process.anatauDown)
       *cms.ignore(process.anaJmrUp)
       *cms.ignore(process.anaJmrDown)
-      *pdfPath
 
       *cms.ignore(process.recobcUp)
       *cms.ignore(process.recobcDown)
@@ -588,17 +502,10 @@ elif options.massReco:
       *cms.ignore(process.recoJerDown)
       *cms.ignore(process.recoPileupUp)
       *cms.ignore(process.recoPileupDown)
-      *cms.ignore(process.preRecoScaleUp)
-      *cms.ignore(process.preRecoScaleDown)
-      *cms.ignore(process.recoScaleUp)
-      *cms.ignore(process.recoScaleDown)
-      *cms.ignore(process.recoPdfUp)
-      *cms.ignore(process.recoPdfDown)
       *cms.ignore(process.recotauUp)
       *cms.ignore(process.recotauDown) 
       *cms.ignore(process.recoJmrUp)
       *cms.ignore(process.recoJmrDown)
-      *pdfRecoPath
 
       *process.massReco
       *process.finalEvents

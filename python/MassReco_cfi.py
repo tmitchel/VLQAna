@@ -3,6 +3,8 @@ import FWCore.ParameterSet.Config as cms
 from Analysis.VLQAna.PickGenPart_cfi import *
 
 massReco = cms.EDFilter("MassReco",
+    lhewtids = cms.InputTag("evtcleaner", "lhewtids"),
+    lhewts   = cms.InputTag("evtcleaner", "lhewts"),
     met      = cms.InputTag("metFull", "metFullPt"),
     elPt     = cms.InputTag("electrons", "elPt"),
     elEta    = cms.InputTag("electrons", "elEta"),
@@ -30,6 +32,10 @@ massReco = cms.EDFilter("MassReco",
 		optimizeReco = cms.bool(False),
 		controlReco = cms.bool(False),
     doSkim   = cms.bool(False),
+    isData   = cms.bool(False),
+    pdfID_offset = cms.int32(1),
+    scale_offset = cms.int32(1),
+    
 
  		genParams = getSelectParams,	
  

@@ -20,6 +20,7 @@ Implementation:
 #include <iostream>
 #include <memory>
 #include <vector>
+#include <math.h>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDFilter.h"
@@ -113,15 +114,14 @@ class OS2LAna : public edm::EDFilter {
     const bool PileupUp_                         ;
     const bool PileupDown_                       ;   
     const int lheId_                             ;
-    const int pdfId_                             ;
     const bool applyLeptonIDSFs_                 ;
     const bool applyLeptonTrigSFs_               ;
     const bool applyBTagSFs_                     ;
     const bool applyDYNLOCorr_                   ;
     const bool DYDown_                           ;
     const int  tauShift_                         ;
-    const double scaleVal_                       ;
-    const double pdfVal_                         ;
+    const int pdfID_offset_                      ;
+    const int scale_offset_                      ;
     const std::string fname_DYNLOCorr_           ; 
     const std::string funname_DYNLOCorr_         ; 
     DYNLOEwkKfact dynloewkkfact                  ;
@@ -217,15 +217,14 @@ OS2LAna::OS2LAna(const edm::ParameterSet& iConfig) :
   PileupUp_               (iConfig.getParameter<bool>              ("PileupUp")),
   PileupDown_             (iConfig.getParameter<bool>              ("PileupDown")),
   lheId_                  (iConfig.getParameter<int>               ("lheId")),
-  pdfId_                  (iConfig.getParameter<int>               ("pdfId")),
   applyLeptonIDSFs_       (iConfig.getParameter<bool>              ("applyLeptonIDSFs")), 
   applyLeptonTrigSFs_     (iConfig.getParameter<bool>              ("applyLeptonTrigSFs")),
   applyBTagSFs_           (iConfig.getParameter<bool>              ("applyBTagSFs")),
   applyDYNLOCorr_         (iConfig.getParameter<bool>              ("applyDYNLOCorr")),
   DYDown_                 (iConfig.getParameter<bool>              ("DYDown")),
   tauShift_               (iConfig.getParameter<int>               ("tauShift")),
-  scaleVal_               (iConfig.getParameter<double>            ("scaleVal")),
-  pdfVal_               (iConfig.getParameter<double>            ("pdfVal")),
+  pdfID_offset_           (iConfig.getParameter<int>               ("pdfID_offset")),
+  scale_offset_           (iConfig.getParameter<int>               ("scale_offset")),
   fname_DYNLOCorr_        (iConfig.getParameter<std::string>       ("File_DYNLOCorr")),
   funname_DYNLOCorr_      (iConfig.getParameter<std::string>       ("Fun_DYNLOCorr")),
   dynloewkkfact           (DYNLOEwkKfact(fname_DYNLOCorr_,funname_DYNLOCorr_)),
@@ -334,27 +333,23 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   else if (PileupDown_)  evtwt = (*h_evtwtGen.product()) * (*h_evtwtPVLow.product()) ;
   else                   evtwt = (*h_evtwtGen.product()) * (*h_evtwtPV.product()) ;
 
-  double pdfShift(1.);
-  if (!isData_){
-    for (auto& lhe : lhe_id_wts){
-      if (lhe.first == lheId_)
-        evtwt *= lhe.second;
-      if (lhe.first == pdfId_) 
-        pdfShift = lhe.second;
+  h1_["cutflow"] -> Fill(1, evtwt) ;
+
+  if (!isData) {
+    for (unsigned i = 0; i < 9; i++){
+    //  std::cout << lhe_id_wts.at(i+scale_offset_).first << std::endl;
+    //  std::cout << "printed scale" << std::endl;
+      h1_[Form("pre_scale%d", i+1)] ->Fill(1, lhe_id_wts.at(i+scale_offset_).second);
+    }
+    for (unsigned i = 0; i < 100; i++) {
+    //  std::cout << lhe_id_wts.at(i+pdfID_offset_).first << std::endl;
+      h1_[Form("pre_pdf%d", i+1)] -> Fill(1, lhe_id_wts.at(i+pdfID_offset_).second);
     }
   }
 
-  evtwt *= pdfShift;
-  h1_["pre_pdf"] -> Fill(1, pdfShift);
-
-  evtwt *= scaleVal_;
-  evtwt *= pdfVal_;
-
-  h1_["cutflow"] -> Fill(1, evtwt) ;
-
   const bool hltdecision(*h_hltdecision.product()) ; 
   if ( hltdecision ) h1_["cutflow"] -> Fill(2, evtwt) ;
-  else return false; //// Presel: HLT  
+  else return false; //// Presel: HLT 
 
   vlq::MuonCollection goodMuons; 
   muonmaker(evt, goodMuons) ; 
@@ -813,8 +808,14 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
         && ST > STMin_ 
        ) { //// Signal region 
 
-      h1_["post_pdf"] -> Fill(1, pdfShift);
-
+      if (!isData) {
+        for (unsigned i = 0; i < 9; i++) {
+          h1_[Form("st_scale%d", i+1)] -> Fill(ST, evtwt*lhe_id_wts.at(i+scale_offset_).second );
+        }
+        for (unsigned i = 0; i < 100; i++) {
+          h1_[Form("st_pdf%d", i+1)] -> Fill(ST, evtwt*lhe_id_wts.at(i+pdfID_offset_).second );
+        }
+      }
 
       //// fill all the plots in signal region
       for (auto izll : zll) {
@@ -1133,6 +1134,20 @@ void OS2LAna::beginJob() {
     TFileDirectory cnt = fs->mkdir ("cnt");
     TFileDirectory *bookDir[3]; bookDir[0] = &pre; bookDir[1] = &cnt; bookDir[2] = &sig;
     std::vector<string> suffix = {"_pre", "_cnt", ""};
+
+    for (unsigned i = 0; i < 9; i++) {
+      string preName_scale = Form("pre_scale%d", i+1);
+      string STName_scale = Form("st_scale%d", i+1);
+      h1_[preName_scale.c_str()] = fs->make<TH1D>(preName_scale.c_str(), "preScale", 100, 0., 4000.);
+      h1_[STName_scale.c_str()] = fs->make<TH1D>(STName_scale.c_str(), "scaleST", 100, 0., 4000.);
+    }
+
+    for (unsigned i = 0; i < 101; i++) {
+      string preName_pdf = Form("pre_pdf%d", i+1);
+      string STName_pdf = Form("st_pdf%d", i+1);
+      h1_[preName_pdf.c_str()] = fs->make<TH1D>(preName_pdf.c_str(), "prePDF", 100, 0., 4000.);
+      h1_[STName_pdf.c_str()] = fs->make<TH1D>(STName_pdf.c_str(), "pdfST", 100, 0., 4000.);
+    }
 
     for (int i=0; i<3; i++){
       h1_[("npv_noweight"+suffix[i]).c_str()] = bookDir[i]->make<TH1D>( ("npv_noweight"+suffix[i]).c_str(), ";N(PV);;", 51, -0.5, 50.5) ; 
