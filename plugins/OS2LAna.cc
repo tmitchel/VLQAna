@@ -122,6 +122,8 @@ class OS2LAna : public edm::EDFilter {
     const int  tauShift_                         ;
     const int pdfID_offset_                      ;
     const int scale_offset_                      ;
+    const bool syst_                             ;
+    const bool vv_                               ;
     const std::string fname_DYNLOCorr_           ; 
     const std::string funname_DYNLOCorr_         ; 
     DYNLOEwkKfact dynloewkkfact                  ;
@@ -225,6 +227,8 @@ OS2LAna::OS2LAna(const edm::ParameterSet& iConfig) :
   tauShift_               (iConfig.getParameter<int>               ("tauShift")),
   pdfID_offset_           (iConfig.getParameter<int>               ("pdfID_offset")),
   scale_offset_           (iConfig.getParameter<int>               ("scale_offset")),
+  syst_                   (iConfig.getParameter<bool>               ("syst")),
+  vv_                     (iConfig.getParameter<bool>              ("vv")),
   fname_DYNLOCorr_        (iConfig.getParameter<std::string>       ("File_DYNLOCorr")),
   funname_DYNLOCorr_      (iConfig.getParameter<std::string>       ("Fun_DYNLOCorr")),
   dynloewkkfact           (DYNLOEwkKfact(fname_DYNLOCorr_,funname_DYNLOCorr_)),
@@ -335,7 +339,7 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
 
   h1_["cutflow"] -> Fill(1, evtwt) ;
 
-  if (!isData) {
+  if (!isData && !syst_ && !vv_) {
     for (unsigned i = 0; i < 9; i++){
     //  std::cout << lhe_id_wts.at(i+scale_offset_).first << std::endl;
     //  std::cout << "printed scale" << std::endl;
@@ -345,6 +349,7 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
     //  std::cout << lhe_id_wts.at(i+pdfID_offset_).first << std::endl;
       h1_[Form("pre_pdf%d", i+1)] -> Fill(1, lhe_id_wts.at(i+pdfID_offset_).second);
     }
+
   }
 
   const bool hltdecision(*h_hltdecision.product()) ; 
@@ -808,7 +813,7 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
         && ST > STMin_ 
        ) { //// Signal region 
 
-      if (!isData) {
+      if (!isData && !syst_ && !vv_) {
         for (unsigned i = 0; i < 9; i++) {
           h1_[Form("st_scale%d", i+1)] -> Fill(ST, evtwt*lhe_id_wts.at(i+scale_offset_).second );
         }

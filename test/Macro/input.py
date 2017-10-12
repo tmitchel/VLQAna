@@ -3,114 +3,65 @@
 # =====================================================
 #  INPUTS		
 # =====================================================
-path = '/uscms_data/d2/skhalil/MyVLQAna2/CMSSW_7_4_15_patch1/src/Analysis/VLQAna/test/CRAB_On_Skim/Histo/'
-pathR = '/uscms_data/d3/dmendis/Rachitha2/CMSSW_7_4_16_patch2/src/Analysis/VLQAna/test/CRAB_0n_Skim/Histo/'
-#path = '/Users/skhalil/Desktop/Analysis/OSDL/Macro/Analysis/Histo/'
-ch = 'CR_Zelel'
+path = '/uscms_data/d3/tmitchel/update80X/CMSSW_8_0_20/src/Analysis/VLQAna/test/Macro/rootFiles/Zmumu/Oct10_bugFix/'
+ch = 'CR_Zmumu'
 
-f_Data_Oct2015 = TFile(path+'DoubleEG-Run2015D-05Oct2015-v1_os2lana_v0_'+ch+'.root')
-f_Data_PromptReco = TFile(path+'DoubleEG-Run2015D-PromptReco-v4_os2lana_v1_'+ch+'.root')
+f_Data_PromptReco = TFile(path+'ttbar.root')
 
-f_DY100to200 = TFile(path+'DY_HT100to200_os2lana_v1_'+ch+'.root')
-f_DY200to400 = TFile(path+'DY_HT200to400_os2lana_v1_'+ch+'.root')
-f_DY400to600 = TFile(path+'DY_HT400to600_os2lana_v1_'+ch+'.root')
-f_DY600toInf = TFile(path+'DY_HT600toInf_os2lana_v1_'+ch+'.root')
-f_DYmcnlo    = TFile(path+'DY_amcatnlo_os2lana_v1_'+ch+'.root')
+f_DY100to200 = TFile(path+'dy_pt100to250.root')
+f_DY200to400 = TFile(path+'dy_pt250to400.root')
+f_DY400to600 = TFile(path+'dy_pt400to650.root')
+f_DY600toInf = TFile(path+'dy_pt650toInf.root')
 
-f_WJ100to200 = TFile(path+'WJetsToLNu_HT-100To200_os2lana_v1_'+ch+'.root')
-f_WJ200to400 = TFile(path+'WJetsToLNu_HT-200To400_os2lana_v1_'+ch+'.root')
-f_WJ400to600 = TFile(path+'WJetsToLNu_HT-400To600_os2lana_v1_'+ch+'.root')
-f_WJ600to800 = TFile(path+'WJetsToLNu_HT-600To800_os2lana_v1_'+ch+'.root')
-f_WJ800to1200 = TFile(path+'WJetsToLNu_HT-800To1200_os2lana_v1_'+ch+'.root')
-f_WJ1200to2500 = TFile(path+'WJetsToLNu_HT-1200To2500_os2lana_v1_'+ch+'.root')
-f_WJ2500toInf = TFile(path+'WJetsToLNu_HT-2500ToInf_os2lana_v1_'+ch+'.root')
+f_ZZTo2L2Nu     = TFile(path+'ZZ.root')
+f_WZTo2L2Q      = TFile(path+'WZ.root')
+f_WWTo2L2Nu     = TFile(path+'WW.root')
 
-f_ST_tW_top     = TFile(path+'ST_tW_5f_top_powheg-pythia8_os2lana_v1_'+ch+'.root')
-f_ST_tW_antitop = TFile(path+'ST_tW_5f_antitop_powheg-pythia8_os2lana_v1_'+ch+'.root')
-f_ST_t          = TFile(path+'ST_t_4f_amcatnlo-pythia8_os2lana_v1_'+ch+'.root')
-f_ST_t_ex1      = TFile(path+'ST_t_4f_amcatnlo-pythia8_ext1_os2lana_v1_'+ch+'.root')
-f_ST_s          = TFile(path+'ST_s_4f_amcatnlo-pythia8_os2lana_v1_'+ch+'.root')
+f_ttbar         = TFile(path+'ttbar.root')
 
-f_ZZTo2L2Nu     = TFile(path+'ZZTo2L2Nu_powheg_pythia8_os2lana_v1_'+ch+'.root')
-f_WZTo2L2Q      = TFile(path+'WZTo2L2Q_amcatnlo_os2lana_v1_'+ch+'.root')
-f_WWTo2L2Nu     = TFile(path+'WWTo2L2Nu_powheg_os2lana_v1_'+ch+'.root')
-
-f_ttbar         = TFile(path+'TT-powheg-pythia8-ext3_os2lana_v1_'+ch+'.root')
-
-f_TpTp_tZtZ_800 = TFile(path+'TpTp_tZtZ_M-800_os2lana_v1_'+ch+'.root')
-f_TpTp_tZbW_800 = TFile(path+'TpTp_tZbW_M-800_os2lana_v1_'+ch+'.root')
-f_TpTp_tZtH_800 = TFile(path+'TpTp_tZtH_M-800_os2lana_v1_'+ch+'.root')
-
-f_TpTp_tZtZ_900 = TFile(path+'TpTp_tZtZ_M-900_os2lana_v1_'+ch+'.root')
-f_TpTp_tZbW_900 = TFile(path+'TpTp_tZbW_M-900_os2lana_v1_'+ch+'.root')
-f_TpTp_tZtH_900 = TFile(path+'TpTp_tZtH_M-900_os2lana_v1_'+ch+'.root')
-
-f_TpTp_tZtZ_1000 = TFile(path+'TpTp_tZtZ_M-1000_os2lana_v1_'+ch+'.root')
-f_TpTp_tZbW_1000 = TFile(path+'TpTp_tZbW_M-1000_os2lana_v1_'+ch+'.root')
-f_TpTp_tZtH_1000 = TFile(path+'TpTp_tZtH_M-1000_os2lana_v1_'+ch+'.root')
+f_BpBp_bZbZ_800  = TFile(path+'bprime800_bZ.root')
+#f_BpBp_bZbZ_1000  = TFile(path+'bprime1000_bZ.root')
+f_BpBp_bZbZ_1200 = TFile(path+'bprime1200_bZ.root')
+#f_BpBp_bZbH_800  = TFile(path+'bprime800_bH.root')
+#f_BpBp_bZbH_1000 = TFile(path+'bprime1000_bH.root')
+#f_BpBp_bZbH_1200 = TFile(path+'bprime1200_bH.root')
 
 
 #===== cross sections (pb)==========
 
-Top_xs            = 831.76  *gSF
-DY100to200_xs     = 147.4   *gSF *1.23
-DY200to400_xs     = 40.99   *gSF *1.23
-DY400to600_xs     = 5.678   *gSF *1.23
-DY600toInf_xs     = 2.198   *gSF *1.23
-DY_xs             = 6025.2  *gSF
-WJ100to200_xs     = 1345.0  *gSF *1.21 
-WJ200to400_xs     = 359.7   *gSF *1.21
-WJ400to600_xs     = 48.9    *gSF *1.21
-WJ600to800_xs     = 12.05   *gSF *1.21
-WJ800to1200_xs    = 5.501   *gSF *1.21
-WJ1200to2500_xs   = 1.329   *gSF *1.21
-WJ2500toInf_xs    = 0.03216 *gSF *1.21
-ST_tW_top_xs      = 35.6    *gSF
-ST_tW_antitop_xs  = 35.6    *gSF 
-ST_t_xs           = 70.69   *gSF
-ST_s_xs           = 3.36    *gSF 
-ZZTo2L2Nu_xs      = 0.564   *gSF
-WZTo2L2Q_xs       = 3.22    *gSF
-WWTo2L2Nu_xs      = 12.178  *gSF
-TpTp800_xs        = 0.196   *gSF  
-TpTp900_xs        = 0.0903  *gSF
-TpTp1000_xs       = 0.044   *gSF
-TpTp1200_xs       = 0.0118  *gSF
-TpTp1500_xs       = 0.00200 *gSF
+Top_xs            = 831.76  *gSF * 0.9
+DY100to200_xs     = 83.12   *gSF 
+DY200to400_xs     = 3.047   *gSF 
+DY400to600_xs     = 0.3921  *gSF 
+DY600toInf_xs     = 0.03636 *gSF 
+ZZTo2L2Nu_xs      = 16.91   *gSF
+WZTo2L2Q_xs       = 46.74   *gSF
+WWTo2L2Nu_xs      = 118.7   *gSF
 
+BpBp800_xs        = 0.196 * gSF
+BpBp1000_xs       = 0.044 * gSF
+BpBp1200_xs       = 0.0118 * gSF
 
 #===== Number of generated events ======
 
-Top_num          =  96834559.
-DY100to200_num   =  2725655.
-DY200to400_num   =  973937.
-DY400to600_num   =  1067758.
-DY600toInf_num   =  998912.
-DYmcnlo_num      =  28825132.
-WJ100to200_num   =  10152718.
-WJ200to400_num   =  5221599.
-WJ400to600_num   =  1745914.
-WJ600to800_num   =  4041997.
-WJ800to1200_num  =  1574633.
-WJ1200to2500_num =  255637.
-WJ2500toInf_num  =  253036.
-ST_tW_top_num    =  995600.
-ST_tW_antitop_num=  988500.
-ST_t_num         =  19904330.
-ST_t_ex1_num     =  29954054. 
-ST_s_num         =  984400.  
-ZZTo2L2Nu_num    =  8719200.
-WZTo2L2Q_num     =  31394787.
-WWTo2L2Nu_num    =  1965200.
-TpTp800_num      =  815600./3.
-TpTp900_num      =  832800./3.
-TpTp1000_num     =  822800./3.
-TpTp1200_num     =  832800./3.
-TpTp1500_num     =  812800./3.
-
+Top_num          =  f_ttbar.Get("allEvents/hEventCount_nowt").GetBinContent(1)
+DY100to200_num   =  f_DY100to200.Get("allEvents/hEventCount_nowt").GetBinContent(1)
+DY200to400_num   =  f_DY200to400.Get("allEvents/hEventCount_nowt").GetBinContent(1)
+DY400to600_num   =  f_DY400to600.Get("allEvents/hEventCount_nowt").GetBinContent(1)
+DY600toInf_num   =  f_DY600toInf.Get("allEvents/hEventCount_nowt").GetBinContent(1)
+ZZTo2L2Nu_num    =  f_ZZTo2L2Nu.Get("allEvents/hEventCount_nowt").GetBinContent(1)
+WZTo2L2Q_num     =  f_WZTo2L2Q.Get("allEvents/hEventCount_nowt").GetBinContent(1)
+WWTo2L2Nu_num    =  f_WWTo2L2Nu.Get("allEvents/hEventCount_nowt").GetBinContent(1)
+BpBp800_bZ_num      =  f_BpBp_bZbZ_800.Get('ana/signalEvts').GetBinContent(1)
+#BpBp1000_bZ_num     =  f_BpBp_bZbZ_1000.Get('ana/signalEvts').GetBinContent(1)
+BpBp1200_bZ_num     =  f_BpBp_bZbZ_1200.Get('ana/signalEvts').GetBinContent(1)
+#BpBp800_bH_num      =  f_BpBp_bZbH_800.Get('ana/signalEvts').GetBinContent(1)
+#BpBp1000_bH_num     =  f_BpBp_bZbH_1000.Get('ana/signalEvts').GetBinContent(1)
+#BpBp1200_bH_num     =  f_BpBp_bZbH_1200.Get('ana/signalEvts').GetBinContent(1)
 
 # Legend
 leg = TLegend(0.76,0.88,0.94,0.50)
+#leg = TLegend(0.73, 0.92, 0.98, 0.55)
 leg.SetBorderSize(0)
 leg.SetFillColor(10)
 leg.SetLineColor(10)
@@ -145,7 +96,7 @@ def prepareRatio(h_ratio, h_ratiobkg, scale, xTitle):
     h_ratio.GetYaxis().SetTitleSize(0.08*scale)
     h_ratio.GetYaxis().SetTitleFont(42)
     h_ratio.GetXaxis().SetLabelSize(0.06*scale)
-    h_ratio.GetXaxis().SetTitleOffset(0.45*scale)
+    h_ratio.GetXaxis().SetTitleOffset(.45*scale)
     h_ratio.GetXaxis().SetTitleSize(0.09*scale)
     h_ratio.GetYaxis().SetNdivisions(505)
     h_ratio.GetXaxis().SetNdivisions(510)
@@ -159,7 +110,7 @@ def prepareRatio(h_ratio, h_ratiobkg, scale, xTitle):
     h_ratio_bkg.GetYaxis().SetTitleOffset(1.00/scale*0.6)
     h_ratio_bkg.GetYaxis().SetTitleSize(0.08*scale)
     h_ratio_bkg.GetYaxis().SetTitleFont(42)
-    h_ratio_bkg.GetXaxis().SetLabelSize(0.08*scale)
+    h_ratio_bkg.GetXaxis().SetLabelSize(0.06*scale)
     h_ratio_bkg.GetXaxis().SetTitleOffset(0.45*scale)
     h_ratio_bkg.GetXaxis().SetTitleSize(0.09*scale)
     h_ratio_bkg.GetYaxis().SetNdivisions(505)
@@ -188,10 +139,11 @@ def setCosmetics(hist, legname, hname, color):
     if 'Data' in hname:
         leg.AddEntry(hist, legname, 'pl')
         hist.SetMarkerStyle(8)
-    elif 'tZ' in hname:          
+    elif 'bZ' in hname or 'bH' in hname:          
         hist.SetLineWidth(2)
         leg.AddEntry(hist, legname, 'l')
     else:
+        print 'hi'
         hist.SetFillColor(color)
         leg.AddEntry(hist, legname, 'f')
 
@@ -205,6 +157,21 @@ def getHisto( label, leg, dir, var, Samples, color, verbose) :
         lumi = iSample[3]
         readname = dir+'/'+var
         hist  = ifile.Get( readname ).Clone()
+#        hist2 = TH1D('cutflow', 'cut flow', 9, 0.5, 9.5)
+#        hist2.GetXaxis().SetBinLabel(1, 'Trig.')
+#        hist2.GetXaxis().SetBinLabel(2, 'l^{+}l^{-}')
+#        hist2.GetXaxis().SetBinLabel(3, '75 < M(l^{+}l^{-} < 105')
+#        hist2.GetXaxis().SetBinLabel(4, 'H_{T} #geq 200')
+#        hist2.GetXaxis().SetBinLabel(5, 'N (AK4) #geq 3')
+#        hist2.GetXaxis().SetBinLabel(6, 'leading jet pt > 100')
+#        hist2.GetXaxis().SetBinLabel(7, '2nd jet pt > 50')
+#        hist2.GetXaxis().SetBinLabel(8, 'N(bjet) #geq 1')
+#        hist2.GetXaxis().SetBinLabel(9, 'S_{T} #geq 1000')
+#        for i in range(1, 10):
+#          hist2.SetBinContent(i, hist.GetBinContent(i+1))
+#        #hist2.GetXaxis().SetLabelSize(0.8)
+#        hist2.GetXaxis().SetLabelOffset(.05) 
+
         if verbose:
             print 'file: {0:<20}, histo:{1:<10}, integral before weight:{2:<3.3f}, nEntries:{3:<3.0f}, weight:{4:<2.3f}'.format(
                 ifile.GetName(),    
@@ -213,6 +180,7 @@ def getHisto( label, leg, dir, var, Samples, color, verbose) :
                 )
         hist.Sumw2()    
         hist.Scale( xs * lumi /nevt)
+        hist.Rebin(40)
         histos.append( hist )
         
     histo = histos[0]

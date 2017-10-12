@@ -71,6 +71,8 @@ private:
   const bool isData_;
   const int pdfID_offset_;
   const int scale_offset_;
+  const bool syst_;
+  const bool vv_;
 	PickGenPart genpart ;
 
   edm::Service<TFileService> fs;
@@ -105,6 +107,8 @@ MassReco::MassReco(const edm::ParameterSet& iConfig) :
   isData_       (iConfig.getParameter<bool> ("isData")),
   pdfID_offset_ (iConfig.getParameter<int>  ("pdfID_offset")),
   scale_offset_ (iConfig.getParameter<int>  ("scale_offset")),
+  syst_         (iConfig.getParameter<bool> ("syst")),
+  vv_           (iConfig.getParameter<bool> ("vv")),
 
 	genpart    (iConfig.getParameter<edm::ParameterSet>("genParams"),consumesCollector())
 
@@ -128,7 +132,7 @@ bool MassReco::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   edm::Handle<double>            sjbTagwt_h ; evt.getByToken(sjbTagwt_t, sjbTagwt_h);
 	
   double evtwt;
-  if (evtwt_h.isValid())
+  if (evtwt_h.isValid() && bTagwt_h.isValid() && sjbTagwt_h.isValid())
    evtwt = *evtwt_h.product() * *bTagwt_h.product() * *sjbTagwt_h.product() ;
   else
     return false;
@@ -228,52 +232,60 @@ bool MassReco::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   	if (resReco_bZ.second > 0 && resReco_bZ.first < chiCut_){
     	h1_["resReco_bZ_1b"]->Fill(resReco_bZ.second, evtwt);
       h1_["resReco_bZ"] -> Fill(resReco_bZ.second, evtwt);
-      for (unsigned i = 0; i < 101; i++) {
-        h1_[Form("resReco_bZ_1b_pdf%d", i+1)] -> Fill(resReco_bZ.second, evtwt*lhe_id_wts.at(i+pdfID_offset_).second);
-        h1_[Form("resReco_bZ_pdf%d", i+1)] -> Fill(resReco_bZ.second, evtwt*lhe_id_wts.at(i+pdfID_offset_).second);
-      }
-      for (unsigned i = 0; i < 9; i++) {
-        h1_[Form("resReco_bZ_1b_scale%d", i+1)] -> Fill(resReco_bZ.second, evtwt*lhe_id_wts.at(i+scale_offset_).second);
-        h1_[Form("resReco_bZ_scale%d", i+1)] -> Fill(resReco_bZ.second, evtwt*lhe_id_wts.at(i+scale_offset_).second);
+      if (!syst_ && !vv_) {
+        for (unsigned i = 0; i < 101; i++) {
+          h1_[Form("resReco_bZ_1b_pdf%d", i+1)] -> Fill(resReco_bZ.second, evtwt*lhe_id_wts.at(i+pdfID_offset_).second);
+          h1_[Form("resReco_bZ_pdf%d", i+1)] -> Fill(resReco_bZ.second, evtwt*lhe_id_wts.at(i+pdfID_offset_).second);
+        }
+        for (unsigned i = 0; i < 9; i++) {
+          h1_[Form("resReco_bZ_1b_scale%d", i+1)] -> Fill(resReco_bZ.second, evtwt*lhe_id_wts.at(i+scale_offset_).second);
+          h1_[Form("resReco_bZ_scale%d", i+1)] -> Fill(resReco_bZ.second, evtwt*lhe_id_wts.at(i+scale_offset_).second);
+        }
       }
   	} 
 
   	if (resReco_bH.second > 0 && resReco_bH.first < chiCut_){
     	h1_["resReco_bH_1b"]->Fill(resReco_bH.second, evtwt);
       h1_["resReco_bH"] -> Fill(resReco_bH.second, evtwt);
-      for (unsigned i = 0; i < 101; i++) {
-        h1_[Form("resReco_bH_1b_pdf%d", i+1)] -> Fill(resReco_bH.second, evtwt*lhe_id_wts.at(i+pdfID_offset_).second);
-        h1_[Form("resReco_bH_pdf%d", i+1)] -> Fill(resReco_bH.second, evtwt*lhe_id_wts.at(i+pdfID_offset_).second);
-      }
-      for (unsigned i = 0; i < 9; i++) {
-        h1_[Form("resReco_bH_1b_scale%d", i+1)] -> Fill(resReco_bH.second, evtwt*lhe_id_wts.at(i+scale_offset_).second);
-        h1_[Form("resReco_bH_scale%d", i+1)] -> Fill(resReco_bH.second, evtwt*lhe_id_wts.at(i+scale_offset_).second);
+      if (!syst_ && !vv_) {
+       for (unsigned i = 0; i < 101; i++) {
+         h1_[Form("resReco_bH_1b_pdf%d", i+1)] -> Fill(resReco_bH.second, evtwt*lhe_id_wts.at(i+pdfID_offset_).second);
+         h1_[Form("resReco_bH_pdf%d", i+1)] -> Fill(resReco_bH.second, evtwt*lhe_id_wts.at(i+pdfID_offset_).second);
+       }
+       for (unsigned i = 0; i < 9; i++) {
+         h1_[Form("resReco_bH_1b_scale%d", i+1)] -> Fill(resReco_bH.second, evtwt*lhe_id_wts.at(i+scale_offset_).second);
+         h1_[Form("resReco_bH_scale%d", i+1)] -> Fill(resReco_bH.second, evtwt*lhe_id_wts.at(i+scale_offset_).second);
+       }
       }
   	}
 
   	if (boostReco_bZ.second > 0 && boostReco_bZ.first < chiCut_){
     	h1_["boostReco_bZ_1b"]->Fill(boostReco_bZ.second, evtwt);
       h1_["boostReco_bZ"] -> Fill(boostReco_bZ.second, evtwt);
-      for (unsigned i = 0; i < 101; i++) {
-        h1_[Form("boostReco_bZ_1b_pdf%d", i+1)] -> Fill(boostReco_bZ.second, evtwt*lhe_id_wts.at(i+pdfID_offset_).second);
-        h1_[Form("boostReco_bZ_pdf%d", i+1)] -> Fill(boostReco_bZ.second, evtwt*lhe_id_wts.at(i+pdfID_offset_).second);
-      }
-      for (unsigned i = 0; i < 9; i++) {
-        h1_[Form("boostReco_bZ_1b_scale%d", i+1)] -> Fill(boostReco_bZ.second, evtwt*lhe_id_wts.at(i+scale_offset_).second);
-        h1_[Form("boostReco_bZ_scale%d", i+1)] -> Fill(boostReco_bZ.second, evtwt*lhe_id_wts.at(i+scale_offset_).second);
+      if (!syst_ && !vv_) {
+        for (unsigned i = 0; i < 101; i++) {
+          h1_[Form("boostReco_bZ_1b_pdf%d", i+1)] -> Fill(boostReco_bZ.second, evtwt*lhe_id_wts.at(i+pdfID_offset_).second);
+          h1_[Form("boostReco_bZ_pdf%d", i+1)] -> Fill(boostReco_bZ.second, evtwt*lhe_id_wts.at(i+pdfID_offset_).second);
+        }
+        for (unsigned i = 0; i < 9; i++) {
+          h1_[Form("boostReco_bZ_1b_scale%d", i+1)] -> Fill(boostReco_bZ.second, evtwt*lhe_id_wts.at(i+scale_offset_).second);
+          h1_[Form("boostReco_bZ_scale%d", i+1)] -> Fill(boostReco_bZ.second, evtwt*lhe_id_wts.at(i+scale_offset_).second);
+        }
       }
   	}
 
   	if (boostReco_bH.second > 0 && boostReco_bH.first < chiCut_){
     	h1_["boostReco_bH_1b"]->Fill(boostReco_bH.second, evtwt);
       h1_["boostReco_bH"] -> Fill(boostReco_bH.second, evtwt);
-      for (unsigned i = 0; i < 101; i++) {
-        h1_[Form("boostReco_bH_1b_pdf%d", i+1)] -> Fill(boostReco_bH.second, evtwt*lhe_id_wts.at(i+pdfID_offset_).second);
-        h1_[Form("boostReco_bH_pdf%d", i+1)] -> Fill(boostReco_bH.second, evtwt*lhe_id_wts.at(i+pdfID_offset_).second);
-      }
-      for (unsigned i = 0; i < 9; i++) {
-        h1_[Form("boostReco_bH_1b_scale%d", i+1)] -> Fill(boostReco_bH.second, evtwt*lhe_id_wts.at(i+scale_offset_).second);
-        h1_[Form("boostReco_bH_scale%d", i+1)] -> Fill(boostReco_bH.second, evtwt*lhe_id_wts.at(i+scale_offset_).second);
+      if (!syst_ && !vv_) {
+        for (unsigned i = 0; i < 101; i++) {
+          h1_[Form("boostReco_bH_1b_pdf%d", i+1)] -> Fill(boostReco_bH.second, evtwt*lhe_id_wts.at(i+pdfID_offset_).second);
+          h1_[Form("boostReco_bH_pdf%d", i+1)] -> Fill(boostReco_bH.second, evtwt*lhe_id_wts.at(i+pdfID_offset_).second);
+        }
+        for (unsigned i = 0; i < 9; i++) {
+          h1_[Form("boostReco_bH_1b_scale%d", i+1)] -> Fill(boostReco_bH.second, evtwt*lhe_id_wts.at(i+scale_offset_).second);
+          h1_[Form("boostReco_bH_scale%d", i+1)] -> Fill(boostReco_bH.second, evtwt*lhe_id_wts.at(i+scale_offset_).second);
+        }
       }
   	}
 
@@ -344,6 +356,7 @@ bool MassReco::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   	if (resReco_bZ_2b.second > 0 && resReco_bZ_2b.first < chiCut_){
     	h1_["resReco_bZ_2b"]->Fill(resReco_bZ_2b.second, evtwt);
       h1_["resReco_bZ"] -> Fill(resReco_bZ_2b.second, evtwt);
+      if (!syst_ && !vv_) {
       for (unsigned i = 0; i < 101; i++) {
         h1_[Form("resReco_bZ_2b_pdf%d", i+1)] -> Fill(resReco_bZ_2b.second, evtwt*lhe_id_wts.at(i+pdfID_offset_).second);
         h1_[Form("resReco_bZ_pdf%d", i+1)] -> Fill(resReco_bZ_2b.second, evtwt*lhe_id_wts.at(i+pdfID_offset_).second);
@@ -352,44 +365,51 @@ bool MassReco::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
         h1_[Form("resReco_bZ_2b_scale%d", i+1)] -> Fill(resReco_bZ_2b.second, evtwt*lhe_id_wts.at(i+scale_offset_).second);
         h1_[Form("resReco_bZ_scale%d", i+1)] -> Fill(resReco_bZ_2b.second, evtwt*lhe_id_wts.at(i+scale_offset_).second);
       }
+      }
   	} 
 
   	if (resReco_bH_2b.second > 0 && resReco_bH_2b.first < chiCut_){
     	h1_["resReco_bH_2b"]->Fill(resReco_bH_2b.second, evtwt);
       h1_["resReco_bH"] -> Fill(resReco_bH_2b.second, evtwt);
-      for (unsigned i = 0; i < 101; i++) {
-        h1_[Form("resReco_bH_2b_pdf%d", i+1)] -> Fill(resReco_bH_2b.second, evtwt*lhe_id_wts.at(i+pdfID_offset_).second);
-        h1_[Form("resReco_bH_pdf%d", i+1)] -> Fill(resReco_bH_2b.second, evtwt*lhe_id_wts.at(i+pdfID_offset_).second);
-      }
-      for (unsigned i = 0; i < 9; i++) {
-        h1_[Form("resReco_bH_2b_scale%d", i+1)] -> Fill(resReco_bH_2b.second, evtwt*lhe_id_wts.at(i+scale_offset_).second);
-        h1_[Form("resReco_bH_scale%d", i+1)] -> Fill(resReco_bH_2b.second, evtwt*lhe_id_wts.at(i+scale_offset_).second);
+      if (!syst_ && !vv_) {
+       for (unsigned i = 0; i < 101; i++) {
+         h1_[Form("resReco_bH_2b_pdf%d", i+1)] -> Fill(resReco_bH_2b.second, evtwt*lhe_id_wts.at(i+pdfID_offset_).second);
+         h1_[Form("resReco_bH_pdf%d", i+1)] -> Fill(resReco_bH_2b.second, evtwt*lhe_id_wts.at(i+pdfID_offset_).second);
+       }
+       for (unsigned i = 0; i < 9; i++) {
+         h1_[Form("resReco_bH_2b_scale%d", i+1)] -> Fill(resReco_bH_2b.second, evtwt*lhe_id_wts.at(i+scale_offset_).second);
+         h1_[Form("resReco_bH_scale%d", i+1)] -> Fill(resReco_bH_2b.second, evtwt*lhe_id_wts.at(i+scale_offset_).second);
+       }
       }
   	}
 
   	if (boostReco_bZ_2b.second > 0 && boostReco_bZ_2b.first < chiCut_){
     	h1_["boostReco_bZ_2b"]->Fill(boostReco_bZ_2b.second, evtwt);
       h1_["boostReco_bZ"] -> Fill(boostReco_bZ_2b.second, evtwt);
-      for (unsigned i = 0; i < 101; i++) {
-        h1_[Form("boostReco_bZ_2b_pdf%d", i+1)] -> Fill(boostReco_bZ_2b.second, evtwt*lhe_id_wts.at(i+pdfID_offset_).second);
-        h1_[Form("boostReco_bZ_pdf%d", i+1)] -> Fill(boostReco_bZ_2b.second, evtwt*lhe_id_wts.at(i+pdfID_offset_).second);
-      }
-     for (unsigned i = 0; i < 9; i++) {
-        h1_[Form("boostReco_bZ_2b_scale%d", i+1)] -> Fill(boostReco_bZ_2b.second, evtwt*lhe_id_wts.at(i+scale_offset_).second);
-        h1_[Form("boostReco_bZ_scale%d", i+1)] -> Fill(boostReco_bZ_2b.second, evtwt*lhe_id_wts.at(i+scale_offset_).second);
+      if (!syst_ && !vv_) {
+       for (unsigned i = 0; i < 101; i++) {
+         h1_[Form("boostReco_bZ_2b_pdf%d", i+1)] -> Fill(boostReco_bZ_2b.second, evtwt*lhe_id_wts.at(i+pdfID_offset_).second);
+         h1_[Form("boostReco_bZ_pdf%d", i+1)] -> Fill(boostReco_bZ_2b.second, evtwt*lhe_id_wts.at(i+pdfID_offset_).second);
+       }
+      for (unsigned i = 0; i < 9; i++) {
+         h1_[Form("boostReco_bZ_2b_scale%d", i+1)] -> Fill(boostReco_bZ_2b.second, evtwt*lhe_id_wts.at(i+scale_offset_).second);
+         h1_[Form("boostReco_bZ_scale%d", i+1)] -> Fill(boostReco_bZ_2b.second, evtwt*lhe_id_wts.at(i+scale_offset_).second);
+       }
       }
   	}
 
   	if (boostReco_bH_2b.second > 0 && boostReco_bH_2b.first < chiCut_){
     	h1_["boostReco_bH_2b"]->Fill(boostReco_bH_2b.second, evtwt);
       h1_["boostReco_bH"] -> Fill(boostReco_bH_2b.second, evtwt);
-      for (unsigned i = 0; i < 101; i++) {
-        h1_[Form("boostReco_bH_2b_pdf%d", i+1)] -> Fill(boostReco_bH_2b.second, evtwt*lhe_id_wts.at(i+pdfID_offset_).second);
-        h1_[Form("boostReco_bH_pdf%d", i+1)] -> Fill(boostReco_bH_2b.second, evtwt*lhe_id_wts.at(i+pdfID_offset_).second);
-      }
-      for (unsigned i = 0; i < 9; i++) {
-        h1_[Form("boostReco_bH_2b_scale%d", i+1)] -> Fill(boostReco_bH_2b.second, evtwt*lhe_id_wts.at(i+scale_offset_).second);
-        h1_[Form("boostReco_bH_scale%d", i+1)] -> Fill(boostReco_bH_2b.second, evtwt*lhe_id_wts.at(i+scale_offset_).second);
+      if (!syst_ && !vv_) {
+        for (unsigned i = 0; i < 101; i++) {
+          h1_[Form("boostReco_bH_2b_pdf%d", i+1)] -> Fill(boostReco_bH_2b.second, evtwt*lhe_id_wts.at(i+pdfID_offset_).second);
+          h1_[Form("boostReco_bH_pdf%d", i+1)] -> Fill(boostReco_bH_2b.second, evtwt*lhe_id_wts.at(i+pdfID_offset_).second);
+        }
+        for (unsigned i = 0; i < 9; i++) {
+          h1_[Form("boostReco_bH_2b_scale%d", i+1)] -> Fill(boostReco_bH_2b.second, evtwt*lhe_id_wts.at(i+scale_offset_).second);
+          h1_[Form("boostReco_bH_scale%d", i+1)] -> Fill(boostReco_bH_2b.second, evtwt*lhe_id_wts.at(i+scale_offset_).second);
+        }
       }
   	}
 
@@ -733,7 +753,7 @@ void MassReco::beginJob(){
     h1_[boostReco_bH_name.c_str()] = fs->make<TH1D>(boostReco_bH_name.c_str(), "reco", 1000, 0., 3000.);
   }
 
-  for (unsigned i = 0; i < 101; i++) {
+  for (unsigned i = 0; i < 9; i++) {
     string resReco_bZ_1b_name = Form("resReco_bZ_1b_scale%d", i+1);
     string resReco_bH_1b_name = Form("resReco_bH_1b_scale%d", i+1);
     string resReco_bZ_2b_name = Form("resReco_bZ_2b_scale%d", i+1);

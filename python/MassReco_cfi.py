@@ -35,6 +35,8 @@ massReco = cms.EDFilter("MassReco",
     isData   = cms.bool(False),
     pdfID_offset = cms.int32(1),
     scale_offset = cms.int32(1),
+    syst         = cms.bool(False),
+    vv           = cms.bool(False),
     
 
  		genParams = getSelectParams,	

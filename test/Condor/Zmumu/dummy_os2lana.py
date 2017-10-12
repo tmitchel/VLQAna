@@ -1,10 +1,10 @@
 import os, sys
-from readVars import *
 import FWCore.ParameterSet.Config as cms
 from FWCore.ParameterSet.VarParsing import VarParsing
 
+
 options = VarParsing('analysis')
-options.register('isData', False,
+options.register('isData', ISDATA,
     VarParsing.multiplicity.singleton,
     VarParsing.varType.bool,
     "Is data?"
@@ -14,17 +14,17 @@ options.register('skim', False,
     VarParsing.varType.bool,
     "Skim events?"
     )
-options.register('newJECPayloadNames', 'Summer16_23Sep2016V4_MC',
+options.register('newJECPayloadNames', 'JECPAYLOAD',
     VarParsing.multiplicity.singleton,
     VarParsing.varType.string,
     "Select one of EvtType_MC_tZtZ, EvtType_MC_tZtH, EvtType_MC_tZbW, EvtType_MC_tHtH, EvtType_MC_tHbW, EvtType_MC_bWbW, EvtType_MC_bZbZ, EvtType_MC_bZbH, EvtType_MC_bZtW, EvtType_MC_bHbH, EvtType_MC_bHtW, EvtType_MC_tWtW" 
     )
-options.register('maketree', False,
+options.register('maketree', MAKETREE,
     VarParsing.multiplicity.singleton,
     VarParsing.varType.bool,
     "Skim events?"
     )
-options.register('zdecaymode', 'zmumu',
+options.register('zdecaymode', 'ZDECAYMODE',
     VarParsing.multiplicity.singleton,
     VarParsing.varType.string,
     "Z->mumu or Z->elel? Choose: 'zmumu' or 'zelel'"
@@ -39,42 +39,42 @@ options.register('outFileName', 'os2lana.root',
     VarParsing.varType.string,
     "Output file name"
     )
-options.register('doPUReweightingOfficial', True,
+options.register('doPUReweightingOfficial', PUREWEIGHT,
     VarParsing.multiplicity.singleton,
     VarParsing.varType.bool,
     "Do pileup reweighting using official recipe"
     )
-options.register('filterSignal', False,
+options.register('filterSignal', FILTERSIGNAL,
     VarParsing.multiplicity.singleton,
     VarParsing.varType.bool,
     "Select only tZXX or bZXX modes"
     )
-options.register('signalType', 'EvtType_MC_bZbZ',
+options.register('signalType', 'SIGNALTYPE',
     VarParsing.multiplicity.singleton,
     VarParsing.varType.string,
     "Select one of EvtType_MC_tZtZ, EvtType_MC_tZtH, EvtType_MC_tZbW, EvtType_MC_tHtH, EvtType_MC_tHbW, EvtType_MC_bWbW, EvtType_MC_bZbZ, EvtType_MC_bZbH, EvtType_MC_bZtW, EvtType_MC_bHbH, EvtType_MC_bHtW, EvtType_MC_tWtW" 
     )
-options.register('applyLeptonIDSFs', True,
+options.register('applyLeptonIDSFs', LEPTONIDSFS,
     VarParsing.multiplicity.singleton,
     VarParsing.varType.bool,
     "Apply lepton SFs to the MC"
     )
-options.register('applyBTagSFs', True,
+options.register('applyBTagSFs', BTAGSFS,
     VarParsing.multiplicity.singleton,
     VarParsing.varType.bool,
     "Apply b-tagging SFs to the MC"
     )
-options.register('btageffmap', "bpbpbZb800_bTagEff.root",#until new SFs arrive
+options.register('btageffmap', "BTAGEFFMAP",#until new SFs arrive
     VarParsing.multiplicity.singleton,
     VarParsing.varType.string,
     "ROOT file with Th2D histos of b tag effs for b,c, and light flavoured jets"
     )
-options.register('applyLeptonTrigSFs', True,
+options.register('applyLeptonTrigSFs', LEPTONTRIGSFS,
     VarParsing.multiplicity.singleton,
     VarParsing.varType.bool,
     "Apply trigger SFs to the MC"
     )
-options.register('applyDYNLOCorr', False, ### Set to true only for DY process ### Only EWK NLO k-factor is applied
+options.register('applyDYNLOCorr', DYNLOCORR, ### Set to true only for DY process ### Only EWK NLO k-factor is applied
     VarParsing.multiplicity.singleton,
     VarParsing.varType.bool,
     "Apply DY EWK k-factor to DY MC"
@@ -84,30 +84,30 @@ options.register('FileNames', 'FileNames_DY',
     VarParsing.varType.string,
     "Name of list of input files"
     )
-options.register('massReco', True,
+options.register('massReco', MASSRECO,
     VarParsing.multiplicity.singleton,
     VarParsing.varType.bool,
     "Optimize mass reconstruction"
     )
-options.register('controlReco', True,
+options.register('controlReco', CONTROLRECO,
     VarParsing.multiplicity.singleton,
     VarParsing.varType.bool,
     'Do control region reco'
     )
-options.register('syst', True,
+options.register('syst', SYST,
     VarParsing.multiplicity.singleton,
     VarParsing.varType.bool,
     "Do systematics"
     )
-options.register('storeLHEWts', True,
+options.register('storeLHEWts', LHEWTS,
     VarParsing.multiplicity.singleton,
     VarParsing.varType.bool,
     "Store LHE weights",
     )
-options.register('optimizeReco', False,
-    VarParsing.multiplicity.singleton,
+options.register('optimizeReco', OPTIMIZERECO,
+    VarParsing.multiplicity.singleton, 
     VarParsing.varType.bool,
-    'meh'
+    "do Gen optimization"
     )
 
 options.setDefault('maxEvents', -1)
@@ -154,14 +154,11 @@ print options
 
 process = cms.Process("OS2LAna")
 
-from inputFiles_cfi import * 
-
 process.source = cms.Source(
   "PoolSource",
   fileNames = cms.untracked.vstring(
-    'root://eoscms.cern.ch//store/group/phys_b2g/B2GAnaFW_80X_V2p4/BprimeBprime_M-800_TuneCUETP8M1_13TeV-madgraph-pythia8/B2GAnaFW_RunIISpring16MiniAODv2_25ns_v80x_v2p4/170122_192852/0000/B2GEDMNtuple_1.root'
-    #FileNames[options.FileNames]
- ) 
+    'path_to_sample'
+    ) 
   )
 
 if options.isData:
@@ -172,7 +169,8 @@ if options.isData:
 
 process.TFileService = cms.Service("TFileService",
     fileName = cms.string(
-      options.outFileName
+      'CondOutputEvt'
+      #options.outFileName
       )
     )
 
@@ -209,7 +207,9 @@ process.ana = ana.clone(
     fnamebtagSF = cms.string(os.path.join(dataPath,'CSVv2_Moriond17_B_H.csv')),
     fnameSJbtagSF = cms.string(os.path.join(dataPath,'subjet_CSVv2_Moriond17_B_H.csv')),
     File_DYNLOCorr = cms.string(os.path.join(dataPath,'scalefactors_v4.root')),
-    syst = cms.bool(False)
+    optimizeReco = cms.bool(options.optimizeReco),
+    syst = cms.bool(False),
+    vv = cms.bool(ISVV)
     )
 process.ana.genParams.debug = cms.bool(False)
 
@@ -279,6 +279,7 @@ process.massReco.controlReco = cms.bool(options.controlReco)
 process.massReco.optimizeReco = cms.bool(options.optimizeReco)
 process.massReco.isData = cms.bool(options.isData)
 process.massReco.syst = cms.bool(False)
+process.massReco.vv = cms.bool(ISVV)
 
 if options.skim: 
   process.ana.jetAK4selParams.jetPtMin = cms.double(20) 
@@ -316,7 +317,7 @@ else:
     process.anaJecUp.jetHTaggedselParams.jecShift = cms.double(1.)
     process.anaJecUp.jetWTaggedselParams.jecShift = cms.double(1.)
     process.anaJecUp.jetTopTaggedselParams.jecShift = cms.double(1.)
-    process.anaJecUp.ana.syst = cms.bool(True)
+    process.anaJecUp.syst = cms.bool(True)
 
     process.anaJecDown = process.ana.clone()
     process.anaJecDown.jetAK4selParams.jecShift = cms.double(-1.)
@@ -325,7 +326,7 @@ else:
     process.anaJecDown.jetHTaggedselParams.jecShift = cms.double(-1.)
     process.anaJecDown.jetWTaggedselParams.jecShift = cms.double(-1.)
     process.anaJecDown.jetTopTaggedselParams.jecShift = cms.double(-1.)
-    process.anaJecDown.ana.syst = cms.bool(True)
+    process.anaJecDown.syst = cms.bool(True)
 
     process.anaJerUp = process.ana.clone()
     process.anaJerUp.jetAK4selParams.jerShift = cms.int32(2)
@@ -334,7 +335,7 @@ else:
     process.anaJerUp.jetHTaggedselParams.jerShift = cms.int32(2)
     process.anaJerUp.jetWTaggedselParams.jerShift = cms.int32(2)
     process.anaJerUp.jetTopTaggedselParams.jerShift = cms.int32(2)
-    process.anaJerUp.ana.syst = cms.bool(True)
+    process.anaJerUp.syst = cms.bool(True)
 
     process.anaJerDown = process.ana.clone()
     process.anaJerDown.jetAK4selParams.jerShift = cms.int32(-1)
@@ -343,127 +344,128 @@ else:
     process.anaJerDown.jetHTaggedselParams.jerShift = cms.int32(-1)
     process.anaJerDown.jetWTaggedselParams.jerShift = cms.int32(-1)
     process.anaJerDown.jetTopTaggedselParams.jerShift = cms.int32(-1)
-    process.anaJerDown.ana.syst = cms.bool(True)
+    process.anaJerDown.syst = cms.bool(True)
     
     process.anaJmrUp = process.ana.clone()
     process.anaJmrUp.jetHTaggedselParams.jmrShift = cms.int32(2)
     process.anaJmrUp.jetWTaggedselParams.jmrShift = cms.int32(2)
-    process.anaJmrUp.ana.syst = cms.bool(True)
+    process.anaJmrUp.syst = cms.bool(True)
 
     process.anaJmrDown = process.ana.clone()
     process.anaJmrDown.jetHTaggedselParams.jmrShift = cms.int32(-1)
     process.anaJmrDown.jetWTaggedselParams.jmrShift = cms.int32(-1)
-    process.anaJmrDown.ana.syst = cms.bool(True)
+    process.anaJmrDown.syst = cms.bool(True)
 
     process.anaPileupUp = process.ana.clone(
         PileupUp = cms.bool(True),
-        syst = cms.bool(True),
+        syst = cms.bool(True)
         )
     process.anaPileupDown = process.ana.clone(
         PileupDown = cms.bool(True),
-        syst = cms.bool(True),
+        syst = cms.bool(True)
         )
     process.anaDYDown = process.ana.clone(
         DYDown = cms.bool(True),
-        syst = cms.bool(True),
+        syst = cms.bool(True)
         )
 
     process.anatauUp = process.ana.clone(
         tauShift = cms.int32(1),
-        syst = cms.bool(True),
+         syst = cms.bool(True)
         )
 
     process.anatauDown = process.ana.clone(
         tauShift = cms.int32(-1),
-        syst = cms.bool(True),
+         syst = cms.bool(True)
         )
 
 if options.massReco and options.syst:
-  process.recobcUp = process.massReco.clone(
+  process.recobc__plus = process.massReco.clone(
       bTagwt = cms.InputTag("ana", "btagsfbcUp"),
       sjbTagwt = cms.InputTag("ana", "sjbtagsfbcUp"),
       syst = cms.bool(True)
       )
-  process.recobcDown = process.massReco.clone(
+  process.recobc__minus = process.massReco.clone(
       bTagwt = cms.InputTag("ana", "btagsfbcDown"),
       sjbTagwt = cms.InputTag("ana", "sjbtagsfbcDown"),
-      syst = cms.bool(True),
+      syst = cms.bool(True)
       )
-  process.recolightUp = process.massReco.clone(
+  process.recolight__plus = process.massReco.clone(
       bTagwt = cms.InputTag("ana", "btagsflUp"),
       sjbTagwt = cms.InputTag("ana", "sjbtagsflUp"),
-      syst = cms.bool(True),
+      syst = cms.bool(True)
       )
-  process.recolightDown = process.massReco.clone(
+  process.recolight__minus = process.massReco.clone(
       bTagwt = cms.InputTag("ana", "btagsflDown"),
       sjbTagwt = cms.InputTag("ana", "sjbtagsflDown"),
-      syst = cms.bool(True),
+      syst = cms.bool(True)
       )
-  process.recoJecUp = process.massReco.clone(
+  process.recoJec__plus = process.massReco.clone(
       ak8jets = cms.InputTag("anaJecUp", "ak8jets"),
       jets  = cms.InputTag("anaJecUp", "jets"),
       bjets = cms.InputTag("anaJecUp", "bjets"),
       zjets = cms.InputTag("anaJecUp", "wjets"),
       hjets = cms.InputTag("anaJecUp", "hjets"),
       Prewt = cms.InputTag("anaJecUp", "PreWeight"),
-      syst = cms.bool(True),
+      syst = cms.bool(True)
       )
-  process.recoJecDown = process.massReco.clone(
+  process.recoJec__minus = process.massReco.clone(
       ak8jets = cms.InputTag("anaJecDown","ak8jets"),
       jets  = cms.InputTag("anaJecDown","jets"),
       bjets = cms.InputTag("anaJecDown", "bjets"),
       zjets = cms.InputTag("anaJecDown", "wjets"),
       hjets = cms.InputTag("anaJecDown", "hjets"),
       Prewt = cms.InputTag("anaJecDown", "PreWeight"),
-      syst = cms.bool(True),
+      syst = cms.bool(True)
       )
-  process.recoJerUp = process.massReco.clone(
+  process.recoJer__plus = process.massReco.clone(
       ak8jets = cms.InputTag("anaJerUp","ak8jets"),
       jets  = cms.InputTag("anaJerUp","jets"),
       bjets = cms.InputTag("anaJerUp", "bjets"),
       zjets = cms.InputTag("anaJerUp", "wjets"),
       hjets = cms.InputTag("anaJerUp", "hjets"),
       Prewt = cms.InputTag("anaJerUp", "PreWeight"),
-      syst = cms.bool(True),
+      syst = cms.bool(True)
       )
-  process.recoJerDown = process.massReco.clone(
+  process.recoJer__minus = process.massReco.clone(
       ak8jets = cms.InputTag("anaJerDown","ak8jets"),
       jets  = cms.InputTag("anaJerDown","jets"),
       bjets = cms.InputTag("anaJerDown", "bjets"),
       zjets = cms.InputTag("anaJerDown", "wjets"),
       hjets = cms.InputTag("anaJerDown", "hjets"),
       Prewt = cms.InputTag("anaJerDown", "PreWeight"),
-      syst = cms.bool(True),
+      syst = cms.bool(True)
       )
-  process.recoJmrUp = process.massReco.clone(
+
+  process.recoJmr__plus = process.massReco.clone(
       ak8jets = cms.InputTag("anaJmrUp","ak8jets"),
       jets  = cms.InputTag("anaJmrUp","jets"),
       bjets = cms.InputTag("anaJmrUp", "bjets"),
       zjets = cms.InputTag("anaJmrUp", "wjets"),
       hjets = cms.InputTag("anaJmrUp", "hjets"),
       Prewt = cms.InputTag("anaJmrUp", "PreWeight"),
-      syst = cms.bool(True),
+      syst = cms.bool(True)
       )
-  process.recoJmrDown = process.massReco.clone(
+  process.recoJmr__minus = process.massReco.clone(
       ak8jets = cms.InputTag("anaJmrDown","ak8jets"),
       jets  = cms.InputTag("anaJmrDown","jets"),
       bjets = cms.InputTag("anaJmrDown", "bjets"),
       zjets = cms.InputTag("anaJmrDown", "wjets"),
       hjets = cms.InputTag("anaJmrDown", "hjets"),
       Prewt = cms.InputTag("anaJmrDown", "PreWeight"),
-      syst = cms.bool(True),
+      syst = cms.bool(True)
       )
   
-  process.recoPileupUp    = process.massReco.clone(Prewt = cms.InputTag("anaPileupUp", "PreWeight"))
-  process.recoPileupUp    = process.massReco.clone(Syst = cms.bool(True)
-  process.recoPileupDown  = process.massReco.clone(Prewt = cms.InputTag("anaPileupDown", "PreWeight"))
-  process.recoPileupDown  = process.massReco.clone(Syst = cms.bool(True)
-  process.recotauUp       = process.massReco.clone(Prewt = cms.InputTag("anatauUp", "PreWeight"))
-  process.recotauUp       = process.massReco.clone(Syst = cms.bool(True)
-  process.recotauDown     = process.massReco.clone(Prewt = cms.InputTag("anatauDown", "PreWeight"))
-  process.recotauDown     = process.massReco.clone(Syst = cms.bool(True)
-  process.recoDYDown      = process.massReco.clone(Prewt = cms.InputTag("anaDYdown", "PreWeight"))
-  process.recoDYDown      = process.massReco.clone(Syst = cms.bool(True)
+  process.recoPileup__plus    = process.massReco.clone(Prewt = cms.InputTag("anaPileupUp", "PreWeight"))
+  process.recoPileup__plus.syst = cms.bool(True)
+  process.recoPileup__minus   = process.massReco.clone(Prewt = cms.InputTag("anaPileupDown", "PreWeight"))
+  process.recoPileup__minus.syst = cms.bool(True)
+  process.recotau__plus       = process.massReco.clone(Prewt = cms.InputTag("anatauUp", "PreWeight"))
+  process.recotau__plus.syst = cms.bool(True)
+  process.recotau__minus      = process.massReco.clone(Prewt = cms.InputTag("anatauDown", "PreWeight"))
+  process.recotau__minus.syst = cms.bool(True)
+  process.recoDY__minus       = process.massReco.clone(Prewt = cms.InputTag("anaDYDown", "PreWeight"))
+  process.recoDY__minus.syst = cms.bool(True)
 
 
 ## Event counters
@@ -524,21 +526,21 @@ elif options.massReco:
       *cms.ignore(process.anaJmrUp)
       *cms.ignore(process.anaJmrDown)
 
-      *cms.ignore(process.recobcUp)
-      *cms.ignore(process.recobcDown)
-      *cms.ignore(process.recolightUp)
-      *cms.ignore(process.recolightDown)
-      *cms.ignore(process.recoJecUp)
-      *cms.ignore(process.recoJecDown)
-      *cms.ignore(process.recoJerUp)
-      *cms.ignore(process.recoJerDown)
-      *cms.ignore(process.recoPileupUp)
-      *cms.ignore(process.recoPileupDown)
-      *cms.ignore(process.recotauUp)
-      *cms.ignore(process.recotauDown) 
-      *cms.ignore(process.recoJmrUp)
-      *cms.ignore(process.recoJmrDown)
-      *cms.ignore(process.recoDYDown)
+      *cms.ignore(process.recobc__plus)
+      *cms.ignore(process.recobc__minus)
+      *cms.ignore(process.recolight__plus)
+      *cms.ignore(process.recolight__minus)
+      *cms.ignore(process.recoJec__plus)
+      *cms.ignore(process.recoJec__minus)
+      *cms.ignore(process.recoJer__plus)
+      *cms.ignore(process.recoJer__minus)
+      *cms.ignore(process.recoPileup__plus)
+      *cms.ignore(process.recoPileup__minus)
+      *cms.ignore(process.recotau__plus)
+      *cms.ignore(process.recotau__minus) 
+      *cms.ignore(process.recoJmr__plus)
+      *cms.ignore(process.recoJmr__minus)
+      *cms.ignore(process.recoDY__minus)
 
       *process.massReco
       *process.finalEvents
@@ -549,7 +551,7 @@ elif options.massReco:
       process.allEvents
       *process.evtcleaner
       *process.cleanedEvents
-      *process.ana
+      *cms.ignore(process.ana)
       *process.massReco
       *process.finalEvents
       ) 
