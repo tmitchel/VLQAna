@@ -120,14 +120,14 @@ sampleDict = {'ttbar_pythia' : [5, 984, "/store/group/phys_b2g/B2GAnaFW_80X_V2p4
               'bprime1800_bHbH' : [2, 20, "/store/group/phys_b2g/B2GAnaFW_80X_V2p4/BprimeBprime_M-1800_TuneCUETP8M1_13TeV-madgraph-pythia8/B2GAnaFW_RunIISpring16MiniAODv2_25ns_v80x_v2p4/170122_194007/"],
 
 
-              'SingleMuon_23Sep2016B_v3' : [5, 1277, "/store/group/phys_b2g/B2GAnaFW_80X_V2p4/SingleMuon/Run2016B-23Sep2016-v3_B2GAnaFW_80X_v2p4/161221_152050/"],
-              'SingleMuon_23Sep2016C_v1' : [5, 713, "/store/group/phys_b2g/B2GAnaFW_80X_V2p4/SingleMuon/Run2016C-23Sep2016-v1_B2GAnaFW_80X_v2p4/161221_155142/"],
-              'SingleMuon_23Sep2016D_v1' : [5, 1060, "/store/group/phys_b2g/B2GAnaFW_80X_V2p4/SingleMuon/Run2016D-23Sep2016-v1_B2GAnaFW_80X_v2p4/161221_160134/"],
-              'SingleMuon_23Sep2016E_v1' : [5, 886, "/store/group/phys_b2g/B2GAnaFW_80X_V2p4/SingleMuon/Run2016E-23Sep2016-v1_B2GAnaFW_80X_v2p4/161221_162521/"],
-              'SingleMuon_23Sep2016F_v1' : [5, 768, "/store/group/phys_b2g/B2GAnaFW_80X_V2p4/SingleMuon/Run2016F-23Sep2016-v1_B2GAnaFW_80X_v2p4/161221_170915/"],
-              'SingleMuon_23Sep2016G_v1' : [5, 1430, "/store/group/phys_b2g/B2GAnaFW_80X_V2p4/SingleMuon/Run2016G-23Sep2016-v1_B2GAnaFW_80X_v2p4/161221_173126/"],
-              'SingleMuon_PromptH_v2' : [5, 1928, "/store/group/phys_b2g/B2GAnaFW_80X_V2p4/SingleMuon/Run2016H-PromptReco-v2_B2GAnaFW_80X_v2p4/161221_180745/"],
-              'SingleMuon_PromptH_v3' : [5, 52, "/store/group/phys_b2g/B2GAnaFW_80X_V2p4/SingleMuon/Run2016H-PromptReco-v3_B2GAnaFW_80X_v2p4/161221_180928/"],
+#              'SingleMuon_23Sep2016B_v3' : [5, 1277, "/store/group/phys_b2g/B2GAnaFW_80X_V2p4/SingleMuon/Run2016B-23Sep2016-v3_B2GAnaFW_80X_v2p4/161221_152050/"],
+#              'SingleMuon_23Sep2016C_v1' : [5, 713, "/store/group/phys_b2g/B2GAnaFW_80X_V2p4/SingleMuon/Run2016C-23Sep2016-v1_B2GAnaFW_80X_v2p4/161221_155142/"],
+#              'SingleMuon_23Sep2016D_v1' : [5, 1060, "/store/group/phys_b2g/B2GAnaFW_80X_V2p4/SingleMuon/Run2016D-23Sep2016-v1_B2GAnaFW_80X_v2p4/161221_160134/"],
+#              'SingleMuon_23Sep2016E_v1' : [5, 886, "/store/group/phys_b2g/B2GAnaFW_80X_V2p4/SingleMuon/Run2016E-23Sep2016-v1_B2GAnaFW_80X_v2p4/161221_162521/"],
+#              'SingleMuon_23Sep2016F_v1' : [5, 768, "/store/group/phys_b2g/B2GAnaFW_80X_V2p4/SingleMuon/Run2016F-23Sep2016-v1_B2GAnaFW_80X_v2p4/161221_170915/"],
+#              'SingleMuon_23Sep2016G_v1' : [5, 1430, "/store/group/phys_b2g/B2GAnaFW_80X_V2p4/SingleMuon/Run2016G-23Sep2016-v1_B2GAnaFW_80X_v2p4/161221_173126/"],
+#              'SingleMuon_PromptH_v2' : [5, 1928, "/store/group/phys_b2g/B2GAnaFW_80X_V2p4/SingleMuon/Run2016H-PromptReco-v2_B2GAnaFW_80X_v2p4/161221_180745/"],
+#              'SingleMuon_PromptH_v3' : [5, 52, "/store/group/phys_b2g/B2GAnaFW_80X_V2p4/SingleMuon/Run2016H-PromptReco-v3_B2GAnaFW_80X_v2p4/161221_180928/"],
               }
 
 
