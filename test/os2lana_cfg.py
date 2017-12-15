@@ -363,8 +363,8 @@ else:
         PileupDown = cms.bool(True),
         syst = cms.bool(True),
         )
-    process.anaDYDown = process.ana.clone(
-        DYDown = cms.bool(True),
+    process.anaDYSF = process.ana.clone(
+        applyDYNLOCorr = cms.bool(True),
         syst = cms.bool(True),
         )
 
@@ -462,8 +462,8 @@ if options.massReco and options.syst:
   process.recotauUp       = process.massReco.clone(Syst = cms.bool(True)
   process.recotauDown     = process.massReco.clone(Prewt = cms.InputTag("anatauDown", "PreWeight"))
   process.recotauDown     = process.massReco.clone(Syst = cms.bool(True)
-  process.recoDYDown      = process.massReco.clone(Prewt = cms.InputTag("anaDYdown", "PreWeight"))
-  process.recoDYDown      = process.massReco.clone(Syst = cms.bool(True)
+  process.recoDYSF      = process.massReco.clone(Prewt = cms.InputTag("anaDYSF", "PreWeight"))
+  process.recoDYSF      = process.massReco.clone(Syst = cms.bool(True)
 
 
 ## Event counters
@@ -493,7 +493,7 @@ if options.syst and not options.skim and not options.massReco:
     *cms.ignore(process.anaJerDown)
     *cms.ignore(process.anaPileupUp)
     *cms.ignore(process.anaPileupDown)
-    *cms.ignore(process.anaDYDown)
+    *cms.ignore(process.anaDYSF)
     *cms.ignore(process.anatauUp)
     *cms.ignore(process.anatauDown) 
     *cms.ignore(process.anaJmrUp)
@@ -518,7 +518,7 @@ elif options.massReco:
       *cms.ignore(process.anaJerDown)
       *cms.ignore(process.anaPileupUp)
       *cms.ignore(process.anaPileupDown)
-      *cms.ignore(process.anaDYDown)
+      *cms.ignore(process.anaDYSF)
       *cms.ignore(process.anatauUp)
       *cms.ignore(process.anatauDown)
       *cms.ignore(process.anaJmrUp)
@@ -538,7 +538,7 @@ elif options.massReco:
       *cms.ignore(process.recotauDown) 
       *cms.ignore(process.recoJmrUp)
       *cms.ignore(process.recoJmrDown)
-      *cms.ignore(process.recoDYDown)
+      *cms.ignore(process.recoDYSF)
 
       *process.massReco
       *process.finalEvents

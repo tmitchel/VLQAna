@@ -1,6 +1,7 @@
 #ifndef ANALYSIS_VLQANA_CANDIDATECLEANER_HH
 #define ANALYSIS_VLQANA_CANDIDATECLEANER_HH
 #include <vector>
+#include <algorithm>
 #include "AnalysisDataFormats/BoostedObjects/interface/Candidate.h"
 
 ///
@@ -17,21 +18,20 @@ class CandidateCleaner {
     CandidateCleaner(double dr, double ptrel) : dr_(dr), ptrel_(ptrel) {}
     ~CandidateCleaner() {}
     template <class T1, class T2>
-      void operator () (T1& cleanedcands, T2 othercands) {
-        for (typename  T1::iterator icand = cleanedcands.begin(); icand < cleanedcands.end(); ++icand) {
-          bool isclean(true); 
-          for (auto othercand : othercands) {
-            double dr((icand->getP4()).DeltaR(othercand.getP4()));
-            if (ptrel_ < 0) {
-              if ( dr < dr_ ) { isclean = false; break ; }  
-            }
-            else { //// Apply 2D isolation
-              double ptrel ( ( ((icand->getP4()).Vect()).Cross((othercand.getP4()).Vect()) ).Mag()/(othercand.getP4()).Mag() ) ;
-              if ( dr < dr_ && ptrel < ptrel_ ) { isclean = false; break ; }  
-            }
-          }
-          if ( !isclean ) cleanedcands.erase(icand) ; 
-        }
+      void operator () (std::vector<T1>& cleanedcands, std::vector<T2> othercands) {
+
+        cleanedcands.erase( std::remove_if(cleanedcands.begin(), cleanedcands.end(),
+              [othercands, this](T1 t) { 
+                bool toremove(false);
+                for (auto cand : othercands) {
+                  double dr((t.getP4()).DeltaR(cand.getP4())) ;
+                  double ptrel( ( ((t.getP4()).Vect()).Cross((cand.getP4()).Vect()) ).Mag()/(cand.getP4()).Mag() ) ; 
+                  if ( dr < dr_ && ( ptrel_ > 0 ? ptrel < ptrel_ : true)  ) { toremove = true; return toremove; }
+                }
+                return toremove; 
+              }
+              )
+            ,cleanedcands.end()  ) ; 
       }
 
   private:

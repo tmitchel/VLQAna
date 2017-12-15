@@ -130,13 +130,13 @@ bool MassReco::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   Handle<vector<double> > h_lhewts;evt.getByToken(t_lhewts ,h_lhewts ) ;
   edm::Handle<double>            bTagwt_h   ; evt.getByToken(bTagwt_t, bTagwt_h);
   edm::Handle<double>            sjbTagwt_h ; evt.getByToken(sjbTagwt_t, sjbTagwt_h);
-	
+
   double evtwt;
   if (evtwt_h.isValid() && bTagwt_h.isValid() && sjbTagwt_h.isValid())
    evtwt = *evtwt_h.product() * *bTagwt_h.product() * *sjbTagwt_h.product() ;
   else
     return false;
-  
+ 
   vector<pair<int,double>> lhe_id_wts;
   if (!isData_){
     for (unsigned i=0; i<(*h_lhewtids.product()).size(); i++){
@@ -162,23 +162,22 @@ bool MassReco::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
     hjets = *hjets_h.product();
   }
 
-	double chiCut_ = 100000;
+  h1_["pt_z"] -> Fill(zllcand.Pt(), evtwt);
+  h1_["pt_ak41"] -> Fill(ak4s.at(0).getPt(), evtwt);
+  if (hjets.size() > 0) {
+    h1_["pt_hjet"] -> Fill(hjets.at(0).getPt(), evtwt);
+    h1_["nhjet"] -> Fill(hjets.size(), evtwt);
+  }
+  if (zjets.size() > 0){
+    h1_["pt_zjet"] -> Fill(zjets.at(0).getPt(), evtwt);
+    h1_["nzjet"] -> Fill(zjets.size(), evtwt);
+  }
+  h1_["st"] -> Fill(ST, evtwt);
+  h1_["nbjet"] -> Fill(bjets.size(), evtwt);
+  h1_["nak4"] -> Fill(ak4s.size(), evtwt);
 
-//	for (auto& jet : ak8s){
-//		h1_["ak8subjetiness"]->Fill(jet.getTau2()/jet.getTau1(), evtwt);
-//		h1_["ak8prunedMass"]->Fill(jet.getPrunedMass(), evtwt);
-//    h1_["ak8softDropMass"] -> Fill(jet.getSoftDropMass(), evtwt);
-//	}
-//	for (auto& jet : zjets){
-//		h1_["Zsubjetiness"]->Fill(jet.getTau2()/jet.getTau1(), evtwt);
-//		h1_["ZprunedMass"]->Fill(jet.getPrunedMass(), evtwt);
-//    h1_["ZsoftDropMass"] -> Fill(jet.getSoftDropMass(), evtwt);
-//	}
-//	for (auto& jet : hjets){
-//		h1_["Hsubjetiness"]->Fill(jet.getTau2()/jet.getTau1(), evtwt);
-//		h1_["HprunedMass"]->Fill(jet.getPrunedMass(), evtwt);
-//    h1_["HsoftDropMass"] -> Fill(jet.getSoftDropMass(), evtwt);
-//	}
+
+	double chiCut_ = 100000;
 
  	////////////////////////
 	//Begin SR Mass Reco. //	///////////////////////////////////////////////////
@@ -187,22 +186,6 @@ bool MassReco::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
 	if (ak4s.at(0).getPt() > 100 && ak4s.at(1).getPt() > 50 && bjets.size() == 1 && ST > STMin_){
 
     h1_["recoCutflow"] -> Fill(1, evtwt);
-
-//	  for (auto& jet : ak8s){
-//	  	h1_["ak8subjetiness_SR"]->Fill(jet.getTau2()/jet.getTau1(), evtwt);
-//	  	h1_["ak8prunedMass_SR"]->Fill(jet.getPrunedMass(), evtwt);
-//      h1_["ak8softDropMass_SR"] -> Fill(jet.getSoftDropMass(), evtwt);
-//	  }
-//	  for (auto& jet : zjets){
-//	  	h1_["Zsubjetiness_SR"]->Fill(jet.getTau2()/jet.getTau1(), evtwt);
-//	  	h1_["ZprunedMass_SR"]->Fill(jet.getPrunedMass(), evtwt);
-//      h1_["ZsoftDropMass_SR"] -> Fill(jet.getSoftDropMass(), evtwt);
-//	  }
-//	  for (auto& jet : hjets){
-//	  	h1_["Hsubjetiness_SR"]->Fill(jet.getTau2()/jet.getTau1(), evtwt);
-//	  	h1_["HprunedMass_SR"]->Fill(jet.getPrunedMass(), evtwt);
-//      h1_["HsoftDropMass_SR"] -> Fill(jet.getSoftDropMass(), evtwt);
-//	  }
 
 		pair<double, double> resReco_bZ, boostReco_bZ;
   	pair<double, double> resReco_bH, boostReco_bH;
@@ -231,95 +214,183 @@ bool MassReco::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
 
   	if (resReco_bZ.second > 0 && resReco_bZ.first < chiCut_){
     	h1_["resReco_bZ_1b"]->Fill(resReco_bZ.second, evtwt);
-      h1_["resReco_bZ"] -> Fill(resReco_bZ.second, evtwt);
-      if (!syst_ && !vv_) {
+      h1_["st_bZ_1b"] -> Fill(ST, evtwt);
+      if (!syst_ && !vv_ && !isData_) {
         for (unsigned i = 0; i < 101; i++) {
           h1_[Form("resReco_bZ_1b_pdf%d", i+1)] -> Fill(resReco_bZ.second, evtwt*lhe_id_wts.at(i+pdfID_offset_).second);
-          h1_[Form("resReco_bZ_pdf%d", i+1)] -> Fill(resReco_bZ.second, evtwt*lhe_id_wts.at(i+pdfID_offset_).second);
+          h1_[Form("st_bZ_1b_pdf%d", i+1)] -> Fill(ST, evtwt*lhe_id_wts.at(i+pdfID_offset_).second);
+
         }
         for (unsigned i = 0; i < 9; i++) {
           h1_[Form("resReco_bZ_1b_scale%d", i+1)] -> Fill(resReco_bZ.second, evtwt*lhe_id_wts.at(i+scale_offset_).second);
-          h1_[Form("resReco_bZ_scale%d", i+1)] -> Fill(resReco_bZ.second, evtwt*lhe_id_wts.at(i+scale_offset_).second);
+          h1_[Form("st_bZ_1b_scale%d", i+1)] -> Fill(ST, evtwt*lhe_id_wts.at(i+scale_offset_).second);
         }
       }
   	} 
 
   	if (resReco_bH.second > 0 && resReco_bH.first < chiCut_){
     	h1_["resReco_bH_1b"]->Fill(resReco_bH.second, evtwt);
-      h1_["resReco_bH"] -> Fill(resReco_bH.second, evtwt);
-      if (!syst_ && !vv_) {
+      h1_["st_bH_1b"] -> Fill(ST, evtwt);
+      if (!syst_ && !vv_ && !isData_) {
        for (unsigned i = 0; i < 101; i++) {
          h1_[Form("resReco_bH_1b_pdf%d", i+1)] -> Fill(resReco_bH.second, evtwt*lhe_id_wts.at(i+pdfID_offset_).second);
-         h1_[Form("resReco_bH_pdf%d", i+1)] -> Fill(resReco_bH.second, evtwt*lhe_id_wts.at(i+pdfID_offset_).second);
+         h1_[Form("st_bH_1b_pdf%d", i+1)] -> Fill(ST, evtwt*lhe_id_wts.at(i+pdfID_offset_).second);
        }
        for (unsigned i = 0; i < 9; i++) {
          h1_[Form("resReco_bH_1b_scale%d", i+1)] -> Fill(resReco_bH.second, evtwt*lhe_id_wts.at(i+scale_offset_).second);
-         h1_[Form("resReco_bH_scale%d", i+1)] -> Fill(resReco_bH.second, evtwt*lhe_id_wts.at(i+scale_offset_).second);
+         h1_[Form("st_bH_1b_scale%d", i+1)] -> Fill(ST, evtwt*lhe_id_wts.at(i+pdfID_offset_).second);
        }
       }
   	}
 
   	if (boostReco_bZ.second > 0 && boostReco_bZ.first < chiCut_){
-    	h1_["boostReco_bZ_1b"]->Fill(boostReco_bZ.second, evtwt);
       h1_["boostReco_bZ"] -> Fill(boostReco_bZ.second, evtwt);
-      if (!syst_ && !vv_) {
+      h1_["st_bZ_boost"] -> Fill(ST, evtwt);
+      if (!syst_ && !vv_ && !isData_) {
         for (unsigned i = 0; i < 101; i++) {
-          h1_[Form("boostReco_bZ_1b_pdf%d", i+1)] -> Fill(boostReco_bZ.second, evtwt*lhe_id_wts.at(i+pdfID_offset_).second);
           h1_[Form("boostReco_bZ_pdf%d", i+1)] -> Fill(boostReco_bZ.second, evtwt*lhe_id_wts.at(i+pdfID_offset_).second);
+          h1_[Form("st_bZ_boost_pdf%d", i+1)] -> Fill(ST, evtwt*lhe_id_wts.at(i+pdfID_offset_).second);
         }
         for (unsigned i = 0; i < 9; i++) {
-          h1_[Form("boostReco_bZ_1b_scale%d", i+1)] -> Fill(boostReco_bZ.second, evtwt*lhe_id_wts.at(i+scale_offset_).second);
           h1_[Form("boostReco_bZ_scale%d", i+1)] -> Fill(boostReco_bZ.second, evtwt*lhe_id_wts.at(i+scale_offset_).second);
+          h1_[Form("st_bZ_boost_scale%d", i+1)] -> Fill(ST, evtwt*lhe_id_wts.at(i+pdfID_offset_).second);
         }
       }
   	}
 
   	if (boostReco_bH.second > 0 && boostReco_bH.first < chiCut_){
-    	h1_["boostReco_bH_1b"]->Fill(boostReco_bH.second, evtwt);
       h1_["boostReco_bH"] -> Fill(boostReco_bH.second, evtwt);
-      if (!syst_ && !vv_) {
+      h1_["st_bH_boost"] -> Fill(ST, evtwt);
+      if (!syst_ && !vv_ && !isData_) {
         for (unsigned i = 0; i < 101; i++) {
-          h1_[Form("boostReco_bH_1b_pdf%d", i+1)] -> Fill(boostReco_bH.second, evtwt*lhe_id_wts.at(i+pdfID_offset_).second);
           h1_[Form("boostReco_bH_pdf%d", i+1)] -> Fill(boostReco_bH.second, evtwt*lhe_id_wts.at(i+pdfID_offset_).second);
+          h1_[Form("st_bH_boost_pdf%d", i+1)] -> Fill(ST, evtwt*lhe_id_wts.at(i+pdfID_offset_).second);
         }
         for (unsigned i = 0; i < 9; i++) {
-          h1_[Form("boostReco_bH_1b_scale%d", i+1)] -> Fill(boostReco_bH.second, evtwt*lhe_id_wts.at(i+scale_offset_).second);
           h1_[Form("boostReco_bH_scale%d", i+1)] -> Fill(boostReco_bH.second, evtwt*lhe_id_wts.at(i+scale_offset_).second);
+          h1_[Form("st_bH_boost_scale%d", i+1)] -> Fill(ST, evtwt*lhe_id_wts.at(i+pdfID_offset_).second);
         }
       }
   	}
 
-    // Find if bZbZ or bZbH channel has better reconstruction for each category individually
-    if (zjets.size() > 0 && hjets.size() == 0) h1_["boostReco"] -> Fill(boostReco_bZ.second, evtwt);
-    else if (zjets.size() == 0 && hjets.size() > 0) h1_["boostReco"] -> Fill(boostReco_bH.second, evtwt);
-    else if (zjets.size() > 0 && hjets.size() > 0) {
-      if (boostReco_bZ.first < boostReco_bH.first) h1_["boostReco"] -> Fill(boostReco_bZ.second, evtwt);
-      else h1_["boostReco"] -> Fill(boostReco_bH.second, evtwt);
-    }
 
-    if (zjets.size() == 0 && hjets.size() > 0) h1_["resReco"] -> Fill(resReco_bZ.second, evtwt);
-    else if (zjets.size() > 0 && hjets.size() == 0) h1_["resReco"] -> Fill(resReco_bH.second, evtwt);
-    else if (zjets.size() == 0 && hjets.size() == 0) {
-      if (resReco_bZ.first < resReco_bH.first) h1_["resReco"] -> Fill(resReco_bZ.second, evtwt);
-      else h1_["resReco"] -> Fill(resReco_bH.second, evtwt);
-    }
+//    // Find if bZbZ or bZbH channel has better reconstruction for each category individually
+//    if (zjets.size() > 0 && hjets.size() == 0) {
+//      h1_["boostReco"] -> Fill(boostReco_bZ.second, evtwt);
+//      if (!syst_ && !vv_ && !isData_) {
+//        for (unsigned i = 0; i < 101; i++)
+//          h1_[Form("boostReco_pdf%d", i+1)] -> Fill(boostReco_bZ.second, evtwt*lhe_id_wts.at(i+pdfID_offset_).second);
+//        for (unsigned i = 0; i < 9; i++)
+//          h1_[Form("boostReco_scale%d", i+1)] -> Fill(boostReco_bZ.second, evtwt*lhe_id_wts.at(i+scale_offset_).second);
+//      }
+//    }
+//
+//    else if (zjets.size() == 0 && hjets.size() > 0) {
+//      h1_["boostReco"] -> Fill(boostReco_bH.second, evtwt);
+//      if (!syst_ && !vv_ && !isData_) {
+//        for (unsigned i = 0; i < 101; i++)
+//          h1_[Form("boostReco_pdf%d", i+1)] -> Fill(boostReco_bH.second, evtwt*lhe_id_wts.at(i+pdfID_offset_).second);
+//        for (unsigned i = 0; i < 9; i++)
+//          h1_[Form("boostReco_scale%d", i+1)] -> Fill(boostReco_bH.second, evtwt*lhe_id_wts.at(i+scale_offset_).second);
+//      }
+//    }
+//
+//    else if (zjets.size() > 0 && hjets.size() > 0) {
+//      if (boostReco_bZ.first < boostReco_bH.first) {
+//        h1_["boostReco"] -> Fill(boostReco_bZ.second, evtwt);
+//        if (!syst_ && !vv_ && !isData_) {
+//          for (unsigned i = 0; i < 101; i++)
+//            h1_[Form("boostReco_pdf%d", i+1)] -> Fill(boostReco_bZ.second, evtwt*lhe_id_wts.at(i+pdfID_offset_).second);
+//          for (unsigned i = 0; i < 9; i++)
+//            h1_[Form("boostReco_scale%d", i+1)] -> Fill(boostReco_bZ.second, evtwt*lhe_id_wts.at(i+scale_offset_).second);
+//        }
+//      }
+//      else {
+//        h1_["boostReco"] -> Fill(boostReco_bH.second, evtwt);
+//        if (!syst_ && !vv_ && !isData_) {
+//          for (unsigned i = 0; i < 101; i++)
+//            h1_[Form("boostReco_pdf%d", i+1)] -> Fill(boostReco_bH.second, evtwt*lhe_id_wts.at(i+pdfID_offset_).second);
+//          for (unsigned i = 0; i < 9; i++)
+//            h1_[Form("boostReco_scale%d", i+1)] -> Fill(boostReco_bH.second, evtwt*lhe_id_wts.at(i+scale_offset_).second);
+//        }
+//      }
+//    }
+//
+//    if (zjets.size() == 0 && hjets.size() > 0) {
+//      h1_["resReco"] -> Fill(resReco_bZ.second, evtwt);
+//        if (!syst_ && !vv_ && !isData_) {
+//          for (unsigned i = 0; i < 101; i++)
+//            h1_[Form("resReco_pdf%d", i+1)] -> Fill(resReco_bZ.second, evtwt*lhe_id_wts.at(i+pdfID_offset_).second);
+//          for (unsigned i = 0; i < 9; i++)
+//            h1_[Form("resReco_scale%d", i+1)] -> Fill(resReco_bZ.second, evtwt*lhe_id_wts.at(i+scale_offset_).second);
+//        }
+//    }
+//    else if (zjets.size() > 0 && hjets.size() == 0) {
+//      h1_["resReco"] -> Fill(resReco_bH.second, evtwt);
+//        if (!syst_ && !vv_ && !isData_) {
+//          for (unsigned i = 0; i < 101; i++)
+//            h1_[Form("resReco_pdf%d", i+1)] -> Fill(resReco_bH.second, evtwt*lhe_id_wts.at(i+pdfID_offset_).second);
+//          for (unsigned i = 0; i < 9; i++)
+//            h1_[Form("resReco_scale%d", i+1)] -> Fill(resReco_bH.second, evtwt*lhe_id_wts.at(i+scale_offset_).second);
+//        }
+//    }
+//    else if (zjets.size() == 0 && hjets.size() == 0) {
+//      if (resReco_bZ.first < resReco_bH.first) {
+//        h1_["resReco"] -> Fill(resReco_bZ.second, evtwt);
+//        if (!syst_ && !vv_ && !isData_) {
+//          for (unsigned i = 0; i < 101; i++)
+//            h1_[Form("resReco_pdf%d", i+1)] -> Fill(resReco_bZ.second, evtwt*lhe_id_wts.at(i+pdfID_offset_).second);
+//          for (unsigned i = 0; i < 9; i++)
+//            h1_[Form("resReco_scale%d", i+1)] -> Fill(resReco_bZ.second, evtwt*lhe_id_wts.at(i+scale_offset_).second);
+//        }
+//      }
+//      else {
+//        h1_["resReco"] -> Fill(resReco_bH.second, evtwt);
+//        if (!syst_ && !vv_ && !isData_) {
+//          for (unsigned i = 0; i < 101; i++)
+//            h1_[Form("resReco_pdf%d", i+1)] -> Fill(resReco_bH.second, evtwt*lhe_id_wts.at(i+pdfID_offset_).second);
+//          for (unsigned i = 0; i < 9; i++)
+//            h1_[Form("resReco_scale%d", i+1)] -> Fill(resReco_bH.second, evtwt*lhe_id_wts.at(i+scale_offset_).second);
+//        }
+//      }
+//    }
 
-    // Find if boosted or resolved category does better for each channel individually
-    if (boostReco_bZ.first < 9999 && boostReco_bZ.first > 0) comboBZ = boostReco_bZ;
-    else if(resReco_bZ.first < 9999 && resReco_bZ.first > 0) comboBZ = resReco_bZ;
-
-    if (boostReco_bH.first < 9999 && boostReco_bH.first > 0) comboBH = boostReco_bH;
-    else if (resReco_bH.first < 9999 && resReco_bH.first > 0) comboBH = resReco_bH;
 
 
-    if (comboBZ.first > 0) h1_["comboReco_bZ"] -> Fill(comboBZ.second, evtwt);
-    if (comboBH.first > 0) h1_["comboReco_bH"] -> Fill(comboBH.second, evtwt);
 
-    // Find best combination of channel and category
-    if (comboBZ.first <= 0 && comboBH.first > 0)  h1_["comboReco"] -> Fill(comboBH.second, evtwt);
-    else if (comboBZ.first > 0 && comboBH.first <= 0) h1_["comboReco"] -> Fill(comboBZ.second, evtwt);
-    else if (comboBZ.first < comboBH.first)  h1_["comboReco"] -> Fill(comboBZ.second, evtwt);
-    else if (comboBZ.first > comboBH.first)  h1_["comboReco"] -> Fill(comboBH.second, evtwt);
+
+
+//    // Find if bZbZ or bZbH channel has better reconstruction for each category individually
+//    if (zjets.size() > 0 && hjets.size() == 0) h1_["boostReco"] -> Fill(boostReco_bZ.second, evtwt);
+//    else if (zjets.size() == 0 && hjets.size() > 0) h1_["boostReco"] -> Fill(boostReco_bH.second, evtwt);
+//    else if (zjets.size() > 0 && hjets.size() > 0) {
+//      if (boostReco_bZ.first < boostReco_bH.first) h1_["boostReco"] -> Fill(boostReco_bZ.second, evtwt);
+//      else h1_["boostReco"] -> Fill(boostReco_bH.second, evtwt);
+//    }
+//
+//    if (zjets.size() == 0 && hjets.size() > 0) h1_["resReco"] -> Fill(resReco_bZ.second, evtwt);
+//    else if (zjets.size() > 0 && hjets.size() == 0) h1_["resReco"] -> Fill(resReco_bH.second, evtwt);
+//    else if (zjets.size() == 0 && hjets.size() == 0) {
+//      if (resReco_bZ.first < resReco_bH.first) h1_["resReco"] -> Fill(resReco_bZ.second, evtwt);
+//      else h1_["resReco"] -> Fill(resReco_bH.second, evtwt);
+//    }
+//
+//    // Find if boosted or resolved category does better for each channel individually
+//    if (boostReco_bZ.first < 9999 && boostReco_bZ.first > 0) comboBZ = boostReco_bZ;
+//    else if(resReco_bZ.first < 9999 && resReco_bZ.first > 0) comboBZ = resReco_bZ;
+//
+//    if (boostReco_bH.first < 9999 && boostReco_bH.first > 0) comboBH = boostReco_bH;
+//    else if (resReco_bH.first < 9999 && resReco_bH.first > 0) comboBH = resReco_bH;
+//
+//
+//    if (comboBZ.first > 0) h1_["comboReco_bZ"] -> Fill(comboBZ.second, evtwt);
+//    if (comboBH.first > 0) h1_["comboReco_bH"] -> Fill(comboBH.second, evtwt);
+//
+//    // Find best combination of channel and category
+//    if (comboBZ.first <= 0 && comboBH.first > 0)  h1_["comboReco"] -> Fill(comboBH.second, evtwt);
+//    else if (comboBZ.first > 0 && comboBH.first <= 0) h1_["comboReco"] -> Fill(comboBZ.second, evtwt);
+//    else if (comboBZ.first < comboBH.first)  h1_["comboReco"] -> Fill(comboBZ.second, evtwt);
+//    else if (comboBZ.first > comboBH.first)  h1_["comboReco"] -> Fill(comboBH.second, evtwt);
     
   }
 
@@ -355,250 +426,145 @@ bool MassReco::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
 
   	if (resReco_bZ_2b.second > 0 && resReco_bZ_2b.first < chiCut_){
     	h1_["resReco_bZ_2b"]->Fill(resReco_bZ_2b.second, evtwt);
-      h1_["resReco_bZ"] -> Fill(resReco_bZ_2b.second, evtwt);
-      if (!syst_ && !vv_) {
+      h1_["st_bZ_2b"]->Fill(ST, evtwt);
+      if (!syst_ && !vv_ && !isData_) {
       for (unsigned i = 0; i < 101; i++) {
         h1_[Form("resReco_bZ_2b_pdf%d", i+1)] -> Fill(resReco_bZ_2b.second, evtwt*lhe_id_wts.at(i+pdfID_offset_).second);
-        h1_[Form("resReco_bZ_pdf%d", i+1)] -> Fill(resReco_bZ_2b.second, evtwt*lhe_id_wts.at(i+pdfID_offset_).second);
+        h1_[Form("st_bZ_2b_pdf%d", i+1)] -> Fill(ST, evtwt*lhe_id_wts.at(i+pdfID_offset_).second);
       }
       for (unsigned i = 0; i < 9; i++) {
         h1_[Form("resReco_bZ_2b_scale%d", i+1)] -> Fill(resReco_bZ_2b.second, evtwt*lhe_id_wts.at(i+scale_offset_).second);
-        h1_[Form("resReco_bZ_scale%d", i+1)] -> Fill(resReco_bZ_2b.second, evtwt*lhe_id_wts.at(i+scale_offset_).second);
+        h1_[Form("st_bZ_2b_scale%d", i+1)] -> Fill(ST, evtwt*lhe_id_wts.at(i+pdfID_offset_).second);
       }
       }
   	} 
 
   	if (resReco_bH_2b.second > 0 && resReco_bH_2b.first < chiCut_){
     	h1_["resReco_bH_2b"]->Fill(resReco_bH_2b.second, evtwt);
-      h1_["resReco_bH"] -> Fill(resReco_bH_2b.second, evtwt);
-      if (!syst_ && !vv_) {
+    	h1_["st_bH_2b"]->Fill(ST, evtwt);
+      if (!syst_ && !vv_ && !isData_) {
        for (unsigned i = 0; i < 101; i++) {
          h1_[Form("resReco_bH_2b_pdf%d", i+1)] -> Fill(resReco_bH_2b.second, evtwt*lhe_id_wts.at(i+pdfID_offset_).second);
-         h1_[Form("resReco_bH_pdf%d", i+1)] -> Fill(resReco_bH_2b.second, evtwt*lhe_id_wts.at(i+pdfID_offset_).second);
+         h1_[Form("st_bH_2b_pdf%d", i+1)] -> Fill(ST, evtwt*lhe_id_wts.at(i+pdfID_offset_).second);
        }
        for (unsigned i = 0; i < 9; i++) {
          h1_[Form("resReco_bH_2b_scale%d", i+1)] -> Fill(resReco_bH_2b.second, evtwt*lhe_id_wts.at(i+scale_offset_).second);
-         h1_[Form("resReco_bH_scale%d", i+1)] -> Fill(resReco_bH_2b.second, evtwt*lhe_id_wts.at(i+scale_offset_).second);
+         h1_[Form("st_bH_2b_scale%d", i+1)] -> Fill(ST, evtwt*lhe_id_wts.at(i+pdfID_offset_).second);
        }
       }
   	}
 
   	if (boostReco_bZ_2b.second > 0 && boostReco_bZ_2b.first < chiCut_){
-    	h1_["boostReco_bZ_2b"]->Fill(boostReco_bZ_2b.second, evtwt);
       h1_["boostReco_bZ"] -> Fill(boostReco_bZ_2b.second, evtwt);
-      if (!syst_ && !vv_) {
+      h1_["st_bZ_boost"] -> Fill(ST, evtwt);
+      if (!syst_ && !vv_ && !isData_) {
        for (unsigned i = 0; i < 101; i++) {
-         h1_[Form("boostReco_bZ_2b_pdf%d", i+1)] -> Fill(boostReco_bZ_2b.second, evtwt*lhe_id_wts.at(i+pdfID_offset_).second);
          h1_[Form("boostReco_bZ_pdf%d", i+1)] -> Fill(boostReco_bZ_2b.second, evtwt*lhe_id_wts.at(i+pdfID_offset_).second);
+         h1_[Form("st_bZ_boost_pdf%d", i+1)] -> Fill(ST, evtwt*lhe_id_wts.at(i+pdfID_offset_).second);
        }
       for (unsigned i = 0; i < 9; i++) {
-         h1_[Form("boostReco_bZ_2b_scale%d", i+1)] -> Fill(boostReco_bZ_2b.second, evtwt*lhe_id_wts.at(i+scale_offset_).second);
          h1_[Form("boostReco_bZ_scale%d", i+1)] -> Fill(boostReco_bZ_2b.second, evtwt*lhe_id_wts.at(i+scale_offset_).second);
+         h1_[Form("st_bZ_boost_scale%d", i+1)] -> Fill(ST, evtwt*lhe_id_wts.at(i+pdfID_offset_).second);
        }
       }
   	}
 
   	if (boostReco_bH_2b.second > 0 && boostReco_bH_2b.first < chiCut_){
-    	h1_["boostReco_bH_2b"]->Fill(boostReco_bH_2b.second, evtwt);
       h1_["boostReco_bH"] -> Fill(boostReco_bH_2b.second, evtwt);
-      if (!syst_ && !vv_) {
+      h1_["st_bH_boost"] -> Fill(ST, evtwt);
+      if (!syst_ && !vv_ && !isData_) {
         for (unsigned i = 0; i < 101; i++) {
-          h1_[Form("boostReco_bH_2b_pdf%d", i+1)] -> Fill(boostReco_bH_2b.second, evtwt*lhe_id_wts.at(i+pdfID_offset_).second);
           h1_[Form("boostReco_bH_pdf%d", i+1)] -> Fill(boostReco_bH_2b.second, evtwt*lhe_id_wts.at(i+pdfID_offset_).second);
+         h1_[Form("st_bH_boost_pdf%d", i+1)] -> Fill(ST, evtwt*lhe_id_wts.at(i+pdfID_offset_).second);
         }
         for (unsigned i = 0; i < 9; i++) {
-          h1_[Form("boostReco_bH_2b_scale%d", i+1)] -> Fill(boostReco_bH_2b.second, evtwt*lhe_id_wts.at(i+scale_offset_).second);
           h1_[Form("boostReco_bH_scale%d", i+1)] -> Fill(boostReco_bH_2b.second, evtwt*lhe_id_wts.at(i+scale_offset_).second);
+         h1_[Form("st_bH_boost_scale%d", i+1)] -> Fill(ST, evtwt*lhe_id_wts.at(i+pdfID_offset_).second);
         }
       }
   	}
 
-    // Find if bZbZ or bZbH channel has better reconstruction for each category individually
-    if (boostReco_bZ_2b.first > 0) {
-      if (boostReco_bH_2b.first > 0 && boostReco_bH_2b.first < boostReco_bZ_2b.first)  h1_["boostReco_2b"] -> Fill(boostReco_bH_2b.second, evtwt);
-      else  h1_["boostReco_2b"] -> Fill(boostReco_bZ_2b.second, evtwt);
-    }
-    else  h1_["boostReco_2b"] -> Fill(boostReco_bH_2b.second, evtwt);
+ //   // Find if bZbZ or bZbH channel has better reconstruction for each category individually
+ //   if (zjets.size() > 0 && hjets.size() == 0) {
+ //     h1_["boostReco_2b"] -> Fill(boostReco_bZ_2b.second, evtwt);
+ //     if (!syst_ && !vv_ && !isData_) {
+ //       for (unsigned i = 0; i < 101; i++)
+ //         h1_[Form("boostReco_2b_pdf%d", i+1)] -> Fill(boostReco_bZ_2b.second, evtwt*lhe_id_wts.at(i+pdfID_offset_).second);
+ //       for (unsigned i = 0; i < 9; i++)
+ //         h1_[Form("boostReco_2b_scale%d", i+1)] -> Fill(boostReco_bZ_2b.second, evtwt*lhe_id_wts.at(i+scale_offset_).second);
+ //     }
+ //   }
 
-    if (resReco_bZ_2b.first > 0) {
-      if (resReco_bH_2b.first > 0 && resReco_bH_2b.first < resReco_bZ_2b.first)  h1_["resReco_2b"] -> Fill(resReco_bH_2b.second, evtwt);
-      else  h1_["resReco_2b"] -> Fill(resReco_bZ_2b.second, evtwt);
-    }
-    else  h1_["resReco_2b"] -> Fill(resReco_bH_2b.second, evtwt);
+ //   else if (zjets.size() == 0 && hjets.size() > 0) {
+ //     h1_["boostReco_2b"] -> Fill(boostReco_bH_2b.second, evtwt);
+ //     if (!syst_ && !vv_ && !isData_) {
+ //       for (unsigned i = 0; i < 101; i++)
+ //         h1_[Form("boostReco_2b_pdf%d", i+1)] -> Fill(boostReco_bH_2b.second, evtwt*lhe_id_wts.at(i+pdfID_offset_).second);
+ //       for (unsigned i = 0; i < 9; i++)
+ //         h1_[Form("boostReco_2b_scale%d", i+1)] -> Fill(boostReco_bH_2b.second, evtwt*lhe_id_wts.at(i+scale_offset_).second);
+ //     }
+ //   }
 
-    // Find if boosted or resolved category does better for each channel individually
-    if (boostReco_bZ_2b.first < 9999 && boostReco_bZ_2b.first > 0) comboBZ_2b = boostReco_bZ_2b;
-    else if(resReco_bZ_2b.first < 9999 && resReco_bZ_2b.first > 0) comboBZ_2b = resReco_bZ_2b;
+ //   else if (zjets.size() > 0 && hjets.size() > 0) {
+ //     if (boostReco_bZ_2b.first < boostReco_bH_2b.first) {
+ //       h1_["boostReco_2b"] -> Fill(boostReco_bZ_2b.second, evtwt);
+ //       if (!syst_ && !vv_ && !isData_) {
+ //         for (unsigned i = 0; i < 101; i++)
+ //           h1_[Form("boostReco_2b_pdf%d", i+1)] -> Fill(boostReco_bZ_2b.second, evtwt*lhe_id_wts.at(i+pdfID_offset_).second);
+ //         for (unsigned i = 0; i < 9; i++)
+ //           h1_[Form("boostReco_2b_scale%d", i+1)] -> Fill(boostReco_bZ_2b.second, evtwt*lhe_id_wts.at(i+scale_offset_).second);
+ //       }
+ //     }
+ //     else {
+ //       h1_["boostReco_2b"] -> Fill(boostReco_bH_2b.second, evtwt);
+ //       if (!syst_ && !vv_ && !isData_) {
+ //         for (unsigned i = 0; i < 101; i++)
+ //           h1_[Form("boostReco_2b_pdf%d", i+1)] -> Fill(boostReco_bH_2b.second, evtwt*lhe_id_wts.at(i+pdfID_offset_).second);
+ //         for (unsigned i = 0; i < 9; i++)
+ //           h1_[Form("boostReco_2b_scale%d", i+1)] -> Fill(boostReco_bH_2b.second, evtwt*lhe_id_wts.at(i+scale_offset_).second);
+ //       }
+ //     }
+ //   }
 
-    if (boostReco_bH_2b.first < 9999 && boostReco_bH_2b.first > 0) comboBH_2b = boostReco_bH_2b;
-    else if (resReco_bH_2b.first < 9999 && resReco_bH_2b.first > 0) comboBH_2b = resReco_bH_2b;
-
-
-    if (comboBZ_2b.first > 0) h1_["comboReco_bZ_2b"] -> Fill(comboBZ_2b.second, evtwt);
-    if (comboBH_2b.first > 0) h1_["comboReco_bH_2b"] -> Fill(comboBH_2b.second, evtwt);
-
-    // Find best combination of channel and category
-    if (comboBZ_2b.first <= 0 && comboBH_2b.first > 0)  h1_["comboReco_2b"] -> Fill(comboBH_2b.second, evtwt);
-    else if (comboBZ_2b.first > 0 && comboBZ_2b.first <= 0) h1_["comboReco_2b"] -> Fill(comboBZ_2b.second, evtwt);
-    else if (comboBZ_2b.first < comboBH_2b.first)  h1_["comboReco_2b"] -> Fill(comboBZ_2b.second, evtwt);
-    else if (comboBZ_2b.first > comboBH_2b.first)  h1_["comboReco_2b"] -> Fill(comboBH_2b.second, evtwt);
-
-
+ //   if (zjets.size() == 0 && hjets.size() > 0) {
+ //     h1_["resReco_2b"] -> Fill(resReco_bZ_2b.second, evtwt);
+ //       if (!syst_ && !vv_ && !isData_) {
+ //         for (unsigned i = 0; i < 101; i++)
+ //           h1_[Form("resReco_2b_pdf%d", i+1)] -> Fill(resReco_bZ_2b.second, evtwt*lhe_id_wts.at(i+pdfID_offset_).second);
+ //         for (unsigned i = 0; i < 9; i++)
+ //           h1_[Form("resReco_2b_scale%d", i+1)] -> Fill(resReco_bZ_2b.second, evtwt*lhe_id_wts.at(i+scale_offset_).second);
+ //       }
+ //   }
+ //   else if (zjets.size() > 0 && hjets.size() == 0) {
+ //     h1_["resReco_2b"] -> Fill(resReco_bH_2b.second, evtwt);
+ //       if (!syst_ && !vv_ && !isData_) {
+ //         for (unsigned i = 0; i < 101; i++)
+ //           h1_[Form("resReco_2b_pdf%d", i+1)] -> Fill(resReco_bH_2b.second, evtwt*lhe_id_wts.at(i+pdfID_offset_).second);
+ //         for (unsigned i = 0; i < 9; i++)
+ //           h1_[Form("resReco_2b_scale%d", i+1)] -> Fill(resReco_bH_2b.second, evtwt*lhe_id_wts.at(i+scale_offset_).second);
+ //       }
+ //   }
+ //   else if (zjets.size() == 0 && hjets.size() == 0) {
+ //     if (resReco_bZ_2b.first < resReco_bH_2b.first) {
+ //       h1_["resReco_2b"] -> Fill(resReco_bZ_2b.second, evtwt);
+ //       if (!syst_ && !vv_ && !isData_) {
+ //         for (unsigned i = 0; i < 101; i++)
+ //           h1_[Form("resReco_2b_pdf%d", i+1)] -> Fill(resReco_bZ_2b.second, evtwt*lhe_id_wts.at(i+pdfID_offset_).second);
+ //         for (unsigned i = 0; i < 9; i++)
+ //           h1_[Form("resReco_2b_scale%d", i+1)] -> Fill(resReco_bZ_2b.second, evtwt*lhe_id_wts.at(i+scale_offset_).second);
+ //       }
+ //     }
+ //     else {
+ //       h1_["resReco_2b"] -> Fill(resReco_bH_2b.second, evtwt);
+ //       if (!syst_ && !vv_ && !isData_) {
+ //         for (unsigned i = 0; i < 101; i++)
+ //           h1_[Form("resReco_2b_pdf%d", i+1)] -> Fill(resReco_bH_2b.second, evtwt*lhe_id_wts.at(i+pdfID_offset_).second);
+ //         for (unsigned i = 0; i < 9; i++)
+ //           h1_[Form("resReco_2b_scale%d", i+1)] -> Fill(resReco_bH_2b.second, evtwt*lhe_id_wts.at(i+scale_offset_).second);
+ //       }
+ //     }
+ //   }
 	}
-
-	////////////////////////
-	//Begin CR Mass Reco. //	///////////////////////////////////////////////////
-	////////////////////////
-
-	if (bjets.size() > 0 && ST < STMaxControl_ &&  controlReco_){
-//  	for (auto& jet : ak8s){
-//  		h1_["ak8subjetiness_CR"]->Fill(jet.getTau2()/jet.getTau1(), evtwt);
-//  		h1_["ak8prunedMass_CR"]->Fill(jet.getPrunedMass(), evtwt);
-//      h1_["ak8softDropMass_CR"] -> Fill(jet.getSoftDropMass(), evtwt);
-//  	}
-//  	for (auto& jet : zjets){
-//  		h1_["Zsubjetiness_CR"]->Fill(jet.getTau2()/jet.getTau1(), evtwt);
-//  		h1_["ZprunedMass_CR"]->Fill(jet.getPrunedMass(), evtwt);
-//      h1_["ZsoftDropMass_CR"] -> Fill(jet.getSoftDropMass(), evtwt);
-//  	}
-//  	for (auto& jet : hjets){
-//  		h1_["Hsubjetiness_CR"]->Fill(jet.getTau2()/jet.getTau1(), evtwt);
-//  		h1_["HprunedMass_CR"]->Fill(jet.getPrunedMass(), evtwt);
-//      h1_["HsoftDropMass_CR"] -> Fill(jet.getSoftDropMass(), evtwt);
-//  	}
-  
-		pair<double, double> resCon1_bZ(9999,-1), boostCon1_bZ(9999,-1);
-		pair<double, double> resCon1_bH(9999,-1), boostCon1_bH(9999,-1);
-					
-
-		if (zjets.size() > 0)
-			boostCon1_bZ = doBoostedReco(ak4s, zjets.at(0).getP4(), 91.2, zllcand, 150.);
-		if (hjets.size() > 0)
-			boostCon1_bH = doBoostedReco(ak4s, hjets.at(0).getP4(), 125., zllcand, 150.);
-
-		if (ak4s.size() > 3){
-			if (zjets.size() == 0)
-				resCon1_bZ = doResolvedReco(ak4s, 91.2, zllcand);
-			if (hjets.size() == 0)
-			  resCon1_bH = doResolvedReco(ak4s, 125., zllcand);
-		}
-
-    pair<double, double> comboBZ_con1, comboBH_con1;
-
-  	if (resCon1_bZ.second > 0){
-    	h1_["resCon1_bZ"]->Fill(resCon1_bZ.second, evtwt);
-  	} 
-
-  	if (resCon1_bH.second > 0){
-    	h1_["resCon1_bH"]->Fill(resCon1_bH.second, evtwt);
-  	}
-
-  	if (boostCon1_bZ.second > 0){
-    	h1_["boostCon1_bZ"]->Fill(boostCon1_bZ.second, evtwt);
-  	}
-
-  	if (boostCon1_bH.second > 0){
-    	h1_["boostCon1_bH"]->Fill(boostCon1_bH.second, evtwt);
-  	}
-
-    // Find if bZbZ or bZbH channel has better reconstruction for each category individually
-    if (zjets.size() > 0 && hjets.size() == 0) h1_["boostCon1"] -> Fill(boostCon1_bZ.second, evtwt);
-    else if (zjets.size() == 0 && hjets.size() > 0) h1_["boostCon1"] -> Fill(boostCon1_bH.second, evtwt);
-    else if (zjets.size() > 0 && hjets.size() > 0) {
-      if (boostCon1_bZ.first < boostCon1_bH.first) h1_["boostCon1"] -> Fill(boostCon1_bZ.second, evtwt);
-      else h1_["boostCon1"] -> Fill(boostCon1_bH.second, evtwt);
-    }
-
-    if (zjets.size() == 0 && hjets.size() > 0) h1_["resCon1"] -> Fill(resCon1_bZ.second, evtwt);
-    else if (zjets.size() > 0 && hjets.size() == 0) h1_["resCon1"] -> Fill(resCon1_bH.second, evtwt);
-    else if (zjets.size() == 0 && hjets.size() == 0) {
-      if (resCon1_bZ.first < resCon1_bH.first) h1_["resCon1"] -> Fill(resCon1_bZ.second, evtwt);
-      else h1_["resCon1"] -> Fill(resCon1_bH.second, evtwt);
-    }
-
-    // Find if boosted or resolved category does better for each channel individually
-    if (boostCon1_bZ.first < 9999 && boostCon1_bZ.first > 0) comboBZ_con1 = boostCon1_bZ;
-    else if(resCon1_bZ.first < 9999 && resCon1_bZ.first > 0) comboBZ_con1 = resCon1_bZ;
-
-    if (boostCon1_bH.first < 9999 && boostCon1_bH.first > 0) comboBH_con1 = boostCon1_bH;
-    else if (resCon1_bH.first < 9999 && resCon1_bH.first > 0) comboBH_con1 = resCon1_bH;
-
-
-    if (comboBZ_con1.first > 0) h1_["comboCon1_bZ"] -> Fill(comboBZ_con1.second, evtwt);
-    if (comboBH_con1.first > 0) h1_["comboCon1_bH"] -> Fill(comboBH_con1.second, evtwt);
-
-    // Find best combination of channel and category
-    if (comboBZ_con1.first <= 0 && comboBH_con1.first > 0)  h1_["comboCon1"] -> Fill(comboBH_con1.second, evtwt);
-    else if (comboBZ_con1.first > 0 && comboBH_con1.first <= 0) h1_["comboCon1"] -> Fill(comboBZ_con1.second, evtwt);
-    else if (comboBZ_con1.first < comboBH_con1.first)  h1_["comboCon1"] -> Fill(comboBZ_con1.second, evtwt);
-    else if (comboBZ_con1.first > comboBH_con1.first)  h1_["comboCon1"] -> Fill(comboBH_con1.second, evtwt);
-
-	}
-
-	if (bjets.size() == 0 && ST > STMin_ &&  controlReco_){
-
-		pair<double, double> resCon2_bZ(9999,-1), boostCon2_bZ(9999,-1);
-		pair<double, double> resCon2_bH(9999,-1), boostCon2_bH(9999,-1);
-
-		if (zjets.size() > 0)
-			boostCon2_bZ = doBoostedReco(ak4s, zjets.at(0).getP4(), 91.2, zllcand, 150.);
-		if (hjets.size() > 0)
-			boostCon2_bH = doBoostedReco(ak4s, hjets.at(0).getP4(), 125., zllcand, 150.);
-
-		if (ak4s.size() > 3){
-			if (zjets.size() == 0)
-				resCon2_bZ = doResolvedReco(ak4s, 91.2, zllcand);
-			if (hjets.size() == 0)
-			  resCon2_bH = doResolvedReco(ak4s, 125., zllcand);
-		}
-
-    pair<double, double> comboBZ_con2, comboBH_con2;
-
-  	if (resCon2_bZ.second > 0){
-      h1_["resCon2_bZ"] -> Fill(resCon2_bZ.second, evtwt);
-  	} 
-  	if (resCon2_bH.second > 0){
-      h1_["resCon2_bH"] -> Fill(resCon2_bH.second, evtwt);
-  	}
-  	if (boostCon2_bZ.second > 0){
-      h1_["boostCon2_bZ"] -> Fill(boostCon2_bZ.second, evtwt);
-  	}
-  	if (boostCon2_bH.second > 0){
-      h1_["boostCon2_bH"] -> Fill(boostCon2_bH.second, evtwt);
-  	}
-
-    // Find if bZbZ or bZbH channel has better reconstruction for each category individually
-    if (zjets.size() > 0 && hjets.size() == 0) h1_["boostCon2"] -> Fill(boostCon2_bZ.second, evtwt);
-    else if (zjets.size() == 0 && hjets.size() > 0) h1_["boostCon2"] -> Fill(boostCon2_bH.second, evtwt);
-    else if (zjets.size() > 0 && hjets.size() > 0) {
-      if (boostCon2_bZ.first < boostCon2_bH.first) h1_["boostCon2"] -> Fill(boostCon2_bZ.second, evtwt);
-      else h1_["boostCon2"] -> Fill(boostCon2_bH.second, evtwt);
-    }
-
-    if (zjets.size() == 0 && hjets.size() > 0) h1_["resCon2"] -> Fill(resCon2_bZ.second, evtwt);
-    else if (zjets.size() > 0 && hjets.size() == 0) h1_["resCon2"] -> Fill(resCon2_bH.second, evtwt);
-    else if (zjets.size() == 0 && hjets.size() == 0) {
-      if (resCon2_bZ.first < resCon2_bH.first) h1_["resCon2"] -> Fill(resCon2_bZ.second, evtwt);
-      else h1_["resCon2"] -> Fill(resCon2_bH.second, evtwt);
-    }
-
-    // Find if boosted or resolved category does better for each channel individually
-    if (boostCon2_bZ.first < 9999 && boostCon2_bZ.first > 0) comboBZ_con2 = boostCon2_bZ;
-    else if(resCon2_bZ.first < 9999 && resCon2_bZ.first > 0) comboBZ_con2 = resCon2_bZ;
-
-    if (boostCon2_bH.first < 9999 && boostCon2_bH.first > 0) comboBH_con2 = boostCon2_bH;
-    else if (resCon2_bH.first < 9999 && resCon2_bH.first > 0) comboBH_con2 = resCon2_bH;
-
-    if (comboBZ_con2.first > 0) h1_["comboCon2_bZ"] -> Fill(comboBZ_con2.second, evtwt);
-    if (comboBH_con2.first > 0) h1_["comboCon2_bH"] -> Fill(comboBH_con2.second, evtwt);
-
-    // Find best combination of channel and category
-    if (comboBZ_con2.first <= 0 && comboBH_con2.first > 0)  h1_["comboCon2"] -> Fill(comboBH_con2.second, evtwt);
-    else if (comboBZ_con2.first > 0 && comboBH_con2.first <= 0) h1_["comboCon2"] -> Fill(comboBZ_con2.second, evtwt);
-    else if (comboBZ_con2.first < comboBH_con2.first)  h1_["comboCon2"] -> Fill(comboBZ_con2.second, evtwt);
-    else if (comboBZ_con2.first > comboBH_con2.first)  h1_["comboCon2"] -> Fill(comboBH_con2.second, evtwt);
-	}
-
 
 	///////////////////////
 	//Begin Optimization //	/////////////////////////////////////////////
@@ -611,20 +577,6 @@ bool MassReco::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
 		TLorentzVector bGen, bbarGen, q1, q2, ZGen, HGen;
 		TLorentzVector bJet, bbarJet, qJet, qbarJet, ZJet, HJet;
 		TLorentzVector had_bjet, lep_bjet, had_bgen, lep_bgen;
-
-
-//    // testing H-mass
-//    vector<TLorentzVector> genH, matchH;
-//    for (auto& gen : genPartsInfo) {
-//      if (abs(gen.getPdgID()) == 25 && abs(gen.getMom0PdgID()) == 8000002) 
-//        genH.push_back(gen.getP4());
-//    }
-//    for (auto& jet : ak8s) {
-//      if (genH.size() > 0 && jet.getP4().DeltaR(genH.at(0)) < 0.4) {
-//        h1_["matchedToH_pt"] -> Fill(jet.getPt(), evtwt);
-//        h1_["matchedToH_pMass"] -> Fill(jet.getPrunedMass(), evtwt);
-//      }
-//    }
 
 		for (auto& gen : genPartsInfo){
 			if (gen.getPdgID() == 5 && abs(gen.getMom0PdgID()) == 8000002 && gen.getPt() != 0)
@@ -716,16 +668,37 @@ void MassReco::beginJob(){
 
   h1_["recoCutflow"] = fs->make<TH1D>("recoCutlow", "Count", 2, -0.5, 1.5);
 
-//  h1_["matchedToH_pt"] = fs->make<TH1D>("matchedToH_pt", "H-tag Pt", 100, 0., 1000);
-//  h1_["matchedToH_pMass"] = fs->make<TH1D>("matchedToH_pMass", "H-tag Pruned Mass", 100, 0., 180.);
-
-
   h1_["resReco_bZ_1b"] = fs->make<TH1D>("resReco_bZ_1b", "Resolved Reconstruction B->bZ;M_{#chi^{2}}(B);;", 1000, 0., 3000);
   h1_["resReco_bH_1b"] = fs->make<TH1D>("resReco_bH_1b", "Resolved Reconstruction B->bH;M_{#chi^{2}}(B);;", 1000, 0., 3000);
   h1_["boostReco_bZ_1b"] = fs->make<TH1D>("boostReco_bZ_1b", "Boosted Reconstruction B->bZ;M_{#chi^{2}}(B);;", 1000, 0., 3000);
   h1_["boostReco_bH_1b"] = fs->make<TH1D>("boostReco_bH_1b", "Boosted Reconstruction B->bH;M_{#chi^{2}}(B);;", 1000, 0., 3000);
 
+    h1_["pt_z"]   = fs->make<TH1D>("pt_z", "", 1000, 0., 3000);
+    h1_["pt_ak41"]= fs->make<TH1D>("pt_ak41", "", 1000, 0., 3000);
+    h1_["pt_hjet"]= fs->make<TH1D>("pt_hjet", "", 1000, 0., 3000);
+    h1_["pt_zjet"]= fs->make<TH1D>("pt_zjet", "", 1000, 0., 3000);
+    h1_["st"]     = fs->make<TH1D>("st", "", 1000, 0., 3000);
+    h1_["nhjet"]  = fs->make<TH1D>("nhjet", "", 10, 0., 100);
+    h1_["nzjet"]  = fs->make<TH1D>("nzjet", "", 10, 0., 10);
+    h1_["nbjet"]  = fs->make<TH1D>("nbjet", "", 10, 0., 10);
+    h1_["nak4"]   = fs->make<TH1D>("nak4", "", 10, 0., 10);
+
+  h1_["st_bZ_boost"] = fs->make<TH1D>("st_bZ_boost", "ST", 100, 0., 4000.);
+  h1_["st_bH_boost"] = fs->make<TH1D>("st_bH_boost", "ST", 100, 0., 4000.);
+  h1_["st_bZ_1b"] = fs->make<TH1D>("st_bZ_1b", "ST", 100, 0., 4000.);
+  h1_["st_bH_1b"] = fs->make<TH1D>("st_bH_1b", "ST", 100, 0., 4000.);
+  h1_["st_bZ_2b"] = fs->make<TH1D>("st_bZ_2b", "ST", 100, 0., 4000.);
+  h1_["st_bH_2b"] = fs->make<TH1D>("st_bH_2b", "ST", 100, 0., 4000.);
+
+  if (!syst_ && !vv_ && !isData_) {
   for (unsigned i = 0; i < 101; i++) {
+    string st_bZ_boost_name = Form("st_bZ_boost_pdf%d", i+1);
+    string st_bH_boost_name = Form("st_bH_boost_pdf%d", i+1);
+    string st_bZ_1b_name = Form("st_bZ_1b_pdf%d", i+1);
+    string st_bZ_2b_name = Form("st_bZ_2b_pdf%d", i+1);
+    string st_bH_1b_name = Form("st_bH_1b_pdf%d", i+1);
+    string st_bH_2b_name = Form("st_bH_2b_pdf%d", i+1);
+
     string resReco_bZ_1b_name = Form("resReco_bZ_1b_pdf%d", i+1);
     string resReco_bH_1b_name = Form("resReco_bH_1b_pdf%d", i+1);
     string resReco_bZ_2b_name = Form("resReco_bZ_2b_pdf%d", i+1);
@@ -734,6 +707,14 @@ void MassReco::beginJob(){
     string boostReco_bH_1b_name = Form("boostReco_bH_1b_pdf%d", i+1);
     string boostReco_bZ_2b_name = Form("boostReco_bZ_2b_pdf%d", i+1);
     string boostReco_bH_2b_name = Form("boostReco_bH_2b_pdf%d", i+1);
+
+    h1_[st_bZ_boost_name.c_str()] = fs->make<TH1D>(st_bZ_boost_name.c_str(), "reco", 100, 0., 4000.);
+    h1_[st_bH_boost_name.c_str()] = fs->make<TH1D>(st_bH_boost_name.c_str(), "reco", 100, 0., 4000.);
+    h1_[st_bZ_1b_name.c_str()] = fs->make<TH1D>(st_bZ_1b_name.c_str(), "reco", 100, 0., 4000.);
+    h1_[st_bZ_2b_name.c_str()] = fs->make<TH1D>(st_bZ_2b_name.c_str(), "reco", 100, 0., 4000.);
+    h1_[st_bH_1b_name.c_str()] = fs->make<TH1D>(st_bH_1b_name.c_str(), "reco", 100, 0., 4000.);
+    h1_[st_bH_2b_name.c_str()] = fs->make<TH1D>(st_bH_2b_name.c_str(), "reco", 100, 0., 4000.);
+
     h1_[resReco_bZ_1b_name.c_str()] = fs->make<TH1D>(resReco_bZ_1b_name.c_str(), "reco", 1000, 0., 3000.);
     h1_[resReco_bH_1b_name.c_str()] = fs->make<TH1D>(resReco_bH_1b_name.c_str(), "reco", 1000, 0., 3000.);
     h1_[resReco_bZ_2b_name.c_str()] = fs->make<TH1D>(resReco_bZ_2b_name.c_str(), "reco", 1000, 0., 3000.);
@@ -751,9 +732,28 @@ void MassReco::beginJob(){
     h1_[resReco_bH_name.c_str()] = fs->make<TH1D>(resReco_bH_name.c_str(), "reco", 1000, 0., 3000.);
     h1_[boostReco_bZ_name.c_str()] = fs->make<TH1D>(boostReco_bZ_name.c_str(), "reco", 1000, 0., 3000.);
     h1_[boostReco_bH_name.c_str()] = fs->make<TH1D>(boostReco_bH_name.c_str(), "reco", 1000, 0., 3000.);
+
+    string resReco_name = Form("resReco_pdf%d", i+1);
+    string boostReco_name = Form("boostReco_pdf%d", i+1);
+    h1_[resReco_name.c_str()] = fs->make<TH1D>(resReco_name.c_str(), "reco", 1000, 0., 3000.);
+    h1_[boostReco_name.c_str()] = fs->make<TH1D>(boostReco_name.c_str(), "reco", 1000, 0., 3000.);
+
+    string resReco_2b_name = Form("resReco_2b_pdf%d", i+1);
+    string boostReco_2b_name = Form("boostReco_2b_pdf%d", i+1);
+    h1_[resReco_2b_name.c_str()] = fs->make<TH1D>(resReco_2b_name.c_str(), "reco", 1000, 0., 3000.);
+    h1_[boostReco_2b_name.c_str()] = fs->make<TH1D>(boostReco_2b_name.c_str(), "reco", 1000, 0., 3000.);
   }
 
   for (unsigned i = 0; i < 9; i++) {
+
+    string st_bZ_boost_name = Form("st_bZ_boost_scale%d", i+1);
+    string st_bH_boost_name = Form("st_bH_boost_scale%d", i+1);
+
+    string st_bZ_1b_name = Form("st_bZ_1b_scale%d", i+1);
+    string st_bZ_2b_name = Form("st_bZ_2b_scale%d", i+1);
+    string st_bH_1b_name = Form("st_bH_1b_scale%d", i+1);
+    string st_bH_2b_name = Form("st_bH_2b_scale%d", i+1);
+   
     string resReco_bZ_1b_name = Form("resReco_bZ_1b_scale%d", i+1);
     string resReco_bH_1b_name = Form("resReco_bH_1b_scale%d", i+1);
     string resReco_bZ_2b_name = Form("resReco_bZ_2b_scale%d", i+1);
@@ -762,6 +762,15 @@ void MassReco::beginJob(){
     string boostReco_bH_1b_name = Form("boostReco_bH_1b_scale%d", i+1);
     string boostReco_bZ_2b_name = Form("boostReco_bZ_2b_scale%d", i+1);
     string boostReco_bH_2b_name = Form("boostReco_bH_2b_scale%d", i+1);
+
+    h1_[st_bZ_boost_name.c_str()] = fs->make<TH1D>(st_bZ_boost_name.c_str(), "reco", 100, 0., 4000.);
+    h1_[st_bH_boost_name.c_str()] = fs->make<TH1D>(st_bH_boost_name.c_str(), "reco", 100, 0., 4000.);
+
+    h1_[st_bZ_1b_name.c_str()] = fs->make<TH1D>(st_bZ_1b_name.c_str(), "reco", 100, 0., 4000.);
+    h1_[st_bZ_2b_name.c_str()] = fs->make<TH1D>(st_bZ_2b_name.c_str(), "reco", 100, 0., 4000.);
+    h1_[st_bH_1b_name.c_str()] = fs->make<TH1D>(st_bH_1b_name.c_str(), "reco", 100, 0., 4000.);
+    h1_[st_bH_2b_name.c_str()] = fs->make<TH1D>(st_bH_2b_name.c_str(), "reco", 100, 0., 4000.);
+
     h1_[resReco_bZ_1b_name.c_str()] = fs->make<TH1D>(resReco_bZ_1b_name.c_str(), "reco", 1000, 0., 3000.);
     h1_[resReco_bH_1b_name.c_str()] = fs->make<TH1D>(resReco_bH_1b_name.c_str(), "reco", 1000, 0., 3000.);
     h1_[resReco_bZ_2b_name.c_str()] = fs->make<TH1D>(resReco_bZ_2b_name.c_str(), "reco", 1000, 0., 3000.);
@@ -779,6 +788,18 @@ void MassReco::beginJob(){
     h1_[resReco_bH_name.c_str()] = fs->make<TH1D>(resReco_bH_name.c_str(), "reco", 1000, 0., 3000.);
     h1_[boostReco_bZ_name.c_str()] = fs->make<TH1D>(boostReco_bZ_name.c_str(), "reco", 1000, 0., 3000.);
     h1_[boostReco_bH_name.c_str()] = fs->make<TH1D>(boostReco_bH_name.c_str(), "reco", 1000, 0., 3000.);
+
+    string resReco_name = Form("resReco_scale%d", i+1);
+    string boostReco_name = Form("boostReco_scale%d", i+1);
+    h1_[resReco_name.c_str()] = fs->make<TH1D>(resReco_name.c_str(), "reco", 1000, 0., 3000.);
+    h1_[boostReco_name.c_str()] = fs->make<TH1D>(boostReco_name.c_str(), "reco", 1000, 0., 3000.);
+
+    string resReco_2b_name = Form("resReco_2b_scale%d", i+1);
+    string boostReco_2b_name = Form("boostReco_2b_scale%d", i+1);
+    h1_[resReco_2b_name.c_str()] = fs->make<TH1D>(resReco_2b_name.c_str(), "reco", 1000, 0., 3000.);
+    h1_[boostReco_2b_name.c_str()] = fs->make<TH1D>(boostReco_2b_name.c_str(), "reco", 1000, 0., 3000.);
+
+  }
   }
 
   h1_["resReco_bZ"] = fs->make<TH1D>("resReco_bZ", "Resolved Reconstruction B->bZ;M_{#chi^{2}}(B);;", 1000, 0., 3000);
@@ -811,58 +832,6 @@ void MassReco::beginJob(){
 	h1_["htagRes"] = fs->make<TH1D>("htagRes", "Tagged H Mass;M [GeV];;", 100, 65, 185);
 	h1_["boostZRes"] = fs->make<TH1D>("boostZRes", "Had. Reco. B Mass;M [GeV];;", 200, 0, 2000);
 	h1_["boostHRes"] = fs->make<TH1D>("boostHRes", "Had. Reco. B Mass;M [GeV];;", 200, 0, 2000);
-
-
-  h1_["resCon1_bZ"] = fs->make<TH1D>("resCon1_bZ", "Resolved Reconstruction B->bZ;M_{#chi^{2}}(B);;", 1000, 0., 3000);
-  h1_["resCon1_bH"] = fs->make<TH1D>("resCon1_bH", "Resolved Reconstruction B->bH;M_{#chi^{2}}(B);;", 1000, 0., 3000);
-  h1_["resCon1"] = fs->make<TH1D>("resCon1", "Resolved Reconstruction B->bZ;M_{#chi^{2}}(B);;", 1000, 0., 3000);
-  h1_["boostCon1"] = fs->make<TH1D>("boostCon1", "Boosted Reconstruction B->bZ;M_{#chi^{2}}(B);;", 1000, 0., 3000);
-  h1_["comboCon1"] = fs->make<TH1D>("comboCon1", "Combo Reconstruction B->bZ;M_{#chi^{2}}(B);;", 1000, 0., 3000);
-  h1_["boostCon1_bZ"] = fs->make<TH1D>("boostCon1_bZ", "Boosted Reconstruction B->bZ;M_{#chi^{2}}(B);;", 1000, 0., 3000);
-  h1_["boostCon1_bH"] = fs->make<TH1D>("boostCon1_bH", "Boosted Reconstruction B->bH;M_{#chi^{2}}(B);;", 1000, 0., 3000);
-  h1_["comboCon1_bZ"] = fs->make<TH1D>("comboCon1_bZ", "Combo Reconstruction B->bZ;M_{#chi^{2}}(B);;", 1000, 0., 3000);
-  h1_["comboCon1_bH"] = fs->make<TH1D>("comboCon1_bH", "Combo Reconstruction B->bH;M_{#chi^{2}}(B);;", 1000, 0., 3000);
-
-  h1_["resCon2_bZ"] = fs->make<TH1D>("resCon2_bZ", "Resolved Reconstruction B->bZ;M_{#chi^{2}}(B);;", 1000, 0., 3000);
-  h1_["resCon2_bH"] = fs->make<TH1D>("resCon2_bH", "Resolved Reconstruction B->bH;M_{#chi^{2}}(B);;", 1000, 0., 3000);
-  h1_["resCon2"] = fs->make<TH1D>("resCon2", "Resolved Reconstruction B->bZ;M_{#chi^{2}}(B);;", 1000, 0., 3000);
-  h1_["boostCon2"] = fs->make<TH1D>("boostCon2", "Boosted Reconstruction B->bZ;M_{#chi^{2}}(B);;", 1000, 0., 3000);
-  h1_["comboCon2"] = fs->make<TH1D>("comboCon2", "Combo Reconstruction B->bZ;M_{#chi^{2}}(B);;", 1000, 0., 3000);
-  h1_["boostCon2_bZ"] = fs->make<TH1D>("boostCon2_bZ", "Boosted Reconstruction B->bZ;M_{#chi^{2}}(B);;", 1000, 0., 3000);
-  h1_["boostCon2_bH"] = fs->make<TH1D>("boostCon2_bH", "Boosted Reconstruction B->bH;M_{#chi^{2}}(B);;", 1000, 0., 3000);
-  h1_["comboCon2_bZ"] = fs->make<TH1D>("comboCon2_bZ", "Combo Reconstruction B->bZ;M_{#chi^{2}}(B);;", 1000, 0., 3000);
-  h1_["comboCon2_bH"] = fs->make<TH1D>("comboCon2_bH", "Combo Reconstruction B->bH;M_{#chi^{2}}(B);;", 1000, 0., 3000);
-
-//	h1_["ak8subjetiness"] = fs->make<TH1D>("ak8subjetiness", "AK8 Subjetiness;#tau_{21};;", 20, 0., 1.);
-//	h1_["ak8prunedMass"] = fs->make<TH1D>("ak8prunedMass", "AK8 Pruned Mass;M;;", 100, 0., 250.);
-//  h1_["ak8softDropMass"] = fs->make<TH1D>("ak8softDropMass", "AK8 Soft Drop Mass;M;;", 100, 0., 250.);
-//	h1_["Zsubjetiness"] = fs->make<TH1D>("Zsubjetiness","Z subjetiness;M;;", 10, 0, 5);
-//	h1_["Hsubjetiness"] = fs->make<TH1D>("Hsubjetiness","H subjetiness;M;;", 10, 0, 5);
-//	h1_["ZprunedMass"] = fs->make<TH1D>("ZprunedMass","Z Pruned Mass;M;;", 50, 30, 150);
-//	h1_["HprunedMass"] = fs->make<TH1D>("HprunedMass","H Pruned Mass;M;;", 50, 60, 180);
-//  h1_["HsoftDropMass"] = fs->make<TH1D>("HsoftDropMass", "H Soft Drop Mass;M;;", 100, 0., 250.);
-//  h1_["ZsoftDropMass"] = fs->make<TH1D>("ZsoftDropMass", "Z Soft Drop Mass;M;;", 100, 0., 250.);
-
-//	h1_["ak8subjetiness_SR"] = fs->make<TH1D>("ak8subjetiness_SR", "AK8 Subjetiness;#tau_{21};;", 20, 0., 1.);
-//	h1_["ak8prunedMass_SR"] = fs->make<TH1D>("ak8prunedMass_SR", "AK8 Pruned Mass;M;;", 100, 0., 260.);
-//  h1_["ak8softDropMass_SR"] = fs->make<TH1D>("ak8softDropMass_SR", "AK8 Soft Drop Mass;M;;", 100, 0., 250.);
-//	h1_["Zsubjetiness_SR"] = fs->make<TH1D>("Zsubjetiness_SR","Z subjetiness;#tau_{21}M;;", 30, 0, 5);
-//  h1_["Hsubjetiness_SR"] = fs->make<TH1D>("Hsubjetiness_SR","H subjetiness;#tau_{21};;", 30, 0, 5);
-//	h1_["ZprunedMass_SR"] = fs->make<TH1D>("ZprunedMass_SR","Z Pruned Mass;M;;", 50, 30, 150);
-//	h1_["HprunedMass_SR"] = fs->make<TH1D>("HprunedMass_SR","H Pruned Mass;M;;", 100, 0, 180);
-//  h1_["HsoftDropMass_SR"] = fs->make<TH1D>("HsoftDropMass_SR", "H Soft Drop Mass;M;;", 100, 0., 250.);
-//  h1_["ZsoftDropMass_SR"] = fs->make<TH1D>("ZsoftDropMass_SR", "Z Soft Drop Mass;M;;", 100, 0., 250.);
-
-
-//	h1_["ak8subjetiness_CR"] = fs->make<TH1D>("ak8subjetiness_CR", "AK8 Subjetiness;#tau_{21};;", 20, 0., 1.);
-//	h1_["ak8prunedMass_CR"] = fs->make<TH1D>("ak8prunedMass_CR", "AK8 Pruned Mass;M;;", 100, 0., 250.);
-//  h1_["ak8softDropMass_CR"] = fs->make<TH1D>("ak8softDropMass_CR", "AK8 Soft Drop Mass;M;;", 100, 0., 250.);
-//	h1_["Zsubjetiness_CR"] = fs->make<TH1D>("Zsubjetiness_CR","Z subjetiness;#tau_{21};;", 30, 0, 5);
-//	h1_["Hsubjetiness_CR"] = fs->make<TH1D>("Hsubjetiness_CR","H subjetiness;#tau_{21};;", 30, 0, 5);
-//	h1_["ZprunedMass_CR"] = fs->make<TH1D>("ZprunedMass_CR","Z Pruned Mass;M;;", 50, 30, 150);
-//	h1_["HprunedMass_CR"] = fs->make<TH1D>("HprunedMass_CR","H Pruned Mass;M;;", 50, 60, 180);
-//  h1_["HsoftDropMass_CR"] = fs->make<TH1D>("HsoftDropMass_CR", "H Soft Drop Mass;M;;", 100, 0., 250.);
-//  h1_["ZsoftDropMass_CR"] = fs->make<TH1D>("ZsoftDropMass_CR", "Z Soft Drop Mass;M;;", 100, 0., 250.);
 
 }
 void MassReco::endJob(){

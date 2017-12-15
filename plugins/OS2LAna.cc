@@ -124,6 +124,7 @@ class OS2LAna : public edm::EDFilter {
     const int scale_offset_                      ;
     const bool syst_                             ;
     const bool vv_                               ;
+    const int elSyst_                            ;	
     const std::string fname_DYNLOCorr_           ; 
     const std::string funname_DYNLOCorr_         ; 
     DYNLOEwkKfact dynloewkkfact                  ;
@@ -229,6 +230,7 @@ OS2LAna::OS2LAna(const edm::ParameterSet& iConfig) :
   scale_offset_           (iConfig.getParameter<int>               ("scale_offset")),
   syst_                   (iConfig.getParameter<bool>               ("syst")),
   vv_                     (iConfig.getParameter<bool>              ("vv")),
+  elSyst_                 (iConfig.getParameter<int>               ("elSyst")),
   fname_DYNLOCorr_        (iConfig.getParameter<std::string>       ("File_DYNLOCorr")),
   funname_DYNLOCorr_      (iConfig.getParameter<std::string>       ("Fun_DYNLOCorr")),
   dynloewkkfact           (DYNLOEwkKfact(fname_DYNLOCorr_,funname_DYNLOCorr_)),
@@ -259,7 +261,8 @@ OS2LAna::OS2LAna(const edm::ParameterSet& iConfig) :
   produces<vlq::JetCollection>("hjets") ;
   produces<vlq::JetCollection>("bjets") ; 
   produces<vlq::JetCollection>("jets") ; 
-  produces<vlq::CandidateCollection>("zllcands") ; 
+  produces<vlq::CandidateCollection>("zllcands") ;
+  produces<vlq::ElectronCollection>("electrons") ; 
   produces<double>("PreWeight");
   produces<double>("btagsf");
   produces<double>("btagsfbcUp");
@@ -339,7 +342,7 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
 
   h1_["cutflow"] -> Fill(1, evtwt) ;
 
-  if (!isData && !syst_ && !vv_) {
+  if (!isData_ && !syst_ && !vv_) {
     for (unsigned i = 0; i < 9; i++){
     //  std::cout << lhe_id_wts.at(i+scale_offset_).first << std::endl;
     //  std::cout << "printed scale" << std::endl;
@@ -394,18 +397,18 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
     evtwt *= EWKNLOkfact ;
     if (!DYDown_){
       if ( zdecayMode_ == "zmumu"){
-        if (goodAK4Jets.size() == 3) { evtwt *= 1.0105;}
-        else if (goodAK4Jets.size() == 4) { evtwt*= 1.0604;}
-        else if (goodAK4Jets.size() == 5) { evtwt*= 1.1882;}
-        else if (goodAK4Jets.size() == 6) { evtwt*= 1.3290;}
-        else if (goodAK4Jets.size() >= 7) { evtwt*= 1.6049;}
+        if (goodAK4Jets.size() == 3) { evtwt *= 1.0201;}
+        else if (goodAK4Jets.size() == 4) { evtwt*= 1.1148;}
+        else if (goodAK4Jets.size() == 5) { evtwt*= 1.2353;}
+        else if (goodAK4Jets.size() == 6) { evtwt*= 1.3741;}
+        else if (goodAK4Jets.size() >= 7) { evtwt*= 1.6653;}
       }
       else if ( zdecayMode_ == "zelel"){
-        if (goodAK4Jets.size() == 3) { evtwt *= 0.9730;}
-        else if (goodAK4Jets.size() == 4) { evtwt*= 1.0248;}
-        else if (goodAK4Jets.size() == 5) { evtwt*= 1.1125;}
-        else if (goodAK4Jets.size() == 6) { evtwt*= 1.224;}
-        else if (goodAK4Jets.size() >= 7) { evtwt*= 1.364;}
+        if (goodAK4Jets.size() == 3) { evtwt *= 0.9522;}
+        else if (goodAK4Jets.size() == 4) { evtwt*= 1.0723;}
+        else if (goodAK4Jets.size() == 5) { evtwt*= 1.0928;}
+        else if (goodAK4Jets.size() == 6) { evtwt*= 1.2423;}
+        else if (goodAK4Jets.size() >= 7) { evtwt*= 1.4095;}
       }
     }
   }
@@ -428,7 +431,15 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
 
     if (applyLeptonTrigSFs_) {
       if ( zdecayMode_ == "zmumu" ) evtwt *= lepTrigSFs(goodMuons.at(0).getPt(),goodMuons.at(0).getEta()) ; 
-      else if ( zdecayMode_ == "zelel" ) evtwt *= lepTrigSFs(goodElectrons.at(0).getPt(),goodElectrons.at(0).getEta()) ; 
+      else if ( zdecayMode_ == "zelel" ) {
+        double temp_elSF(1.0);
+        if (goodElectrons.at(0).getPt() > 300.)
+          temp_elSF = 0.04;
+        else
+          temp_elSF = 0.02;
+        evtwt = evtwt + evtwt * elSyst_ * temp_elSF;  // elSyst_ is +/- 1 so apply a +/- 0.02 (0.04) if el pt is less (greater) than 300
+      // else if ( zdecayMode_ == "zelel" ) evtwt *= lepTrigSFs(goodElectrons.at(0).getPt(),goodElectrons.at(0).getEta()) ; 
+      }
     }
 
   } 
@@ -635,6 +646,7 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
     std::unique_ptr<vlq::JetCollection> ptr_bjets( new vlq::JetCollection(goodBTaggedAK4Jets ) ) ; 
     std::unique_ptr<vlq::JetCollection> ptr_jets ( new vlq::JetCollection(goodAK4Jets ) ) ; 
     std::unique_ptr<vlq::CandidateCollection> ptr_zllcands ( new vlq::CandidateCollection(zll) ) ; 
+    std::unique_ptr<vlq::ElectronCollection> ptr_electrons ( new vlq::ElectronCollection(goodElectrons) );
 		std::unique_ptr<double> ptr_st ( new double(ST) );
 		evt.put(std::move(ptr_ak4jets), "ak4jets");
 		evt.put(std::move(ptr_ak8jets), "ak8jets");
@@ -644,6 +656,7 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
     evt.put(std::move(ptr_bjets), "bjets") ; 
     evt.put(std::move(ptr_jets), "jets")  ; 
     evt.put(std::move(ptr_zllcands), "zllcands")  ;
+    evt.put(std::move(ptr_electrons), "electrons") ;
 		evt.put(std::move(ptr_st), "st") ;
 
   } //// if skim 
@@ -814,7 +827,7 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
         && ST > STMin_ 
        ) { //// Signal region 
 
-      if (!isData && !syst_ && !vv_) {
+      if (!isData_ && !syst_ && !vv_) {
         for (unsigned i = 0; i < 9; i++) {
           h1_[Form("st_scale%d", i+1)] -> Fill(ST, evtwt*lhe_id_wts.at(i+scale_offset_).second );
         }

@@ -37,7 +37,6 @@ massReco = cms.EDFilter("MassReco",
     scale_offset = cms.int32(1),
     syst         = cms.bool(False),
     vv           = cms.bool(False),
-    
 
  		genParams = getSelectParams,	
  

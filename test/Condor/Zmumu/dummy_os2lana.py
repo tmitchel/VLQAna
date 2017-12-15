@@ -161,11 +161,11 @@ process.source = cms.Source(
     ) 
   )
 
-if options.isData:
-  import FWCore.PythonUtilities.LumiList as LumiList
-  process.source.lumisToProcess = LumiList.LumiList(
-      filename = "Cert_271036-284044_13TeV_23Sep2016ReReco_Collisions16_JSON.txt"
-      ).getVLuminosityBlockRange()
+#if options.isData:
+#  import FWCore.PythonUtilities.LumiList as LumiList
+#  process.source.lumisToProcess = LumiList.LumiList(
+#      filename = "../data/Cert_271036-284044_13TeV_23Sep2016ReReco_Collisions16_JSON.txt"
+#      ).getVLuminosityBlockRange()
 
 process.TFileService = cms.Service("TFileService",
     fileName = cms.string(
@@ -364,8 +364,8 @@ else:
         PileupDown = cms.bool(True),
         syst = cms.bool(True)
         )
-    process.anaDYDown = process.ana.clone(
-        DYDown = cms.bool(True),
+    process.anaDYSF = process.ana.clone(
+        applyDYNLOCorr = cms.bool(True),
         syst = cms.bool(True)
         )
 
@@ -464,8 +464,8 @@ if options.massReco and options.syst:
   process.recotau__plus.syst = cms.bool(True)
   process.recotau__minus      = process.massReco.clone(Prewt = cms.InputTag("anatauDown", "PreWeight"))
   process.recotau__minus.syst = cms.bool(True)
-  process.recoDY__minus       = process.massReco.clone(Prewt = cms.InputTag("anaDYDown", "PreWeight"))
-  process.recoDY__minus.syst = cms.bool(True)
+  process.recoDYSF__minus       = process.massReco.clone(Prewt = cms.InputTag("anaDYSF", "PreWeight"))
+  process.recoDYSF__minus.syst = cms.bool(True)
 
 
 ## Event counters
@@ -495,7 +495,7 @@ if options.syst and not options.skim and not options.massReco:
     *cms.ignore(process.anaJerDown)
     *cms.ignore(process.anaPileupUp)
     *cms.ignore(process.anaPileupDown)
-    *cms.ignore(process.anaDYDown)
+    *cms.ignore(process.anaDYSF)
     *cms.ignore(process.anatauUp)
     *cms.ignore(process.anatauDown) 
     *cms.ignore(process.anaJmrUp)
@@ -520,7 +520,7 @@ elif options.massReco:
       *cms.ignore(process.anaJerDown)
       *cms.ignore(process.anaPileupUp)
       *cms.ignore(process.anaPileupDown)
-      *cms.ignore(process.anaDYDown)
+      *cms.ignore(process.anaDYSF)
       *cms.ignore(process.anatauUp)
       *cms.ignore(process.anatauDown)
       *cms.ignore(process.anaJmrUp)
@@ -540,7 +540,7 @@ elif options.massReco:
       *cms.ignore(process.recotau__minus) 
       *cms.ignore(process.recoJmr__plus)
       *cms.ignore(process.recoJmr__minus)
-      *cms.ignore(process.recoDY__minus)
+      *cms.ignore(process.recoDYSF__minus)
 
       *process.massReco
       *process.finalEvents

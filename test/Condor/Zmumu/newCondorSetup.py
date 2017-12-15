@@ -119,15 +119,78 @@ sampleDict = {'ttbar_pythia' : [5, 984, "/store/group/phys_b2g/B2GAnaFW_80X_V2p4
 
               'bprime1800_bHbH' : [2, 20, "/store/group/phys_b2g/B2GAnaFW_80X_V2p4/BprimeBprime_M-1800_TuneCUETP8M1_13TeV-madgraph-pythia8/B2GAnaFW_RunIISpring16MiniAODv2_25ns_v80x_v2p4/170122_194007/"],
 
+              'bprime800_bHtW' : [2, 26, "/store/group/phys_b2g/B2GAnaFW_80X_V2p4/BprimeBprime_M-800_TuneCUETP8M1_13TeV-madgraph-pythia8/B2GAnaFW_RunIISpring16MiniAODv2_25ns_v80x_v2p4/170122_192852/"],
 
-#              'SingleMuon_23Sep2016B_v3' : [5, 1277, "/store/group/phys_b2g/B2GAnaFW_80X_V2p4/SingleMuon/Run2016B-23Sep2016-v3_B2GAnaFW_80X_v2p4/161221_152050/"],
-#              'SingleMuon_23Sep2016C_v1' : [5, 713, "/store/group/phys_b2g/B2GAnaFW_80X_V2p4/SingleMuon/Run2016C-23Sep2016-v1_B2GAnaFW_80X_v2p4/161221_155142/"],
-#              'SingleMuon_23Sep2016D_v1' : [5, 1060, "/store/group/phys_b2g/B2GAnaFW_80X_V2p4/SingleMuon/Run2016D-23Sep2016-v1_B2GAnaFW_80X_v2p4/161221_160134/"],
-#              'SingleMuon_23Sep2016E_v1' : [5, 886, "/store/group/phys_b2g/B2GAnaFW_80X_V2p4/SingleMuon/Run2016E-23Sep2016-v1_B2GAnaFW_80X_v2p4/161221_162521/"],
-#              'SingleMuon_23Sep2016F_v1' : [5, 768, "/store/group/phys_b2g/B2GAnaFW_80X_V2p4/SingleMuon/Run2016F-23Sep2016-v1_B2GAnaFW_80X_v2p4/161221_170915/"],
-#              'SingleMuon_23Sep2016G_v1' : [5, 1430, "/store/group/phys_b2g/B2GAnaFW_80X_V2p4/SingleMuon/Run2016G-23Sep2016-v1_B2GAnaFW_80X_v2p4/161221_173126/"],
-#              'SingleMuon_PromptH_v2' : [5, 1928, "/store/group/phys_b2g/B2GAnaFW_80X_V2p4/SingleMuon/Run2016H-PromptReco-v2_B2GAnaFW_80X_v2p4/161221_180745/"],
-#              'SingleMuon_PromptH_v3' : [5, 52, "/store/group/phys_b2g/B2GAnaFW_80X_V2p4/SingleMuon/Run2016H-PromptReco-v3_B2GAnaFW_80X_v2p4/161221_180928/"],
+              'bprime900_bHtW' : [2, 17, "/store/group/phys_b2g/B2GAnaFW_80X_V2p4/BprimeBprime_M-900_TuneCUETP8M1_13TeV-madgraph-pythia8/B2GAnaFW_RunIISpring16MiniAODv2_25ns_v80x_v2p4/170122_192939/"],
+
+              'bprime1000_bHtW' : [2, 19, "/store/group/phys_b2g/B2GAnaFW_80X_V2p4/BprimeBprime_M-1000_TuneCUETP8M1_13TeV-madgraph-pythia8/B2GAnaFW_RunIISpring16MiniAODv2_25ns_v80x_v2p4/170122_193050/"],
+
+              'bprime1100_bHtW' : [2, 28, "/store/group/phys_b2g/B2GAnaFW_80X_V2p4/BprimeBprime_M-1100_TuneCUETP8M1_13TeV-madgraph-pythia8/B2GAnaFW_RunIISpring16MiniAODv2_25ns_v80x_v2p4/170122_193140/"],
+
+              'bprime1200_bHtW' : [2, 24, "/store/group/phys_b2g/B2GAnaFW_80X_V2p4/BprimeBprime_M-1200_TuneCUETP8M1_13TeV-madgraph-pythia8/B2GAnaFW_RunIISpring16MiniAODv2_25ns_v80x_v2p4/170122_193237/"],
+
+              'bprime1300_bHtW' : [2, 22, "/store/group/phys_b2g/B2GAnaFW_80X_V2p4/BprimeBprime_M-1300_TuneCUETP8M1_13TeV-madgraph-pythia8/B2GAnaFW_RunIISpring16MiniAODv2_25ns_v80x_v2p4/170122_193347/"],
+
+              'bprime1400_bHtW' : [2, 27, "/store/group/phys_b2g/B2GAnaFW_80X_V2p4/BprimeBprime_M-1400_TuneCUETP8M1_13TeV-madgraph-pythia8/B2GAnaFW_RunIISpring16MiniAODv2_25ns_v80x_v2p4/170122_193455/"],
+
+              'bprime1500_bHtW' : [2, 18, "/store/group/phys_b2g/B2GAnaFW_80X_V2p4/BprimeBprime_M-1500_TuneCUETP8M1_13TeV-madgraph-pythia8/B2GAnaFW_RunIISpring16MiniAODv2_25ns_v80x_v2p4/170122_193653/"],
+
+              'bprime1700_bHtW' : [2, 23, "/store/group/phys_b2g/B2GAnaFW_80X_V2p4/BprimeBprime_M-1700_TuneCUETP8M1_13TeV-madgraph-pythia8/B2GAnaFW_RunIISpring16MiniAODv2_25ns_v80x_v2p4/170122_193854/"],
+
+              'bprime1800_bHtW' : [2, 20, "/store/group/phys_b2g/B2GAnaFW_80X_V2p4/BprimeBprime_M-1800_TuneCUETP8M1_13TeV-madgraph-pythia8/B2GAnaFW_RunIISpring16MiniAODv2_25ns_v80x_v2p4/170122_194007/"],
+
+              'bprime800_bZtW' : [2, 26, "/store/group/phys_b2g/B2GAnaFW_80X_V2p4/BprimeBprime_M-800_TuneCUETP8M1_13TeV-madgraph-pythia8/B2GAnaFW_RunIISpring16MiniAODv2_25ns_v80x_v2p4/170122_192852/"],
+
+              'bprime900_bZtW' : [2, 17, "/store/group/phys_b2g/B2GAnaFW_80X_V2p4/BprimeBprime_M-900_TuneCUETP8M1_13TeV-madgraph-pythia8/B2GAnaFW_RunIISpring16MiniAODv2_25ns_v80x_v2p4/170122_192939/"],
+
+              'bprime1000_bZtW' : [2, 19, "/store/group/phys_b2g/B2GAnaFW_80X_V2p4/BprimeBprime_M-1000_TuneCUETP8M1_13TeV-madgraph-pythia8/B2GAnaFW_RunIISpring16MiniAODv2_25ns_v80x_v2p4/170122_193050/"],
+
+              'bprime1100_bZtW' : [2, 28, "/store/group/phys_b2g/B2GAnaFW_80X_V2p4/BprimeBprime_M-1100_TuneCUETP8M1_13TeV-madgraph-pythia8/B2GAnaFW_RunIISpring16MiniAODv2_25ns_v80x_v2p4/170122_193140/"],
+
+              'bprime1200_bZtW' : [2, 24, "/store/group/phys_b2g/B2GAnaFW_80X_V2p4/BprimeBprime_M-1200_TuneCUETP8M1_13TeV-madgraph-pythia8/B2GAnaFW_RunIISpring16MiniAODv2_25ns_v80x_v2p4/170122_193237/"],
+
+              'bprime1300_bZtW' : [2, 22, "/store/group/phys_b2g/B2GAnaFW_80X_V2p4/BprimeBprime_M-1300_TuneCUETP8M1_13TeV-madgraph-pythia8/B2GAnaFW_RunIISpring16MiniAODv2_25ns_v80x_v2p4/170122_193347/"],
+
+              'bprime1400_bZtW' : [2, 27, "/store/group/phys_b2g/B2GAnaFW_80X_V2p4/BprimeBprime_M-1400_TuneCUETP8M1_13TeV-madgraph-pythia8/B2GAnaFW_RunIISpring16MiniAODv2_25ns_v80x_v2p4/170122_193455/"],
+
+              'bprime1500_bZtW' : [2, 18, "/store/group/phys_b2g/B2GAnaFW_80X_V2p4/BprimeBprime_M-1500_TuneCUETP8M1_13TeV-madgraph-pythia8/B2GAnaFW_RunIISpring16MiniAODv2_25ns_v80x_v2p4/170122_193653/"],
+
+              'bprime1700_bZtW' : [2, 23, "/store/group/phys_b2g/B2GAnaFW_80X_V2p4/BprimeBprime_M-1700_TuneCUETP8M1_13TeV-madgraph-pythia8/B2GAnaFW_RunIISpring16MiniAODv2_25ns_v80x_v2p4/170122_193854/"],
+
+              'bprime1800_bZtW' : [2, 20, "/store/group/phys_b2g/B2GAnaFW_80X_V2p4/BprimeBprime_M-1800_TuneCUETP8M1_13TeV-madgraph-pythia8/B2GAnaFW_RunIISpring16MiniAODv2_25ns_v80x_v2p4/170122_194007/"],
+
+              'bprime800_tWtW' : [2, 26, "/store/group/phys_b2g/B2GAnaFW_80X_V2p4/BprimeBprime_M-800_TuneCUETP8M1_13TeV-madgraph-pythia8/B2GAnaFW_RunIISpring16MiniAODv2_25ns_v80x_v2p4/170122_192852/"],
+
+              'bprime900_tWtW' : [2, 17, "/store/group/phys_b2g/B2GAnaFW_80X_V2p4/BprimeBprime_M-900_TuneCUETP8M1_13TeV-madgraph-pythia8/B2GAnaFW_RunIISpring16MiniAODv2_25ns_v80x_v2p4/170122_192939/"],
+
+              'bprime1000_tWtW' : [2, 19, "/store/group/phys_b2g/B2GAnaFW_80X_V2p4/BprimeBprime_M-1000_TuneCUETP8M1_13TeV-madgraph-pythia8/B2GAnaFW_RunIISpring16MiniAODv2_25ns_v80x_v2p4/170122_193050/"],
+
+              'bprime1100_tWtW' : [2, 28, "/store/group/phys_b2g/B2GAnaFW_80X_V2p4/BprimeBprime_M-1100_TuneCUETP8M1_13TeV-madgraph-pythia8/B2GAnaFW_RunIISpring16MiniAODv2_25ns_v80x_v2p4/170122_193140/"],
+
+              'bprime1200_tWtW' : [2, 24, "/store/group/phys_b2g/B2GAnaFW_80X_V2p4/BprimeBprime_M-1200_TuneCUETP8M1_13TeV-madgraph-pythia8/B2GAnaFW_RunIISpring16MiniAODv2_25ns_v80x_v2p4/170122_193237/"],
+
+              'bprime1300_tWtW' : [2, 22, "/store/group/phys_b2g/B2GAnaFW_80X_V2p4/BprimeBprime_M-1300_TuneCUETP8M1_13TeV-madgraph-pythia8/B2GAnaFW_RunIISpring16MiniAODv2_25ns_v80x_v2p4/170122_193347/"],
+
+              'bprime1400_tWtW' : [2, 27, "/store/group/phys_b2g/B2GAnaFW_80X_V2p4/BprimeBprime_M-1400_TuneCUETP8M1_13TeV-madgraph-pythia8/B2GAnaFW_RunIISpring16MiniAODv2_25ns_v80x_v2p4/170122_193455/"],
+
+              'bprime1500_tWtW' : [2, 18, "/store/group/phys_b2g/B2GAnaFW_80X_V2p4/BprimeBprime_M-1500_TuneCUETP8M1_13TeV-madgraph-pythia8/B2GAnaFW_RunIISpring16MiniAODv2_25ns_v80x_v2p4/170122_193653/"],
+
+              'bprime1700_tWtW' : [2, 23, "/store/group/phys_b2g/B2GAnaFW_80X_V2p4/BprimeBprime_M-1700_TuneCUETP8M1_13TeV-madgraph-pythia8/B2GAnaFW_RunIISpring16MiniAODv2_25ns_v80x_v2p4/170122_193854/"],
+
+              'bprime1800_tWtW' : [2, 20, "/store/group/phys_b2g/B2GAnaFW_80X_V2p4/BprimeBprime_M-1800_TuneCUETP8M1_13TeV-madgraph-pythia8/B2GAnaFW_RunIISpring16MiniAODv2_25ns_v80x_v2p4/170122_194007/"],
+
+
+              'SingleMuon_23Sep2016B' : [5, 4390, "/store/user/oiorio/samples/May/17May/B2GAnaFW_80X_V3p1/SingleMuon/Run2016B/SingleMuon/Run2016B-03Feb2017_ver2-v2_B2GAnaFW_80X_V3p1/170517_122621/"],
+              'SingleMuon_23Sep2016C' : [5, 1449, "/store/user/oiorio/samples/May/17May/B2GAnaFW_80X_V3p1/SingleMuon/Run2016C/SingleMuon/Run2016C-03Feb2017-v1_B2GAnaFW_80X_V3p1/170517_122708/"],
+              'SingleMuon_23Sep2016D' : [5, 2430, "/store/user/oiorio/samples/May/17May/B2GAnaFW_80X_V3p1/SingleMuon/Run2016D/SingleMuon/Run2016D-03Feb2017-v1_B2GAnaFW_80X_V3p1/170517_122802/"],
+              'SingleMuon_23Sep2016E' : [5, 2065, "/store/user/oiorio/samples/May/17May/B2GAnaFW_80X_V3p1/SingleMuon/Run2016E/SingleMuon/Run2016E-03Feb2017-v1_B2GAnaFW_80X_V3p1/170517_122905/"],
+              'SingleMuon_23Sep2016F' : [5, 1507, "/store/user/oiorio/samples/May/17May/B2GAnaFW_80X_V3p1/SingleMuon/Run2016F/SingleMuon/Run2016F-03Feb2017-v1_B2GAnaFW_80X_V3p1/170517_122951/"],
+              'SingleMuon_23Sep2016G' : [5, 3559, "/store/user/oiorio/samples/May/17May/B2GAnaFW_80X_V3p1/SingleMuon/Run2016G/SingleMuon/Run2016G-03Feb2017-v1_B2GAnaFW_80X_V3p1/170517_123044/"],
+
+              'SingleMuon_PromptH_v2' : [5, 3852, "/store/user/oiorio/samples/May/17May/B2GAnaFW_80X_V3p1/SingleMuon/Run2016H/SingleMuon/Run2016H-03Feb2017_ver2-v1_B2GAnaFW_80X_V3p1/170517_123122/"],
+              'SingleMuon_PromptH_v3' : [5, 103, "/store/user/oiorio/samples/May/17May/B2GAnaFW_80X_V3p1/SingleMuon/Run2016H/SingleMuon/Run2016H-03Feb2017_ver3-v1_B2GAnaFW_80X_V3p1/170517_123157/"],
+
+
               }
 
 
@@ -171,18 +234,18 @@ for sample in sorted(sampleDict.keys()):
   runInput.close()
   runOutput.close()
 
-  optionList_mc = {'ISDATA' : False, 'JECPAYLOAD' : "Summer16_23Sep2016V4_MC", 'MAKETREE' : options.makeTree, 'ZDECAYMODE' : "zmumu", 'PUREWEIGHT' : True, 'FILTERSIGNAL' : False, 'SIGNALTYPE' : "", 'LEPTONIDSFS' : True, 'BTAGSFS' : True, 'BTAGEFFMAP' : "ttjets_bTagEff.root", 'LEPTONTRIGSFS' : True, 'DYNLOCORR' : False, 'MASSRECO' : True, 'CONTROLRECO' : True, 'SYST' : options.syst, 'LHEWTS' : True, 'OPTIMIZERECO' : True, 'PDFS' : 'bprime800_bZ', 'ISVV' : False}
+  optionList_mc = {'ISDATA' : False, 'JECPAYLOAD' : "Summer16_23Sep2016V4_MC", 'MAKETREE' : options.makeTree, 'ZDECAYMODE' : "zmumu", 'PUREWEIGHT' : True, 'FILTERSIGNAL' : False, 'SIGNALTYPE' : "", 'LEPTONIDSFS' : True, 'BTAGSFS' : True, 'BTAGEFFMAP' : "ttjets_bTagEff.root", 'LEPTONTRIGSFS' : True, 'DYNLOCORR' : False, 'MASSRECO' : True, 'CONTROLRECO' : False, 'SYST' : options.syst, 'LHEWTS' : True, 'OPTIMIZERECO' : False, 'PDFS' : 'bprime800_bZ', 'ISVV' : False}
 
-  optionList_data = {'ISDATA' : True, 'JECPAYLOAD' : "Summer16_23Sep2016V4_MC", 'MAKETREE' : options.makeTree, 'ZDECAYMODE' : "zmumu", 'PUREWEIGHT' : False, 'FILTERSIGNAL' : False, 'SIGNALTYPE' : "", 'LEPTONIDSFS' : False, 'BTAGSFS' : False, 'BTAGEFFMAP' : "ttjets_bTagEff.root", 'LEPTONTRIGSFS' : False, 'DYNLOCORR' : False, 'MASSRECO' : True, 'CONTROLRECO' : True, 'SYST' : options.syst, 'LHEWTS' : False, 'OPTIMIZERECO' : False, 'PDFS': 'none', 'ISVV' : False}
+  optionList_data = {'ISDATA' : True, 'JECPAYLOAD' : "Summer16_23Sep2016V4_MC", 'MAKETREE' : options.makeTree, 'ZDECAYMODE' : "zmumu", 'PUREWEIGHT' : False, 'FILTERSIGNAL' : False, 'SIGNALTYPE' : "", 'LEPTONIDSFS' : False, 'BTAGSFS' : False, 'BTAGEFFMAP' : "ttjets_bTagEff.root", 'LEPTONTRIGSFS' : False, 'DYNLOCORR' : False, 'MASSRECO' : True, 'CONTROLRECO' : False, 'SYST' : options.syst, 'LHEWTS' : False, 'OPTIMIZERECO' : False, 'PDFS': 'none', 'ISVV' : False}
 
   if 'Muon' in sample:
-    if 'B_v' in sample or 'C_v' in sample or 'D_v' in sample:
+    if 'B' in sample or 'C' in sample or 'D' in sample:
       optionList_data['JECPAYLOAD'] = "Summer16_23Sep2016BCDV4_DATA"
 
-    elif 'E_v' in sample or 'F_v' in sample:
+    elif 'E' in sample or 'F' in sample:
       optionList_data['JECPAYLOAD'] = "Summer16_23Sep2016EFV4_DATA"
 
-    elif 'G_v' in sample:
+    elif 'G' in sample:
       optionList_data['JECPAYLOAD'] = "Summer16_23Sep2016GV4_DATA"
 
     elif 'Prompt' in sample:
@@ -198,6 +261,13 @@ for sample in sorted(sampleDict.keys()):
       optionList_mc['SIGNALTYPE'] = "EvtType_MC_bZbH"
     elif optionList_mc['MAKETREE'] == False and 'bHbH' in sample:
       optionList_mc['SIGNALTYPE'] = "EvtType_MC_bHbH"
+    elif optionList_mc['MAKETREE'] == False and 'bHtW' in sample:
+      optionList_mc['SIGNALTYPE'] = "EvtType_MC_bHtW"
+    elif optionList_mc['MAKETREE'] == False and 'bZtW' in sample:
+      optionList_mc['SIGNALTYPE'] = "EvtType_MC_bZtW"
+    elif optionList_mc['MAKETREE'] == False and 'tWtW' in sample:
+      optionList_mc['SIGNALTYPE'] = "EvtType_MC_tWtW"
+
 
     if 'bprime800' in sample or 'bprime900' in sample or 'bprime1000' in sample:
       optionList_mc['BTAGEFFMAP'] = "bpbpbZb800_bTagEff.root"
@@ -266,19 +336,22 @@ for sample in sorted(sampleDict.keys()):
 
     inputfile = open('dummy_temp.py')
     outputfile = open(options.directoryName+'/'+sample+'/'+sample+'_'+str(entry)+'.py', 'w')
+    director = 'root://eoscms.cern.ch/'
+    if 'Muon' in sample or 'Electron' in sample:
+      director = 'root://cms-xrd-global.cern.ch/'
     if int(n/1000) < 10:
-      replacer = 'root://eoscms.cern.ch/'+sampleDict[sample][2]+'000'+str(int(n/1000))+'/B2GEDMNtuple_'+str(n)+'.root'
+      replacer = director+sampleDict[sample][2]+'000'+str(int(n/1000))+'/B2GEDMNtuple_'+str(n)+'.root'
     else:
-      replacer = 'root://eoscms.cern.ch/'+sampleDict[sample][2]+'00'+str(int(n/1000))+'/B2GEDMNtuple_'+str(n)+'.root'
+      replacer = director+sampleDict[sample][2]+'00'+str(int(n/1000))+'/B2GEDMNtuple_'+str(n)+'.root'
 
     for i in range(1, sampleDict[sample][0]):
       n += 1
       if n > sampleDict[sample][1]:
         break
       if int(n/1000) < 10:
-        replacer+="',\n'root://eoscms.cern.ch/"+sampleDict[sample][2]+'000'+str(int((n)/1000))+"/B2GEDMNtuple_"+str(n)+".root"
+        replacer+="',\n'"+director+sampleDict[sample][2]+'000'+str(int((n)/1000))+"/B2GEDMNtuple_"+str(n)+".root"
       else:
-        replacer+="',\n'root://eoscms.cern.ch/"+sampleDict[sample][2]+'00'+str(int((n)/1000))+"/B2GEDMNtuple_"+str(n)+".root"
+        replacer+="',\n'"+director+sampleDict[sample][2]+'00'+str(int((n)/1000))+"/B2GEDMNtuple_"+str(n)+".root"
     n+=1
 
     for line in inputfile:
