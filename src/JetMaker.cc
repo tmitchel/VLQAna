@@ -22,6 +22,7 @@ JetMaker::JetMaker (edm::ParameterSet const& iConfig, edm::ConsumesCollector && 
   scaledJetMass_            (iConfig.getParameter<double>                  ("scaledJetMass")), 
   jecShift_                 (iConfig.getParameter<double>                  ("jecShift")), 
   jerShift_                 (iConfig.getParameter<int>                     ("jerShift")), 
+  jmrShift_                 (iConfig.getParameter<int>                     ("jmrShift")),
   newJECPayloadNames_       (iConfig.getParameter<std::vector<std::string>>("newJECPayloadNames")),
   jecUncPayloadName_        (iConfig.getParameter<std::string>             ("jecUncPayloadName")),
   jecAK8GroomedPayloadNames_(iConfig.getParameter<std::vector<std::string>>("jecAK8GroomedPayloadNames")), 
@@ -261,8 +262,8 @@ void JetMaker::operator()(edm::Event& evt, vlq::JetCollection& jets) {
 
     double unc(0);
     if (jecShift_ != 0 ) {
-      ptr_jecUnc->setJetEta( uncorrJetP4.Eta()    );
-      ptr_jecUnc->setJetPt ( uncorrJetP4.Pt()     );
+      ptr_jecUnc->setJetEta( newJetP4.Eta()    );
+      ptr_jecUnc->setJetPt ( newJetP4.Pt()     );
       unc = ptr_jecUnc->getUncertainty(true);
       newJetP4 *= (1 + jecShift_*unc) ; 
     }
@@ -367,11 +368,12 @@ void JetMaker::operator()(edm::Event& evt, vlq::JetCollection& jets) {
       }
 
       double masssmear(1.) ;
-      if ( jerShift_ != 0 ) {
+      if ( jmrShift_ != 0 ) {
         double pt_gen = (h_jetGenJetPt.product())->at(ijet) ;  
         double pt_reco   = uncorrJetP4.Pt() ;
-        double jerscalemass = ApplyJERMass(jerShift_) ; 
-        masssmear = std::max( 0.0, pt_gen + jerscalemass*(pt_reco - pt_gen) )/pt_reco ; 
+        double jerscalemass = ApplyJERMass(jmrShift_) ; 
+        if (pt_gen > 0) masssmear = std::max( 0.0, pt_gen + jerscalemass*(pt_reco - pt_gen) )/pt_reco ; 
+        else masssmear = 1;
       }
 
       newJetP4.SetVectM(newJetP4.Vect(), newJetP4.Mag()*massCorr*masssmear) ; 
