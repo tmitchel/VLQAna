@@ -19,6 +19,7 @@ defaultAK4JetSelectionParameters = cms.PSet(
     jecAK8GroomedPayloadNames = cms.vstring(), 
     jecShift                  = cms.double(0), 
     jerShift                  = cms.int32(1), 
+    jmrShift                  = cms.int32(1),
     jetPtMin                  = cms.double(30),
     jetPtMax                  = cms.double(1000000),
     jetAbsEtaMax              = cms.double(5.0),
