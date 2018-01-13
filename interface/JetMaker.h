@@ -126,6 +126,7 @@ class JetMaker {
     edm::EDGetTokenT<std::vector<float>> t_ak8sjGenJetCharge  ; 
     double                    jecShift_ ; 
     int                       jerShift_ ; 
+    int                       jmrShift_ ;
     std::vector<std::string>  newJECPayloadNames_;
     std::string               jecUncPayloadName_;
     std::vector<std::string>  jecAK8GroomedPayloadNames_;
