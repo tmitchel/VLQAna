@@ -20,6 +20,9 @@ namespace os2l {
       int ta_npv;
       int t_puNtrueInt;
 
+      std::vector<int>    t_lhewtids;
+      std::vector<double> t_lhewts;
+
       std::vector<string> t_TriggerNameTree;
       std::vector<float>  t_TriggerBitTree;
       std::vector<int>    t_TriggerPrescaleTree;
@@ -197,6 +200,9 @@ namespace os2l {
       std::vector<int>    t_genPartDau2Status;
 
       void clearTreeVectors() {
+        t_lhewtids            .clear();
+        t_lhewts              .clear();
+
         t_TriggerNameTree     .clear();
         t_TriggerBitTree      .clear();
         t_TriggerPrescaleTree .clear();
@@ -368,6 +374,9 @@ namespace os2l {
         tree->Branch("t_evtInfoLumiBlock"    ,&t_evtInfoLumiBlock   ,"t_evtInfoLumiBlock/i" );
         tree->Branch("t_evtInfoRunNumber"    ,&t_evtInfoRunNumber   ,"t_evtInfoRunNumber/i" );
         tree->Branch("t_evtInfoEventNumber"  ,&t_evtInfoEventNumber ,"t_evtInfoEventNumber/l" );
+
+        tree->Branch("t_lhewtids"            ,&t_lhewtids           ,"t_lhewtids" );
+        tree->Branch("t_lhewts"              ,&t_lhewts             ,"t_lhewts" );
 
         tree->Branch("t_TriggerNameTree"     ,&t_TriggerNameTree );
         tree->Branch("t_TriggerBitTree"      ,&t_TriggerBitTree );
