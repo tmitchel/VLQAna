@@ -93,6 +93,11 @@ options.register('syst', False,
     VarParsing.varType.bool,
     "Do systematics"
     )
+options.register('storeLHEWts', True,
+    VarParsing.multiplicity.singleton,
+    VarParsing.varType.bool,
+    'Store LHE weights'
+    )
 
 options.setDefault('maxEvents', -1)
 options.parseArguments()
@@ -147,12 +152,12 @@ process.source = cms.Source(
     ) 
   )
 
-if options.isData:
-  import FWCore.PythonUtilities.LumiList as LumiList
-  process.source.lumisToProcess = LumiList.LumiList(
-      filename = "/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions16/13TeV/ReReco/Final/Cert_271036-284044_13TeV_23Sep2016ReReco_Collisions16_JSON.txt"
-      ).getVLuminosityBlockRange()
-
+#if options.isData:
+#  import FWCore.PythonUtilities.LumiList as LumiList
+#  process.source.lumisToProcess = LumiList.LumiList(
+#      filename = "/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions16/13TeV/ReReco/Final/Cert_271036-284044_13TeV_23Sep2016ReReco_Collisions16_JSON.txt"
+#      ).getVLuminosityBlockRange()
+#
 process.TFileService = cms.Service("TFileService",
     fileName = cms.string(
       options.outFileName
@@ -172,7 +177,7 @@ process.evtcleaner.File_PUDistMC        = cms.string(os.path.join(dataPath,'PUDi
 process.evtcleaner.isData = options.isData 
 process.evtcleaner.hltPaths = cms.vstring (hltpaths)  
 process.evtcleaner.DoPUReweightingOfficial = cms.bool(options.doPUReweightingOfficial)  
-#process.evtcleaner.storeLHEWts = options.storeLHEWts
+process.evtcleaner.storeLHEWts = options.storeLHEWts
 
 from Analysis.VLQAna.OS2LAna_cfi import * 
 
@@ -187,10 +192,12 @@ process.ana = ana.clone(
     btageffmap = cms.string(os.path.join(dataPath,options.btageffmap)), 
     applyDYNLOCorr = cms.bool(options.applyDYNLOCorr),
     skim = cms.bool(options.skim),
+    isData = cms.bool(options.isData),
     maketree = cms.bool(options.maketree), 
     fnamebtagSF = cms.string(os.path.join(dataPath,'CSVv2_Moriond17_B_H.csv')),
     fnameSJbtagSF = cms.string(os.path.join(dataPath,'subjet_CSVv2_Moriond17_B_H.csv')),
     File_DYNLOCorr = cms.string(os.path.join(dataPath,'scalefactors_v4.root')),
+    syst = cms.bool(False)
     )
 process.ana.genParams.debug = cms.bool(False)
 
@@ -244,10 +251,13 @@ process.ana.jetAK4BTaggedselParams.jetPtMin = cms.double(50)
 process.ana.NAK4Min = cms.uint32(3)
 if options.maketree:
   process.ana.STMin = cms.double(0.)
-  process.ana.HTMin = cms.double(500.)
+  process.ana.HTMin = cms.double(200.)
 else: 
   process.ana.STMin = cms.double(1000.)
   process.ana.HTMin = cms.double(200.)
+
+process.ana.pdfID_offset = cms.int32(9)
+process.ana.scale_offset = cms.int32(0)
 
 if options.skim: 
   process.ana.jetAK4selParams.jetPtMin = cms.double(20) 
@@ -259,16 +269,25 @@ else:
   if options.syst: 
     process.anabcUp = process.ana.clone(
         btagsf_bcUp = cms.bool(True),
+        sbtagsf_bcUp = cms.bool(True),
+        syst = cms.bool(True)
         )
     process.anabcDown = process.ana.clone(
         btagsf_bcDown = cms.bool(True),
+        sbtagsf_bcDown = cms.bool(True),
+        syst = cms.bool(True)
         )
     process.analightUp = process.ana.clone(
         btagsf_lUp = cms.bool(True),
+        sbtagsf_lUp = cms.bool(True),
+        syst = cms.bool(True)
         )
     process.analightDown = process.ana.clone(
         btagsf_lDown = cms.bool(True),
+        sbtagsf_lDown = cms.bool(True),
+        syst = cms.bool(True)
         )
+    
     process.anaJecUp = process.ana.clone()
     process.anaJecUp.jetAK4selParams.jecShift = cms.double(1.)
     process.anaJecUp.jetAK4BTaggedselParams.jecShift = cms.double(1.)
@@ -276,7 +295,8 @@ else:
     process.anaJecUp.jetHTaggedselParams.jecShift = cms.double(1.)
     process.anaJecUp.jetWTaggedselParams.jecShift = cms.double(1.)
     process.anaJecUp.jetTopTaggedselParams.jecShift = cms.double(1.)
-
+    process.anaJecUp.syst = cms.bool(True)
+    
     process.anaJecDown = process.ana.clone()
     process.anaJecDown.jetAK4selParams.jecShift = cms.double(-1.)
     process.anaJecDown.jetAK4BTaggedselParams.jecShift = cms.double(-1.)
@@ -284,28 +304,57 @@ else:
     process.anaJecDown.jetHTaggedselParams.jecShift = cms.double(-1.)
     process.anaJecDown.jetWTaggedselParams.jecShift = cms.double(-1.)
     process.anaJecDown.jetTopTaggedselParams.jecShift = cms.double(-1.)
+    process.anaJecDown.syst = cms.bool(True)
 
     process.anaJerUp = process.ana.clone()
     process.anaJerUp.jetAK4selParams.jerShift = cms.int32(2)
-    process.anaJecUp.jetAK4BTaggedselParams.jerShift = cms.int32(2)
+    process.anaJerUp.jetAK4BTaggedselParams.jerShift = cms.int32(2)
     process.anaJerUp.jetAK8selParams.jerShift = cms.int32(2)
-    process.anaJecUp.jetHTaggedselParams.jerShift = cms.int32(2)
-    process.anaJecUp.jetWTaggedselParams.jerShift = cms.int32(2)
-    process.anaJecUp.jetTopTaggedselParams.jerShift = cms.int32(2)
+    process.anaJerUp.jetHTaggedselParams.jerShift = cms.int32(2)
+    process.anaJerUp.jetWTaggedselParams.jerShift = cms.int32(2)
+    process.anaJerUp.jetTopTaggedselParams.jerShift = cms.int32(2)
+    process.anaJerUp.syst = cms.bool(True)
 
     process.anaJerDown = process.ana.clone()
     process.anaJerDown.jetAK4selParams.jerShift = cms.int32(0)
     process.anaJerDown.jetAK4BTaggedselParams.jerShift = cms.int32(0)
     process.anaJerDown.jetAK8selParams.jerShift = cms.int32(0)
-    process.anaJecDown.jetHTaggedselParams.jerShift = cms.int32(0)
-    process.anaJecDown.jetWTaggedselParams.jerShift = cms.int32(0)
-    process.anaJecDown.jetTopTaggedselParams.jerShift = cms.int32(0)
+    process.anaJerDown.jetHTaggedselParams.jerShift = cms.int32(0)
+    process.anaJerDown.jetWTaggedselParams.jerShift = cms.int32(0)
+    process.anaJerDown.jetTopTaggedselParams.jerShift = cms.int32(0)
+    process.anaJerDown.syst = cms.bool(True)
+    
+    process.anaJmrUp = process.ana.clone()
+    process.anaJmrUp.jetHTaggedselParams.jmrShift = cms.int32(2)
+    process.anaJmrUp.jetWTaggedselParams.jmrShift = cms.int32(2)
+    process.anaJmrUp.syst = cms.bool(True)
 
+    process.anaJmrDown = process.ana.clone()
+    process.anaJmrDown.jetHTaggedselParams.jmrShift = cms.int32(-1)
+    process.anaJmrDown.jetWTaggedselParams.jmrShift = cms.int32(-1)
+    process.anaJmrDown.syst = cms.bool(True)
+ 
     process.anaPileupUp = process.ana.clone(
         PileupUp = cms.bool(True),
+        syst = cms.bool(True),
         )
     process.anaPileupDown = process.ana.clone(
         PileupDown = cms.bool(True),
+        syst = cms.bool(True),
+        )
+    process.anaDYSF = process.ana.clone(
+        applyDYNLOCorr = cms.bool(True),
+        syst = cms.bool(True),
+        )
+
+    process.anatauUp = process.ana.clone(
+        tauShift = cms.int32(1),
+        syst = cms.bool(True),
+        )
+
+    process.anatauDown = process.ana.clone(
+        tauShift = cms.int32(-1),
+        syst = cms.bool(True),
         )
 
 ## Event counters
@@ -335,6 +384,11 @@ if options.syst and not options.skim:
     *cms.ignore(process.anaJerDown)
     *cms.ignore(process.anaPileupUp)
     *cms.ignore(process.anaPileupDown)
+    *cms.ignore(process.anatauUp)
+    *cms.ignore(process.anatauDown)
+    *cms.ignore(process.anaJmrUp)
+    *cms.ignore(process.anaJmrDown)
+    *cms.ignore(process.anaDYSF)
     )
 elif options.massReco:
   process.load('Analysis.VLQAna.MassReco_cfi')
