@@ -132,7 +132,7 @@ class OS2LAna : public edm::EDFilter {
     const int scale_offset_                      ;
     const bool syst_                             ;
     const bool vv_                               ;
-    const int elSyst_                            ;	
+    const int elSyst_                            ;  
     const std::string fname_DYNLOCorr_           ; 
     const std::string funname_DYNLOCorr_         ; 
     DYNLOEwkKfact dynloewkkfact                  ;
@@ -261,8 +261,8 @@ OS2LAna::OS2LAna(const edm::ParameterSet& iConfig) :
   maketree_               (iConfig.getParameter<bool>("maketree"))
 
 {
-	produces<vlq::JetCollection>("ak4jets") ;
-	produces<vlq::JetCollection>("ak8jets") ;
+  produces<vlq::JetCollection>("ak4jets") ;
+  produces<vlq::JetCollection>("ak8jets") ;
   produces<vlq::JetCollection>("tjets") ; 
   produces<vlq::JetCollection>("wjets") ; 
   produces<vlq::JetCollection>("hjets") ;
@@ -650,7 +650,7 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
       std::unique_ptr<vlq::CandidateCollection> ptr_zllcands ( new vlq::CandidateCollection(zll) ) ; 
 
       evt.put(std::move(ptr_ak4jets), "ak4jets");
-  		evt.put(std::move(ptr_ak8jets), "ak8jets");
+      evt.put(std::move(ptr_ak8jets), "ak8jets");
       evt.put(std::move(ptr_tjets), "tjets") ; 
       evt.put(std::move(ptr_wjets), "wjets") ; 
       evt.put(std::move(ptr_hjets), "hjets") ; 
@@ -780,6 +780,7 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
       }
     } //// Control region 
 
+    
     if ( goodAK4Jets.at(0).getPt() > 100 
         && goodAK4Jets.at(1).getPt() > 50
         && goodBTaggedAK4Jets.size() > 0
@@ -951,36 +952,8 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
  
       }    // close nak4 > 3
 
-    } //// Signal region 
-    
-    // begin event categorization. lord beer me strength
-    vlq::JetCollection ak4matchedak8, ak4nonmatched1, ak4nonmatched2, ak4nonmatched3;
-    
-//    // 0-btag control region
-//    if (goodBTaggedAK4Jets.size() == 0 && goodAK4Jets.at(0).getPt() > 100 && goodAK4Jets.at(1).getPt() > 50 && ST < 1000) {
-//
-//      h1_["nak4_0cat"] -> Fill(goodAK4Jets.size(), evtwt);
-//      h1_["ht_0cat"] -> Fill(htak4.getHT(), evtwt);
-//      h1_["st_0cat"] -> Fill(ST, evtwt);
-//      if (zdecayMode_ == "zmumu" )
-//        h1_["dr_zmumu_0cat"] -> Fill((goodMuons.at(0).getP4()).DeltaR(goodMuons.at(1).getP4()), evtwt); 
-//      else if ( zdecayMode_ == "zelel" )
-//        h1_["dr_zelel_0cat"] -> Fill((goodElectrons.at(0).getP4()).DeltaR(goodElectrons.at(1).getP4()), evtwt);
-//
-//    }
-
-    // low ST signal? region
-    if (goodBTaggedAK4Jets.size() > 0 && goodAK4Jets.at(0).getPt() > 100 && goodAK4Jets.at(1).getPt() > 50 && ST < 1000) {
-
-//      for (auto& izll : zll) {
-//        h1_["mass_z"+lep+lep+"_cat"] -> Fill(izll.getMass(), evtwt);
-//        h1_["pt_z"+lep+lep+"_cat"] -> Fill(izll.getPt(), evtwt);
-//      }
-//      h1_["nak4_cat"] -> Fill(goodAK4Jets.size(), evtwt);
-//      h1_["ht_cat"] -> Fill(htak4.getHT(), evtwt);
-//      h1_["st_cat"] -> Fill(ST, evtwt);
-//      h1_["ptak4_lead_cat"] -> Fill(goodAK4Jets.at(0).getPt(), evtwt);
-
+      // begin categorization
+      vlq::JetCollection ak4matchedak8, ak4nonmatched1, ak4nonmatched2, ak4nonmatched3;
       vlq::JetCollection goodAK4Jetscleaned(goodAK4Jets), Hb(goodHTaggedJets), ZB(goodWTaggedJets), D(goodTopTaggedJets);
       vlq::CandidateCollection tops, BC,D1, Z,ZB1, H,Hb1,HPrime,HbPrime, ZH, ZHb;
       vlq::JetCollection W,B;
@@ -1011,31 +984,6 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
           }
         }
       }
-
-      cout << "Before: " << goodAK4Jetscleaned.size() << " " << ak4matchedak8.size() << std::endl;
-      for (auto it = ak4matchedak8.begin(); it != ak4matchedak8.end(); it++) {
-        for (auto clean_it = goodAK4Jetscleaned.begin(); clean_it != goodAK4Jetscleaned.end(); clean_it++) {
-          if (it->getP4() == clean_it->getP4())
-            goodAK4Jetscleaned.erase(clean_it);
-        }
-      }
-       cout << "After: " << goodAK4Jetscleaned.size() << " " << ak4matchedak8.size() << std::endl;
-//      h1_["nbjets_cat"] -> Fill(goodBTaggedAK4Jets.size(), evtwt);
-//
-//      if (goodBTaggedAK4Jets.size() > 0) {
-//        h1_["ptbjetleading_cat"] -> Fill(goodBTaggedAK4Jets.at(0).getPt(), evtwt);
-//        h1_["etabjetleading_cat"] -> Fill(goodBTaggedAK4Jets.at(0).getEta(), evtwt);
-//      }
-//      if (goodBTaggedAK4Jets.size() > 1) {
-//        h1_["ptbjetsubleading_cat"] -> Fill(goodBTaggedAK4Jets.at(1).getPt(), evtwt);
-//        h1_["etabjetsubleading_cat"] -> Fill(goodBTaggedAK4Jets.at(1).getEta(), evtwt);
-//      }
-//
-//      for (auto& bjet : goodBTaggedAK4Jets) {
-//        h1_["ptbjet_cat"] -> Fill(bjet.getPt(), evtwt);
-//        h1_["etabjet_cat"] -> Fill(bjet.getEta(), evtwt);
-//      }
-
       HCandsProducer h;
       if (goodAK4Jetscleaned.size() > 1)
         h.operator()(goodAK4Jetscleaned.size(), 2, goodAK4Jetscleaned, H);
@@ -1046,19 +994,18 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
 
       TopCandsProducer top, w;
       // Category BC
-      if (goodWTaggedJets.size() > 0 && goodAK4Jetscleaned.size() > 0) {
-        TLorentzVector bc1;
-        for (auto wjet : goodWTaggedJets) {
-          for (auto ak4 : goodAK4Jetscleaned) {
-            bc1 = wjet.getP4() + ak4.getP4();
-            if (bc1.Mag() >= 120 && bc1.Mag() <= 240 && bc1.Pt() >= 150) {
-              vlq::Candidate bc2(bc1);
-//              h1_["dr_Wb_cnt"] -> Fill( (wjet.getP4()).DeltaR(ak4.getP4()), evtwt);
-//              h1_["dphi_Wb_cnt"] -> Fill( (wjet.getP4()).DeltaPhi(ak4.getP4()), evtwt);
-              W.push_back(wjet);
-              B.push_back(ak4);
-              BC.push_back(bc2);
-            }
+      TLorentzVector bc1;
+      for (auto wjet : goodWTaggedJets) {
+        for (auto ak4 : goodAK4Jetscleaned) {
+          bc1 = wjet.getP4() + ak4.getP4();
+          if (bc1.Mag() >= 120 && bc1.Mag() <= 240 && bc1.Pt() >= 150) {
+            vlq::Candidate bc2(bc1);
+            
+            h1_["dr_Wb_sig"] -> Fill( (wjet.getP4()).DeltaR(ak4.getP4()), evtwt);
+            h1_["dphi_Wb_sig"] -> Fill( (wjet.getP4()).DeltaPhi(ak4.getP4()), evtwt);
+            W.push_back(wjet);
+            B.push_back(ak4);
+            BC.push_back(bc2);
           }
         }
       }
@@ -1066,85 +1013,205 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
       if (goodAK4Jetscleaned.size() > 2)
         top.operator()(goodAK4Jetscleaned.size(), 3, goodAK4Jetscleaned, tops);
 
-//      for (auto& match : ak4matchedak8) {
-//        h1_["mass_ak4matchedak8"] -> Fill(match.getMass(), evtwt);
-//        h1_["pt_ak4matchedak8"] -> Fill(match.getPt(), evtwt);
-//      }
-//      h1_["nak4matchedak8"] -> Fill(ak4matchedak8.size(), evtwt);
-//
-//      for (auto& hb : Hb) {
-//        h1_["H_mass_b_cnt"] -> Fill(hb.getPrunedMass(), evtwt);
-//        h1_["H_Pt_b_cnt"] -> Fill(hb.getPt(), evtwt);
-//      }
-//      h1_["nHcandidatejets_b_cnt"] -> Fill(Hb.size(), evtwt);
-//
-//      for (auto& h_it : H) {
-//        h1_["H_mass_nb_cnt"] -> Fill(h_it.getMass(), evtwt);
-//        h1_["H_Pt_nb_cnt"] -> Fill(h_it.getPt(), evtwt);
-//      }
-//      h1_["nHcandidatejets_nb_cnt"] -> Fill(H.size(), evtwt);
-//
-//      if (Hb.size() > 0 || H.size() > 0)
-//        h1_["nHcandidatejets_cnt"] -> Fill(Hb.size() + H.size(), evtwt); 
-//      h1_["nHcandidatejets1_cnt"] -> Fill(Hb.size() + H.size(), evtwt);
-//
-//      for (auto z_it : Z) {
-//        h1_["Z_mass_b_cnt"] -> Fill(z_it.getMass(), evtwt);
-//        h1_["Z_Pt_b_cnt"] -> Fill(z_it.getPt(), evtwt);
-//      }
-//      h1_["nzcandidatejets_b_cnt"] -> Fill(Z.size(), evtwt);
-//
-//      if (ZB.size() || Z.size())
-//        h1_["nzcandidatejets_tot_cnt"] -> Fill(ZB.size() + Z.size(), evtwt);
-//      h1_["nzcandidatejets1_tot_cnt"] -> Fill(ZB.size() + Z.size(), evtwt);
-//
-//      for (auto& D_it : D) {
-//        h1_["top_mass_d_cnt"] -> Fill(D_it.getSoftDropMass(), evtwt);
-//        h1_["top_Pt_d_cnt"] -> Fill(D_it.getPt(), evtwt);
-//      }
-//      h1_["ntopcandidatejets_d_cnt"] -> Fill(D.size(), evtwt);
-//
-//      for (auto& W_it : W)
-//        h1_["W_mass_bc_cnt"] -> Fill(W_it.getPrunedMass(), evtwt);
-//      h1_["nWcandidatejets_bc_cnt"] -> Fill(W.size(), evtwt);
-//
-//      for (auto& B_it : B) 
-//        h1_["lightjet_mass_bc_cnt"] -> Fill(B_it.getMas(), evtwt);
-//      h1_["nlightjetcandidatejets_bc_cnt"] -> Fill(B.size(), evtwt);
-//
-//      for (auto& BC_it : BC) {
-//        h1_["top_mass_bc_cnt"] -> Fill(BC_it.getMass(), evtwt);
-//        h1_["top_Pt_bc_cnt"] -> Fill(BC_it.getPt(), evtwt);
-//      }
-//      h1_["ntopcandidatejets_bc_cnt"] -> Fill(BC.size(), evtwt);
-//
-//      for (auto& top_it : tops) {
-//        h1_["top_mass_a_cnt"] -> Fill(top_it.getMass(), evtwt);
-//        h1_["top_Pt_a_cnt"] -> Fill(top_it.getPt(), evtwt);
-//      }
-//      h1_["ntopcandidatejets_a_cnt"] -> Fill(tops.size(), evtwt);
-//
-//      if (D.size() || BC.size() || tops.size())
-//        h1_["ntopcandidatejets_cnt"] -> Fill(D.size() + BC.size() + tops.size(), evtwt);
-//      h1_["ntopcandidatejets1_cnt"] -> Fill(D.size() + BC.size() + top.size(), evtwt);
-//
-//      h1_["cutflow1"] -> Fill(1, evtwt);
-//      if (goodBTaggedAK4Jets.size() == 1)
-//        h1_["cutflow1"] -> Fill(2, evtwt);
-//
-//      if (goodBTaggedAK4Jets.size() > 1)
-//        h1_["cutflow1"] -> Fill(3, evtwt);
-      
-        if (ntopcandidates > 0 && nzcandidates > 0) {
-          h1_["cutflow1"] -> Fill(4, evtwt);
-          if (nHcandidates > 0) {
-            h1_["cutflow1"] -> Fill(8, evtwt);
+      for (auto& hb : Hb) {
+        h1_["H_mass_b_sig"] -> Fill(hb.getPrunedMass(), evtwt);
+        h1_["H_Pt_b_sig"] -> Fill(hb.getPt(), evtwt); 
+      }
+      h1_["nHcandidatejets_b_sig"] -> Fill(Hb.size(), evtwt);
 
-    }
+      for (auto& h_it : H) {
+        h1_["H_mass_nb_sig"] -> Fill(h_it.getMass(), evtwt);
+        h1_["H_Pt_nb_sig"] -> Fill(h_it.getPt(), evtwt); 
+      }
+      h1_["nHcandidatejets_nb_sig"] -> Fill(H.size(), evtwt);
 
+      double nHcandidates = Hb.size() + H.size();
+      double nzcandidates = ZB.size() + Z.size();
+      double ntopcandidates = D.size() + BC.size() + tops.size();
 
+      if (Hb.size() > 0 || H.size() > 0)
+        h1_["nHcandidatejets_sig"] -> Fill(Hb.size() + H.size(), evtwt); 
+      h1_["nHcandidatejets1_sig"] -> Fill(Hb.size() + H.size(), evtwt); 
 
+      for (auto z_it : Z) {
+        h1_["Z_mass_b_sig"] -> Fill(z_it.getMass(), evtwt);
+        h1_["Z_Pt_b_sig"] -> Fill(z_it.getPt(), evtwt); 
+      }
+      h1_["nzcandidatejets_b_sig"] -> Fill(Z.size(), evtwt);
 
+      if (ZB.size() || Z.size())
+        h1_["nzcandidatejets_tot_sig"] -> Fill(ZB.size() + Z.size(), evtwt);
+      h1_["nzcandidatejets1_tot_sig"] -> Fill(ZB.size() + Z.size(), evtwt); 
+
+      for (auto& D_it : D) {
+        h1_["top_mass_d_sig"] -> Fill(D_it.getSoftDropMass(), evtwt);
+        h1_["top_Pt_d_sig"] -> Fill(D_it.getPt(), evtwt); 
+      }
+      h1_["ntopcandidatejets_d_sig"] -> Fill(D.size(), evtwt); 
+
+      for (auto& W_it : W)
+        h1_["W_mass_bc_sig"] -> Fill(W_it.getPrunedMass(), evtwt);
+      h1_["nWcandidatejets_bc_sig"] -> Fill(W.size(), evtwt); 
+
+      for (auto& B_it : B) 
+        h1_["lightjet_mass_bc_sig"] -> Fill(B_it.getMass(), evtwt);
+      h1_["nlightjetcandidatejets_bc_sig"] -> Fill(B.size(), evtwt); 
+
+      for (auto& BC_it : BC) {
+        h1_["top_mass_bc_sig"] -> Fill(BC_it.getMass(), evtwt);
+        h1_["top_Pt_bc_sig"] -> Fill(BC_it.getPt(), evtwt); 
+      }
+      h1_["ntopcandidatejets_bc_sig"] -> Fill(BC.size(), evtwt); 
+
+      for (auto& top_it : tops) {
+        h1_["top_mass_a_sig"] -> Fill(top_it.getMass(), evtwt);
+        h1_["top_Pt_a_sig"] -> Fill(top_it.getPt(), evtwt); 
+      }
+      h1_["ntopcandidatejets_a_sig"] -> Fill(tops.size(), evtwt);
+
+      if (D.size() || BC.size() || tops.size())
+        h1_["ntopcandidatejets_sig"] -> Fill(D.size() + BC.size() + tops.size(), evtwt);
+      h1_["ntopcandidatejets1_sig"] -> Fill(D.size() + BC.size() + tops.size(), evtwt); 
+
+      if (ST > 2500.) ST = 4298.0;
+    	//cout << " st after rebin ****" << ST <<endl;
+    	h1_["st_sig"] -> Fill(ST,evtwt);
+    	h1_["cutflow3"] -> Fill(1, evtwt) ; 
+
+    	if (goodBTaggedAK4Jets.size() == 1){
+    	  h1_["cutflow3"] -> Fill(2, evtwt) ;   
+    	  h1_["st_sig1b"] -> Fill(ST,evtwt); 
+    	}
+    	if (goodBTaggedAK4Jets.size() >=2){
+    	  h1_["st_sig2b"] -> Fill(ST,evtwt);
+    	  h1_["cutflow3"] -> Fill(3, evtwt) ; 
+    	}
+    
+    	//n,Z,H,B
+    	//(1)
+    	if (ntopcandidates >=1.0    &&   nzcandidates>=1.0){
+    	  h1_["st_sigT1Z1"] -> Fill(ST,evtwt);
+    	  h1_["cutflow3"] -> Fill(4, evtwt) ; 
+
+    	  if (nHcandidates >= 1.0){
+    	    h1_["st_sigT1Z1H1"] -> Fill(ST,evtwt);
+    	    h1_["cutflow3"] -> Fill(8, evtwt) ; 
+
+    	    if( goodBTaggedAK4Jets.size() == 1 ){
+    	      h1_["cutflow4"] -> Fill(1, evtwt) ;
+    	      h1_["st_sigT1Z1H1b1"] -> Fill(ST, evtwt) ;
+    	    }
+    	    else if( goodBTaggedAK4Jets.size() >= 2 ){
+    	      h1_["cutflow4"] -> Fill(2, evtwt) ;
+    	      h1_["st_sigT1Z1H1b2"] -> Fill(ST, evtwt) ;
+    	    }
+    	  }
+    	  else if (nHcandidates == 0.0){
+    	    h1_["st_sigT1Z1H0"] -> Fill(ST,evtwt);
+    	    h1_["cutflow3"] -> Fill(9, evtwt) ;
+    	    if( goodBTaggedAK4Jets.size() == 1 ){
+    	      h1_["cutflow4"] -> Fill(3, evtwt) ;
+    	      h1_["st_sigT1Z1H0b1"] -> Fill(ST, evtwt) ;
+    	    }
+    	    else if( goodBTaggedAK4Jets.size() >= 2 ){
+    	      h1_["cutflow4"] -> Fill(4, evtwt) ;
+    	      h1_["st_sigT1Z1H0b2"] -> Fill(ST, evtwt) ;
+    	    }
+    	  }  
+    	}
+     
+    	//(2)
+    	if (ntopcandidates ==0.0    &&   nzcandidates>=1.0){
+        
+    	  h1_["st_sigT0Z1"] -> Fill(ST,evtwt);
+    	  h1_["cutflow3"] -> Fill(5, evtwt) ;  
+
+    	  if (nHcandidates >= 1.0){
+    	    h1_["st_sigT0Z1H1"] -> Fill(ST,evtwt);
+    	    h1_["cutflow3"] -> Fill(10, evtwt) ;  
+    	    if( goodBTaggedAK4Jets.size() == 1 ){
+    	      h1_["cutflow4"] -> Fill(5, evtwt) ;
+    	      h1_["st_sigT0Z1H1b1"] -> Fill(ST, evtwt) ;
+    	    }
+    	    else if( goodBTaggedAK4Jets.size() >= 2 ){
+    	      h1_["cutflow4"] -> Fill(6, evtwt) ;
+    	      h1_["st_sigT0Z1H1b2"] -> Fill(ST, evtwt) ;
+    	    }
+    	  }
+    	  else if (nHcandidates == 0.0){
+    	    h1_["st_sigT0Z1H0"] -> Fill(ST,evtwt);
+    	    h1_["cutflow3"] -> Fill(11, evtwt) ;
+    	    if( goodBTaggedAK4Jets.size() == 1 ){
+    	      h1_["cutflow4"] -> Fill(7, evtwt) ;
+    	      h1_["st_sigT0Z1H0b1"] -> Fill(ST, evtwt) ;
+    	    }
+    	    else if( goodBTaggedAK4Jets.size() >= 2 ){
+    	      h1_["cutflow4"] -> Fill(8, evtwt) ;
+    	      h1_["st_sigT0Z1H0b2"] -> Fill(ST, evtwt) ;
+    	    }
+    	  }
+    	}
+    
+    	//(3)
+    	if (ntopcandidates >=1.0    &&   nzcandidates==0.0){
+    	  h1_["st_sigT1Z0"] -> Fill(ST,evtwt);
+    	  h1_["cutflow3"] -> Fill(6, evtwt) ;
+    	  if (nHcandidates >= 1.0){
+    	    h1_["st_sigT1Z0H1"] -> Fill(ST,evtwt);
+    	    h1_["cutflow3"] -> Fill(12, evtwt) ;
+    	    if( goodBTaggedAK4Jets.size() == 1 ){
+    	      h1_["cutflow4"] -> Fill(9, evtwt) ;
+    	      h1_["st_sigT1Z0H1b1"] -> Fill(ST, evtwt) ;
+    	    }
+    	    else if( goodBTaggedAK4Jets.size() >= 2 ){
+    	      h1_["cutflow4"] -> Fill(10, evtwt) ;
+    	      h1_["st_sigT1Z0H1b2"] -> Fill(ST, evtwt) ;
+    	    }
+    	  }
+    	  else if (nHcandidates == 0.0){
+    	    h1_["st_sigT1Z0H0"] -> Fill(ST,evtwt);
+    	    h1_["cutflow3"] -> Fill(13, evtwt) ;
+    	    if( goodBTaggedAK4Jets.size() == 1 ){
+    	      h1_["cutflow4"] -> Fill(11, evtwt) ;
+    	      h1_["st_sigT1Z0H0b1"] -> Fill(ST, evtwt) ;
+    	    }
+    	    else if( goodBTaggedAK4Jets.size() >= 2 ){
+    	      h1_["cutflow4"] -> Fill(12, evtwt) ;
+    	      h1_["st_sigT1Z0H0b2"] -> Fill(ST, evtwt) ;
+    	    }
+    	  }
+    	}
+    
+    	//(4)
+    	if (ntopcandidates == 0.0    &&   nzcandidates ==0.0){
+    	  h1_["st_sigT0Z0"] -> Fill(ST,evtwt);
+    	  h1_["cutflow3"] -> Fill(7, evtwt) ;
+    	  if (nHcandidates >= 1.0){
+    	    h1_["st_sigT0Z0H1"] -> Fill(ST,evtwt);
+    	    h1_["cutflow3"] -> Fill(14, evtwt) ;
+    	    if( goodBTaggedAK4Jets.size() == 1 ){
+    	      h1_["cutflow4"] -> Fill(13, evtwt) ;
+    	      h1_["st_sigT0Z0H1b1"] -> Fill(ST, evtwt) ;
+    	    }
+    	    else if( goodBTaggedAK4Jets.size() >= 2 ){
+    	      h1_["cutflow4"] -> Fill(14, evtwt) ;
+    	      h1_["st_sigT0Z0H1b2"] -> Fill(ST, evtwt) ;
+    	    }
+    	  }
+    	  else if (nHcandidates == 0.0){
+    	    h1_["st_sigT0Z0H0"] -> Fill(ST,evtwt);
+    	    h1_["cutflow3"] -> Fill(15, evtwt) ;
+    	    if( goodBTaggedAK4Jets.size() == 1 ){
+    	      h1_["cutflow4"] -> Fill(15, evtwt) ;
+    	      h1_["st_sigT0Z0H0b1"] -> Fill(ST, evtwt) ;
+    	    }
+    	    else if( goodBTaggedAK4Jets.size() >= 2 ){
+    	      h1_["cutflow4"] -> Fill(16, evtwt) ;
+    	      h1_["st_sigT0Z0H0b2"] -> Fill(ST, evtwt) ;
+    	    }
+    	  }
+    	}
+    } //// Signal region 
     else return false;
 
   } //// if not skim  and not maketree
@@ -1516,6 +1583,100 @@ void OS2LAna::beginJob() {
         h1_[lepEtaName.c_str()] = bookDir[i]->make<TH1D>(lepEtaName.c_str(), lepEtaTitle.c_str(), 80, -4., 4.) ;
       }
 
+      std::vector<string> suffix4 = {"_cat"};
+      h1_[("npv_noweight"+suffix4[0]).c_str()] = cat.make<TH1D>( ("npv_noweight"+suffix4[0]).c_str(), ";N(PV);;", 51, -0.5, 50.5) ;
+      h1_[("npv"+suffix4[0]).c_str()]  =  cat.make<TH1D>( ("npv"+suffix4[0]).c_str(), ";N(PV);;", 51, -0.5, 50.5) ;
+      h1_[("nak4"+suffix4[0]).c_str()] =  cat.make<TH1D>( ("nak4"+suffix4[0]).c_str(), ";N(AK4 jets);;" , 21, -0.5, 20.5) ;
+      h1_[("ht"+suffix4[0]).c_str()]   =  cat.make<TH1D>( ("ht"+suffix4[0]).c_str(), ";H_{T} (AK4 jets) [GeV]", 100, 0., 4000.) ;
+      h1_[("st"+suffix4[0]).c_str()]   =  cat.make<TH1D>( ("st"+suffix4[0]).c_str() ,";S_{T} [GeV]", 100, 0., 4000.) ;
+      h1_[("met"+suffix4[0]).c_str()]  =  cat.make<TH1D>( ("met"+suffix4[0]).c_str(), "MET [GeV]", 100, 0., 1000.);
+      h1_[("met1"+suffix4[0]).c_str()]  =  cat.make<TH1D>( ("met1"+suffix4[0]).c_str(), ";MET [GeV]", 100, 0., 200.);
+      h1_[("metPhi"+suffix4[0]).c_str()]  =  cat.make<TH1D>( ("metPhi"+suffix4[0]).c_str(), "#Phi(MET)", 20, -5., 5.);
+
+      for(int j=1; j<4; ++j){
+         string jetPtName = Form("ptak4jet%d", j)+suffix4[0]; string jetPtTitle  = Form(";p_{T}(%d leading AK4 jet) [GeV];;",j);
+         h1_[jetPtName.c_str()] = cat.make<TH1D>(jetPtName.c_str(), jetPtTitle.c_str(), 50, 0., 1000.) ;
+         string jetEtaName = Form("etaak4jet%d", j)+suffix4[0]; string jetEtaTitle  = Form(";#eta(%d leading AK4 jet) ;;",j);
+         h1_[jetEtaName.c_str()] = cat.make<TH1D>(jetEtaName.c_str(), jetEtaTitle.c_str(), 80 ,-4. ,4.) ;
+         string jetCVSName = Form("cvsak4jet%d", j)+suffix4[0]; string jetCVSTitle  = Form(";CVS(%d leading AK4 jet) ;;",j);
+         h1_[jetCVSName.c_str()] = cat.make<TH1D>(jetCVSName.c_str(), jetCVSTitle.c_str(), 50 ,0. ,1.) ;
+         string jetMassName = Form("massak4jet%d", j)+suffix4[0]; string jetMassTitle  = Form(";Mass(%d leading AK4 jet) ;;",j);
+         h1_[jetMassName.c_str()] = cat.make<TH1D>(jetMassName.c_str(), jetMassTitle.c_str(), 100 ,0. ,1200.) ;
+       }
+       h1_[jet1METPhiName.c_str()] = cat.make<TH1D>(jet1METPhiName.c_str(), ";#Phi(leading jet, MET)", 20, -5., 5.) ;
+
+       std::vector<string> suffix1 = { "_cntT1Z1H1b1", "_cntT1Z1H1b2","_cntT1Z1H0b1","_cntT1Z1H0b2","_cntT0Z1H1b2", "_cntT1Z1H1", "_cntT1Z1H0","_cntT0Z1H1","_cntT0Z1H0","_cntT1Z0H1","_cntT1Z0H0","_cntT0Z0H1","_cntT0Z0H0"};
+          
+          for (int i=0; i<13; i++){
+    	h1_[("met"+suffix1[i]).c_str()]  =  cat.make<TH1D>( ("met"+suffix1[i]).c_str(), ";MET [GeV]", 100, 0., 1000.);
+    	h1_[("metPhi"+suffix1[i]).c_str()]  = cat.make<TH1D>( ("metPhi"+suffix1[i]).c_str(), ";#Phi(MET)", 20, -5., 5.);
+    
+    	//jets                                                                                                                                                 
+    	for(int j=1; j<4; ++j){
+    	  string jetPtName1 = Form("ptak4jet%d", j)+suffix1[i]; string jetPtTitle  = Form(";p_{T}(%d leading AK4 jet) [GeV];;",j);
+    	  h1_[jetPtName1.c_str()] = cat.make<TH1D>(jetPtName1.c_str(), jetPtTitle.c_str(), 50, 0., 1000.) ;
+    	
+    	  string jetEtaName1 = Form("etaak4jet%d", j)+suffix1[i]; string jetEtaTitle  = Form(";#eta(%d leading AK4 jet) [GeV];;",j);
+              h1_[jetEtaName1.c_str()] = cat.make<TH1D>(jetEtaName1.c_str(), jetEtaTitle.c_str(), 80, -4., 4.) ;
+    	  string jetPhiName1 = Form("phiak4jet%d", j)+suffix1[i]; string jetPhiTitle  = Form(";#phi(%d leading AK4 jet) [GeV];;",j);
+              h1_[jetPhiName1.c_str()] = cat.make<TH1D>(jetPhiName1.c_str(), jetPhiTitle.c_str(), 20, -5., 5.) ;
+    
+    
+    	}
+    	string pt_Z1 = "pt_z"+lep+lep+suffix1[i];
+    	h1_[pt_Z1.c_str()] = cat.make<TH1D>(pt_Z1.c_str(), ";p_{T} (Z#rightarrow l^{+}l^{-}) [GeV]", 50, 0., 1000.) ;
+    	string eta_Z1 = "eta_z"+lep+lep+suffix1[i];
+            h1_[eta_Z1.c_str()] = cat.make<TH1D>(eta_Z1.c_str(), ";#eta (Z#rightarrow l^{+}l^{-}) [GeV]", 80, -4., 4.) ;
+    	string phi_Z1 = "phi_z"+lep+lep+suffix1[i];
+    	h1_[phi_Z1.c_str()] = cat.make<TH1D>(phi_Z1.c_str(), ";#phi (Z#rightarrow l^{+}l^{-}) [GeV]", 20, -5., 5.) ;
+    	string dr_ll = "dr_"+lep+lep+suffix1[i];
+    	h1_[dr_ll.c_str()] = cat.make<TH1D>(dr_ll.c_str(),";#DeltaR(l^{+}l^{-});;", 40, 0., 4. ) ;
+    
+    
+    	for(int l=1; l<3; ++l){
+    	  string lepPtName1 = "pt_"+lep+Form("%d",l)+suffix1[i]; string lepPtTitle = Form(";p_{T}(%d leading lepton) [GeV];;",l);
+    	  h1_[lepPtName1.c_str()] = cat.make<TH1D>(lepPtName1.c_str(), lepPtTitle.c_str(), 50, 0., 500.) ;
+    	  string lepEtaName1 = "eta_"+lep+Form("%d",l)+suffix1[i]; string lepEtaTitle  = Form(";#eta(%d leading lepton) ;;",l);
+    	  h1_[lepEtaName1.c_str()] = cat.make<TH1D>(lepEtaName1.c_str(), lepEtaTitle.c_str(), 80, -4., 4.) ;
+    	  string lepPhiName1 = "phi_"+lep+Form("%d",l)+suffix1[i]; string lepPhiTitle  = Form(";#phi(%d leading lepton) ;;",l);
+        h1_[lepPhiName1.c_str()] = cat.make<TH1D>(lepPhiName1.c_str(), lepPhiTitle.c_str(), 20, -5., 5.) ;
+    
+    	}
+          }
+          h1_["ptbjetleading_cntT1Z1H0b1"]  = cat.make<TH1D>("ptbjetleading_cntT1Z1H0b1", ";p_{T}(leading b jet) [GeV];;" , 50, 0., 1000.) ;
+          h1_["etabjetleading_cntT1Z1H0b1"]  = cat.make<TH1D>("etabjetleading_cntT1Z1H0b1", ";#eta (leading b jet);;" , 80, -4., 4.) ;
+          h1_["phibjetleading_cntT1Z1H0b1"]  = cat.make<TH1D>("phibjetleading_cntT1Z1H0b1", ";#phi (leading b jet);;" , 20, -5., 5.) ;
+          
+          h1_["ptbjetleading_cntT1Z1H1b2"]  = cat.make<TH1D>("ptbjetleading_cntT1Z1H1b2", ";p_{T}(leading b jet) [GeV];;" , 50, 0., 1000.) ;
+          h1_["etabjetleading_cntT1Z1H1b2"]  = cat.make<TH1D>("etabjetleading_cntT1Z1H1b2", ";#eta (leading b jet);;" , 80, -4., 4.) ;
+          h1_["phibjetleading_cntT1Z1H1b2"]  = cat.make<TH1D>("phibjetleading_cntT1Z1H1b2", ";#phi (leading b jet);;" , 20, -5., 5.) ;
+    
+          h1_["ptbjetleading_cntT1Z1H1b1"]  = cat.make<TH1D>("ptbjetleading_cntT1Z1H1b1", ";p_{T}(leading b jet) [GeV];;" , 50, 0., 1000.) ;
+          h1_["etabjetleading_cntT1Z1H1b1"]  = cat.make<TH1D>("etabjetleading_cntT1Z1H1b1", ";#eta (leading b jet);;" , 80, -4., 4.) ;
+          h1_["phibjetleading_cntT1Z1H1b1"]  = cat.make<TH1D>("phibjetleading_cntT1Z1H1b1", ";#phi (leading b jet);;" , 20, -5., 5.) ;
+    
+   
+    
+          h1_["ptbjetleading_cntT1Z1H0b2"]  = cat.make<TH1D>("ptbjetleading_cntT1Z1H0b2", ";p_{T}(leading b jet) [GeV];;" , 50, 0., 1000.) ;
+          h1_["etabjetleading_cntT1Z1H0b2"]  = cat.make<TH1D>("etabjetleading_cntT1Z1H0b2", ";#eta (leading b jet);;" , 80, -4., 4.) ;
+          h1_["phibjetleading_cntT1Z1H0b2"]  = cat.make<TH1D>("phibjetleading_cntT1Z1H0b2", ";#phi (leading b jet);;" , 20, -5., 5.) ;
+    
+    
+    
+          h1_["ptbjetleading_cntT0Z1H1b2"]  = cat.make<TH1D>("ptbjetleading_cntT0Z1H1b2", ";p_{T}(leading b jet) [GeV];;" , 50, 0., 1000.);
+    
+          h1_["ptbjetsubleading_cntT1Z1H1b2"]  = cat.make<TH1D>("ptbjetsubleading_cntT1Z1H1b2", ";p_{T}(subleadinleading b jet) [GeV];;" , 50, 0., 1000.) ;
+          h1_["etabjetsubleading_cntT1Z1H1b2"]  = cat.make<TH1D>("etabjetsubleading_cntT1Z1H1b2", ";#eta (leading b jet);;" , 80, -4., 4.) ;
+          h1_["phibjetsubleading_cntT1Z1H1b2"]  = cat.make<TH1D>("phibjetsubleading_cntT1Z1H1b2", ";#phi (leading b jet);;" , 20, -5., 5.) ;
+    
+    
+          h1_["ptbjetsubleading_cntT1Z1H0b2"]  = cat.make<TH1D>("ptbjetsubleading_cntT1Z1H0b2", ";p_{T}(subleadinleading b jet) [GeV];;" , 50, 0., 1000.) ;
+          h1_["etabjetsubleading_cntT1Z1H0b2"]  = cat.make<TH1D>("etabjetsubleading_cntT1Z1H0b2", ";#eta (leading b jet);;" , 80, -4., 4.) ;
+          h1_["phibjetsubleading_cntT1Z1H0b2"]  = cat.make<TH1D>("phibjetsubleading_cntT1Z1H0b2", ";#phi (leading b jet);;" , 20, -5., 5.) ;
+    
+    
+          h1_["ptbjetsubleading_cntT0Z1H1b2"]  = cat.make<TH1D>("ptbjetsubleading_cntT0Z1H1b2", ";p_{T}(subleadinleading b jet) [GeV];;" , 50, 0., 1000.) ;
+
       h1_[("pt_"+lep+lep+"-3j").c_str()]   = sig.make<TH1D>(("pt_"+lep+lep+"-3j").c_str()  , ("pt_"+lep+lep+"-3j").c_str()  , 50 , 0. , 1000.);
       h1_[("pt_"+lep+"_lead-3j").c_str()]  = sig.make<TH1D>(("pt_"+lep+"_lead-3j").c_str() , ("pt_"+lep+"_lead-3j").c_str() , 50 , 0. , 500.);
       h1_[("pt_"+lep+"_2nd-3j").c_str()]   = sig.make<TH1D>(("pt_"+lep+"_2nd-3j").c_str()  , ("pt_"+lep+"_2nd-3j").c_str()  , 50 , 0. , 500.);
@@ -1614,22 +1775,714 @@ void OS2LAna::beginJob() {
 
       h1_["ptbjetleading_pre"]  = pre.make<TH1D>("ptbjetleading_pre", ";p_{T}(leading b jet) [GeV];;" , 50, 0., 1000.) ;
       h1_["etabjetleading_pre"] = pre.make<TH1D>("etabjetleading_pre", ";#eta(leading b jet);;" , 80 ,-4. ,4.) ;
-
       h1_["ptbjetsubleading_pre"]  = pre.make<TH1D>("ptbjetsubleading_pre", ";p_{T}(subleading b jet) [GeV];;" , 50, 0., 1000.) ;
       h1_["etabjetsubleading_pre"] = pre.make<TH1D>("etabjetsubleading_pre", ";#eta(subleading b jet);;" , 80 ,-4. ,4.) ;
 
-
       h1_["ptbjetleading_cat"]  = cat.make<TH1D>("ptbjetleading_cat", ";p_{T}(leading b jet) [GeV];;" , 50, 0., 1000.) ;
       h1_["etabjetleading_cat"] = cat.make<TH1D>("etabjetleading_cat", ";#eta(leading b jet);;" , 80 ,-4. ,4.) ;
-
       h1_["ptbjetsubleading_cat"]  = cat.make<TH1D>("ptbjetsubleading_cat", ";p_{T}(subleading b jet) [GeV];;" , 50, 0., 1000.) ;
       h1_["etabjetsubleading_cat"] = cat.make<TH1D>("etabjetsubleading_cat", ";#eta(subleading b jet);;" , 80 ,-4. ,4.) ;
-
 
       h1_["ptbjet_cat"]  = cat.make<TH1D>("ptbjet_cat", ";p_{T}(b jet) [GeV];;" , 50, 0., 1000.) ;
       h1_["etabjet_cat"] = cat.make<TH1D>("etabjet_cat", ";#eta(b jet);;" , 80 ,-4. ,4.) ;  
   
+      std::vector<string> suffix2 = { "_st1000_e0b","_st1000_e1b","_st1000_1b","_st1000_2b","_cntT1Z1Hprime1b0","_0b1","_0b2","_0b3"};
+
+    for (int i=0; i<8; i++){
+      h1_[("met"+suffix2[i]).c_str()]  =  cat1.make<TH1D>( ("met"+suffix2[i]).c_str(), ";MET [GeV]", 100, 0., 1000.);
+      h1_[("st"+suffix2[i]).c_str()]  =  cat1.make<TH1D>( ("st"+suffix2[i]).c_str(), ";ST [GeV]", 100, 0., 1000.);
+      h1_[("ht"+suffix2[i]).c_str()]  =  cat1.make<TH1D>( ("ht"+suffix2[i]).c_str(), ";HT [GeV]", 100, 0., 1000.);
+      //jets                                                                                                                                                         
+      for(int j=1; j<4; ++j){
+	string jetPtName2 = Form("ptak4jet%d", j)+suffix2[i]; string jetPtTitle  = Form(";p_{T}(%d leading AK4 jet) [GeV];;",j);
+	h1_[jetPtName2.c_str()] = cat1.make<TH1D>(jetPtName2.c_str(), jetPtTitle.c_str(), 50, 0., 1000.) ;
+      }
+      std::string lep("");
+      if(zdecayMode_ == "zmumu") {lep = "mu";}
+      else if ( zdecayMode_ == "zelel") {lep = "el";}
+      else edm::LogError("OS2LAna::beginJob") << " >>>> WrongleptonType: " << lep << " Check lep name !!!" ;
+      string pt_Z2 = "pt_z"+lep+lep+suffix2[i];
+      h1_[pt_Z2.c_str()] = cat1.make<TH1D>(pt_Z2.c_str(), ";p_{T} (Z#rightarrow l^{+}l^{-}) [GeV]", 50, 0., 1000.) ;
+
+      for(int l=1; l<3; ++l){
+	string lepPtName2 = "pt_"+lep+Form("%d",l)+suffix2[i]; string lepPtTitle = Form(";p_{T}(%d leading lepton) [GeV];;",l);
+	h1_[lepPtName2.c_str()] = cat1.make<TH1D>(lepPtName2.c_str(), lepPtTitle.c_str(), 50, 0., 500.) ;
+	string lepEtaName2 = "eta_"+lep+Form("%d",l)+suffix2[i]; string lepEtaTitle  = Form(";#eta(%d leading lepton) ;;",l);
+	h1_[lepEtaName2.c_str()] = cat1.make<TH1D>(lepEtaName2.c_str(), lepEtaTitle.c_str(), 80, -4., 4.) ;
+      }
+    }
+    h1_["ptbjetleading_st1000_e1b"]  = cat1.make<TH1D>("ptbjetleading_st1000_e1b", ";p_{T}(leading b jet) [GeV];;" , 50, 0., 1000.) ;
+    h1_["ptbjetsubleading_st1000_e1b"]  = cat1.make<TH1D>("ptbjetsubleading_st1000_e1b", ";p_{T}(leading b jet) [GeV];;" , 50, 0., 1000.) ;
+    h1_["ptbjetleading_st1000_1b"]  = cat1.make<TH1D>("ptbjetleading_st1000_1b", ";p_{T}(leading b jet) [GeV];;" , 50, 0., 1000.) ;
+    h1_["ptbjetleading_st1000_2b"]  = cat1.make<TH1D>("ptbjetleading_st1000_2b", ";p_{T}(leading b jet) [GeV];;" , 50, 0., 1000.) ;
+    h1_["ptbjetsubleading_st1000_2b"]  = cat1.make<TH1D>("ptbjetsubleading_st1000_2b", ";p_{T}(leading b jet) [GeV];;" , 50, 0., 1000.) ;
   
+  
+
+
+    h1_["ht1_cnt"]   =  cnt.make<TH1D>("ht1_cnt", ";H_{T} (AK4 jets) [GeV]", 200, 0., 1000.) ;
+    h1_["st1_cnt"]   =  cnt.make<TH1D>("st1_cnt",";S_{T} [GeV]", 200, 0., 1000.) ;
+    h1_["ht1_cat"]   =  cat.make<TH1D>("ht1_cat", ";H_{T} (AK4 jets) [GeV]", 200, 0., 1000.) ;
+    h1_["st1_cat"]   =  cat.make<TH1D>("st1_cat",";S_{T} [GeV]", 200, 0., 1000.) ;  
+    h1_["ht1_0cat"]   =  cat.make<TH1D>("ht1_0cat", ";H_{T} (AK4 jets) [GeV]", 200, 0., 1000.) ;
+    h1_["st1_0cat"]   =  cat.make<TH1D>("st1_0cat",";S_{T} [GeV]", 200, 0., 1000.) ;
+    h1_["nak4_0cat"] = cat.make<TH1D>("nak4_0cat", ";N(AK4 jets);;" , 11, -0.5,10.5) ;
+    h1_["dr_mumu_0cat"] = cat.make<TH1D>("dr_mumu_0cat", ";#DeltaR(l^{+}l^{-});;", 40, 0., 4.) ;
+    h1_["dr_elel_0cat"] = cat.make<TH1D>("dr_elel_0cat", ";#DeltaR(l^{+}l^{-});;", 40, 0., 4.) ;
+
+    //AK8 jets cat                                                                                                                                                     
+    h1_["Wptleading_cat"]  = cnt.make<TH1D>("Wptleading_cat", ";p_{T}(leading W jet) [GeV];;" , 50, 0., 1000.) ;
+    h1_["Wetaleading_cat"] = cnt.make<TH1D>("Wetaleading_cat", ";#eta(leading W jet);;" , 80 ,-4. ,4.) ;
+    h1_["Wprunedleading_cat"] = cnt.make<TH1D>("Wprunedleading_cat", ";M(leading W jet) [GeV];;" ,200 ,50., 150.) ;
+
+    h1_["Wpt2nd_cat"]  = cnt.make<TH1D>("Wpt2nd_cat", ";p_{T}(2nd W jet) [GeV];;" , 50, 0., 1000.) ;
+    h1_["Weta2nd_cat"] = cnt.make<TH1D>("Weta2nd_cat", ";#eta(2nd W jet);;" , 80 ,-4. ,4.) ;
+    h1_["Wpruned2nd_cat"] = cnt.make<TH1D>("Wpruned2nd_cat", ";M(2nd W jet) [GeV];;" ,200 ,50., 150.) ;
+
+    h1_["Wpt_cat"]  = cnt.make<TH1D>("Wpt_cat", ";p_{T}(W jet) [GeV];;" , 50, 0., 1000.) ;
+    h1_["Weta_cat"] = cnt.make<TH1D>("Weta_cat", ";#eta(W jet);;" , 80 ,-4. ,4.) ;
+    h1_["Wpruned_cat"] = cnt.make<TH1D>("Wpruned_cat", ";Pruned Mass(W jet) [GeV];;" ,200 ,50., 150.) ;
+
+    h1_["Wptleading1_cat"]  = cnt.make<TH1D>("Wptleading1_cat", ";p_{T}(leading W jet) [GeV];;" , 50, 0., 1000.) ;
+    h1_["Wetaleading1_cat"] = cnt.make<TH1D>("Wetaleading1_cat", ";#eta(leading W jet);;" , 80 ,-4. ,4.) ;
+    h1_["Wprunedleading1_cat"] = cnt.make<TH1D>("Wprunedleading1_cat", ";M(leading W jet) [GeV];;" ,200 ,50., 150.) ;
+
+    h1_["Wpt2nd1_cat"]  = cnt.make<TH1D>("Wpt2nd1_cat", ";p_{T}(2nd W jet) [GeV];;" , 50, 0., 1000.) ;
+    h1_["Weta2nd1_cat"] = cnt.make<TH1D>("Weta2nd1_cat", ";#eta(2nd W jet);;" , 80 ,-4. ,4.) ;
+    h1_["Wpruned2nd1_cat"] = cnt.make<TH1D>("Wpruned2nd1_cat", ";M(2nd W jet) [GeV];;" ,200 ,50., 150.) ;
+
+
+    h1_["Hptleading_cat"]  = cnt.make<TH1D>("Hptleading_cat", ";p_{T}(leading H jet) [GeV];;" , 50, 0., 1000.) ;
+    h1_["Hetaleading_cat"] = cnt.make<TH1D>("Hetaleading_cat", ";#eta(leading H jet);;" , 80 ,-4. ,4.) ;
+    h1_["Hprunedleading_cat"] = cnt.make<TH1D>("Hprunedleading_cat", ";M(leading H jet) [GeV];;" ,100 ,100., 150.) ;
+
+    h1_["Hpt2nd_cat"]  = cnt.make<TH1D>("Hpt2nd_cat", ";p_{T}(2nd H jet) [GeV];;" , 50, 0., 1000.) ;
+    h1_["Heta2nd_cat"] = cnt.make<TH1D>("Heta2nd_cat", ";#eta(2nd H jet);;" , 80 ,-4. ,4.) ;
+    h1_["Hpruned2nd_cat"] = cnt.make<TH1D>("Hpruned2nd_cat", ";M(2nd H jet) [GeV];;" ,100 ,100., 150.) ;
+
+    h1_["Hpt_cat"]  = cnt.make<TH1D>("Hpt_cat", ";p_{T}(H jet) [GeV];;" , 50, 0., 1000.) ;
+    h1_["Heta_cat"] = cnt.make<TH1D>("Heta_cat", ";#eta(H jet);;" , 80 ,-4. ,4.) ;
+    h1_["Hpruned_cat"] = cnt.make<TH1D>("Hpruned_cat", ";Pruned Mass(H jet) [GeV];;" ,100 ,100., 150.) ;
+
+
+    h1_["Topptleading_cat"]  = cnt.make<TH1D>("Topptleading_cat", ";p_{T}(leading Top jet) [GeV];;" , 50, 0., 1000.) ;
+    h1_["Topetaleading_cat"] = cnt.make<TH1D>("Topetaleading_cat", ";#eta(leading Top jet);;" , 80 ,-4. ,4.) ;
+    h1_["Topsoftdropleading_cat"] = cnt.make<TH1D>("Topsoftdropleading_cat", ";M(leading Top jet) [GeV];;" ,200 ,80., 280.) ;
+
+    h1_["Toppt2nd_cat"]  = cnt.make<TH1D>("Toppt2nd_cat", ";p_{T}(2nd Top jet) [GeV];;" , 50, 0., 1000.) ;
+    h1_["Topeta2nd_cat"] = cnt.make<TH1D>("Topeta2nd_cat", ";#eta(2nd Top jet);;" , 80 ,-4. ,4.) ;
+    h1_["Topsoftdrop2nd_cat"] = cnt.make<TH1D>("Topsoftdrop2nd_cat", ";M(2nd Top jet) [GeV];;" ,200 ,80., 280.) ;
+
+    h1_["Toppt_cat"]  = cnt.make<TH1D>("Toppt_cat", ";p_{T}(Top jet) [GeV];;" , 50, 0., 1000.) ;
+    h1_["Topeta_cat"] = cnt.make<TH1D>("Topeta_cat", ";#eta(Top jet);;" , 80 ,-4. ,4.) ;
+    h1_["Topsoftdrop_cat"] = cnt.make<TH1D>("Topsoftdrop_cat", ";SoftDrop Mass(Top jet) [GeV];;" ,200 ,80., 280.) ;
+
+
+    // h1_["ht1_cat"]   =  cnt.make<TH1D>("ht1_cat", ";H_{T} (AK4 jets) [GeV]", 200, 0., 1000.) ;
+    // h1_["st1_cat"]   =  cnt.make<TH1D>("st1_cat",";S_{T} [GeV]", 200, 0., 1000.) ;
+    h1_["nak41_cat"] = cnt.make<TH1D>("nak41_cat", ";N(AK4 jets);;" , 11, -0.5,10.5) ;
+
+    h1_["ht2_cat"]   =  cnt.make<TH1D>("ht2_cnt", ";H_{T} (AK4 jets) [GeV]", 200, 0., 1000.) ;
+    h1_["st2_cat"]   =  cnt.make<TH1D>("st2_cnt",";S_{T} [GeV]", 200, 0., 1000.) ;
+    h1_["nak42_cat"] = cnt.make<TH1D>("nak42_cat", ";N(AK4 jets);;" , 11, -0.5,10.5) ;
+
+    h1_["nak8_cat"] = cnt.make<TH1D>("nak8_cat", ";N(AK8 jets);;" , 11, -0.5,10.5) ;
+    h1_["nwjet_cat"] = cnt.make<TH1D>("nwjet_cat", ";N(W jets );;" , 6, -0.5,5.5) ;
+    h1_["nhjet_cat"] = cnt.make<TH1D>("nhjet_cat", ";N(H jets );;" , 6, -0.5,5.5) ;
+    h1_["ntjet_cat"] = cnt.make<TH1D>("ntjet_cat", ";N(top jets);;" , 6, -0.5,5.5) ;
+
+    h1_["nak8_pre"] = cnt.make<TH1D>("nak8_pre", ";N(AK8 jets);;" , 11, -0.5,10.5) ;
+    h1_["nwjet_pre"] = cnt.make<TH1D>("nwjet_pre", ";N(W jets );;" , 6, -0.5,5.5) ;
+    h1_["nhjet_pre"] = cnt.make<TH1D>("nhjet_pre", ";N(H jets );;" , 6, -0.5,5.5) ;
+    h1_["ntjet_pre"] = cnt.make<TH1D>("ntjet_pre", ";N(top jets);;" , 6, -0.5,5.5) ;
+
+    h1_["nak8_cnt"] = cnt.make<TH1D>("nak8_cnt", ";N(AK8 jets);;" , 11, -0.5,10.5) ;
+    h1_["nwjet_cnt"] = cnt.make<TH1D>("nwjet_cnt", ";N(W jets );;" , 6, -0.5,5.5) ;
+    h1_["nhjet_cnt"] = cnt.make<TH1D>("nhjet_cnt", ";N(H jets );;" , 6, -0.5,5.5) ;
+    h1_["ntjet_cnt"] = cnt.make<TH1D>("ntjet_cnt", ";N(top jets);;" , 6, -0.5,5.5) ;
+
+
+
+
+
+    //0btag nak4
+    h1_["nak4_0b1"] = cat1.make<TH1D>("nak4_0b1", ";N(AK4 jets);;" , 11, -0.5,10.5) ;
+    h1_["nak4_0b2"] = cat1.make<TH1D>("nak4_0b2", ";N(AK4 jets);;" , 11, -0.5,10.5) ;
+    h1_["nak4_0b3"] = cat1.make<TH1D>("nak4_0b3", ";N(AK4 jets);;" , 11, -0.5,10.5) ;
+
+    h1_["ptak8leading"]  = sig.make<TH1D>("ptak8leading", ";p_{T}(leading AK8 jet) [GeV];;" , 50, 0., 1000.) ; 
+    h1_["etaak8leading"] = sig.make<TH1D>("etaak8leading", ";#eta(leading AK8 jet);;" , 80 ,-4. ,4.) ; 
+    h1_["softdropmak8leading"] = sig.make<TH1D>("softdropmak8leading", ";M(leading AK8 jet) [GeV];;" ,100 ,0., 200.) ; 
+    h1_["ptak82nd"]  = sig.make<TH1D>("ptak82nd", ";p_{T}(2nd AK8 jet) [GeV];;" , 50, 0., 1000.) ; 
+    h1_["etaak82nd"] = sig.make<TH1D>("etaak82nd", ";#eta(2nd AK8 jet);;" , 80 ,-4. ,4.) ; 
+    h1_["softdropmak82nd"] = sig.make<TH1D>("softdropmak82nd", ";M(2nd AK8 jet) [GeV];;" ,100 ,0., 200.) ;
+
+   //for Z and H categories seperetely along with b
+    h1_["cutflow1"] = cat.make<TH1D>("cutflow1", "cut flow", 15, 0.5, 15.5) ;
+    h1_["cutflow1"] -> GetXaxis() -> SetBinLabel(1, "no t,Z,b ") ;
+    h1_["cutflow1"] -> GetXaxis() -> SetBinLabel(2, "b1  ") ;
+    h1_["cutflow1"] -> GetXaxis() -> SetBinLabel(3, "b2") ;
+    h1_["cutflow1"] -> GetXaxis() -> SetBinLabel(4, "t1Z1 ") ;
+    h1_["cutflow1"] -> GetXaxis() -> SetBinLabel(5, "t0Z1") ;
+    h1_["cutflow1"] -> GetXaxis() -> SetBinLabel(6, "t1Z0 ") ;
+    h1_["cutflow1"] -> GetXaxis() -> SetBinLabel(7, "t0Z0") ;
+    h1_["cutflow1"] -> GetXaxis() -> SetBinLabel(8, "t1Z1H1 " ) ;
+    h1_["cutflow1"] -> GetXaxis() -> SetBinLabel(9, "t1Z1H0 " ) ;
+    h1_["cutflow1"] -> GetXaxis() -> SetBinLabel(10, "t0Z1H1 " ) ;
+    h1_["cutflow1"] -> GetXaxis() -> SetBinLabel(11, "t0Z1H0 " ) ;
+    h1_["cutflow1"] -> GetXaxis() -> SetBinLabel(12, "t1Z0H1 " ) ;
+    h1_["cutflow1"] -> GetXaxis() -> SetBinLabel(13, "t1Z0H0 " ) ;
+    h1_["cutflow1"] -> GetXaxis() -> SetBinLabel(14, "t0Z0H1 " ) ;
+    h1_["cutflow1"] -> GetXaxis() -> SetBinLabel(15, "t0Z0H0 " ) ;
+      
+    h1_["cutflow2"] = cat.make<TH1D>("cutflow2", "cut flow", 16, 0.5, 16.5) ;
+    h1_["cutflow2"] -> GetXaxis() -> SetBinLabel(1, "t1Z1H1b1 ") ;
+    h1_["cutflow2"] -> GetXaxis() -> SetBinLabel(2, "t1Z1H1b2") ;
+    h1_["cutflow2"] -> GetXaxis() -> SetBinLabel(3, "t1Z1H0b1 ") ;
+    h1_["cutflow2"] -> GetXaxis() -> SetBinLabel(4, "t1Z1H0b2  ") ;
+    h1_["cutflow2"] -> GetXaxis() -> SetBinLabel(5, "t0Z1H1b1 ") ;
+    h1_["cutflow2"] -> GetXaxis() -> SetBinLabel(6, "t0Z1H1b2 ") ;
+    h1_["cutflow2"] -> GetXaxis() -> SetBinLabel(7, "t0Z1H0b1") ;
+    h1_["cutflow2"] -> GetXaxis() -> SetBinLabel(8, "t0Z1H0b2 " ) ;
+    h1_["cutflow2"] -> GetXaxis() -> SetBinLabel(9, "t1Z0H1b1 " ) ;
+    h1_["cutflow2"] -> GetXaxis() -> SetBinLabel(10, "t1Z0H1b2 " ) ;
+    h1_["cutflow2"] -> GetXaxis() -> SetBinLabel(11, "t1Z0H0b1 " ) ;
+    h1_["cutflow2"] -> GetXaxis() -> SetBinLabel(12, "t1Z0H0b2 " ) ;
+    h1_["cutflow2"] -> GetXaxis() -> SetBinLabel(13, "t0Z0H1b1 " ) ;
+    h1_["cutflow2"] -> GetXaxis() -> SetBinLabel(14, "t0Z0H1b2 " ) ;
+    h1_["cutflow2"] -> GetXaxis() -> SetBinLabel(15, "t0Z0H0b1 " ) ;
+    h1_["cutflow2"] -> GetXaxis() -> SetBinLabel(16, "t0Z0H0b2 " ) ;
+      
+    //for ZH(combined category)
+    h1_["cutflow3"] = cat.make<TH1D>("cutflow3", "cut flow", 15, 0.5, 15.5) ;
+    h1_["cutflow3"] -> GetXaxis() -> SetBinLabel(1, "no t,Z,b ") ;
+    h1_["cutflow3"] -> GetXaxis() -> SetBinLabel(2, "b1  ") ;
+    h1_["cutflow3"] -> GetXaxis() -> SetBinLabel(3, "b2") ;
+    h1_["cutflow3"] -> GetXaxis() -> SetBinLabel(4, "t1ZH1 ") ;
+    h1_["cutflow3"] -> GetXaxis() -> SetBinLabel(5, "t0ZH1") ;
+    h1_["cutflow3"] -> GetXaxis() -> SetBinLabel(6, "t1ZH0 ") ;
+    h1_["cutflow3"] -> GetXaxis() -> SetBinLabel(7, "t0ZH0") ;
+    h1_["cutflow3"] -> GetXaxis() -> SetBinLabel(8, "t1ZH1b1 " ) ;
+    h1_["cutflow3"] -> GetXaxis() -> SetBinLabel(9, "t1ZH1b2 " ) ;
+    h1_["cutflow3"] -> GetXaxis() -> SetBinLabel(10, "t0ZH1b1 " ) ;
+    h1_["cutflow3"] -> GetXaxis() -> SetBinLabel(11, "t0ZH0b2 " ) ;
+    h1_["cutflow3"] -> GetXaxis() -> SetBinLabel(12, "t1ZH0b1 " ) ;
+    h1_["cutflow3"] -> GetXaxis() -> SetBinLabel(13, "t1ZH0b2 " ) ;
+    h1_["cutflow3"] -> GetXaxis() -> SetBinLabel(14, "t0ZH0b1 " ) ;
+    h1_["cutflow3"] -> GetXaxis() -> SetBinLabel(15, "t0ZH0b2 " ) ;
+      
+      
+    h1_["cutflow4"] = cat.make<TH1D>("cutflow4", "cut flow", 16, 0.5, 16.5) ;
+    h1_["cutflow4"] -> GetXaxis() -> SetBinLabel(1, "t1Z1H1b1 ") ;
+    h1_["cutflow4"] -> GetXaxis() -> SetBinLabel(2, "t1Z1H1b2") ;
+    h1_["cutflow4"] -> GetXaxis() -> SetBinLabel(3, "t1Z1H0b1 ") ;
+    h1_["cutflow4"] -> GetXaxis() -> SetBinLabel(4, "t1Z1H0b2  ") ;
+    h1_["cutflow4"] -> GetXaxis() -> SetBinLabel(5, "t0Z1H1b1 ") ;
+    h1_["cutflow4"] -> GetXaxis() -> SetBinLabel(6, "t0Z1H1b2 ") ;
+    h1_["cutflow4"] -> GetXaxis() -> SetBinLabel(7, "t0Z1H0b1") ;
+    h1_["cutflow4"] -> GetXaxis() -> SetBinLabel(8, "t0Z1H0b2 " ) ;
+    h1_["cutflow4"] -> GetXaxis() -> SetBinLabel(9, "t1Z0H1b1 " ) ;
+    h1_["cutflow4"] -> GetXaxis() -> SetBinLabel(10, "t1Z0H1b2 " ) ;
+    h1_["cutflow4"] -> GetXaxis() -> SetBinLabel(11, "t1Z0H0b1 " ) ;
+    h1_["cutflow4"] -> GetXaxis() -> SetBinLabel(12, "t1Z0H0b2 " ) ;
+    h1_["cutflow4"] -> GetXaxis() -> SetBinLabel(13, "t0Z0H1b1 " ) ;
+    h1_["cutflow4"] -> GetXaxis() -> SetBinLabel(14, "t0Z0H1b2 " ) ;
+    h1_["cutflow4"] -> GetXaxis() -> SetBinLabel(15, "t0Z0H0b1 " ) ;
+    h1_["cutflow4"] -> GetXaxis() -> SetBinLabel(16, "t0Z0H0b2 " ) ;
+      
+    
+    //for ZH(combined category)
+    h1_["cutflow5"] = cat.make<TH1D>("cutflow5", "cut flow", 15, 0.5, 15.5) ;
+    h1_["cutflow5"] -> GetXaxis() -> SetBinLabel(1, "no t,Z,b ") ;
+    h1_["cutflow5"] -> GetXaxis() -> SetBinLabel(2, "b1  ") ;
+    h1_["cutflow5"] -> GetXaxis() -> SetBinLabel(3, "b2") ;
+    h1_["cutflow5"] -> GetXaxis() -> SetBinLabel(4, "t1ZH1 ") ;
+    h1_["cutflow5"] -> GetXaxis() -> SetBinLabel(5, "t0ZH1") ;
+    h1_["cutflow5"] -> GetXaxis() -> SetBinLabel(6, "t1ZH0 ") ;
+    h1_["cutflow5"] -> GetXaxis() -> SetBinLabel(7, "t0ZH0") ;
+    h1_["cutflow5"] -> GetXaxis() -> SetBinLabel(8, "t1ZH1b1 " ) ;
+    h1_["cutflow5"] -> GetXaxis() -> SetBinLabel(9, "t1ZH1b2 " ) ;
+    h1_["cutflow5"] -> GetXaxis() -> SetBinLabel(10, "t0ZH1b1 " ) ;
+    h1_["cutflow5"] -> GetXaxis() -> SetBinLabel(11, "t0ZH0b2 " ) ;
+    h1_["cutflow5"] -> GetXaxis() -> SetBinLabel(12, "t1ZH0b1 " ) ;
+    h1_["cutflow5"] -> GetXaxis() -> SetBinLabel(13, "t1ZH0b2 " ) ;
+    h1_["cutflow5"] -> GetXaxis() -> SetBinLabel(14, "t0ZH0b1 " ) ;
+    h1_["cutflow5"] -> GetXaxis() -> SetBinLabel(15, "t0ZH0b2 " ) ;
+      
+      
+    h1_["cutflow6"] = cat.make<TH1D>("cutflow6", "cut flow", 16, 0.5, 16.5) ;
+    h1_["cutflow6"] -> GetXaxis() -> SetBinLabel(1, "t1Z1H1b1 ") ;
+    h1_["cutflow6"] -> GetXaxis() -> SetBinLabel(2, "t1Z1H1b2") ;
+    h1_["cutflow6"] -> GetXaxis() -> SetBinLabel(3, "t1Z1H0b1 ") ;
+    h1_["cutflow6"] -> GetXaxis() -> SetBinLabel(4, "t1Z1H0b2  ") ;
+    h1_["cutflow6"] -> GetXaxis() -> SetBinLabel(5, "t0Z1H1b1 ") ;
+    h1_["cutflow6"] -> GetXaxis() -> SetBinLabel(6, "t0Z1H1b2 ") ;
+    h1_["cutflow6"] -> GetXaxis() -> SetBinLabel(7, "t0Z1H0b1") ;
+    h1_["cutflow6"] -> GetXaxis() -> SetBinLabel(8, "t0Z1H0b2 " ) ;
+    h1_["cutflow6"] -> GetXaxis() -> SetBinLabel(9, "t1Z0H1b1 " ) ;
+    h1_["cutflow6"] -> GetXaxis() -> SetBinLabel(10, "t1Z0H1b2 " ) ;
+    h1_["cutflow6"] -> GetXaxis() -> SetBinLabel(11, "t1Z0H0b1 " ) ;
+    h1_["cutflow6"] -> GetXaxis() -> SetBinLabel(12, "t1Z0H0b2 " ) ;
+    h1_["cutflow6"] -> GetXaxis() -> SetBinLabel(13, "t0Z0H1b1 " ) ;
+    h1_["cutflow6"] -> GetXaxis() -> SetBinLabel(14, "t0Z0H1b2 " ) ;
+    h1_["cutflow6"] -> GetXaxis() -> SetBinLabel(15, "t0Z0H0b1 " ) ;
+    h1_["cutflow6"] -> GetXaxis() -> SetBinLabel(16, "t0Z0H0b2 " ) ;
+
+
+    h1_["cutflow10"] = cat.make<TH1D>("cutflow10", "cut flow", 12, 0.5, 12.5) ;
+    h1_["cutflow10"] -> GetXaxis() -> SetBinLabel(1, "D1ZB1Hb1b1") ;
+    h1_["cutflow10"] -> GetXaxis() -> SetBinLabel(2, "D1ZB1H1b1") ;
+    h1_["cutflow10"] -> GetXaxis() -> SetBinLabel(3, "D1Z1Hb1b1 ") ;
+    h1_["cutflow10"] -> GetXaxis() -> SetBinLabel(4, "D1Z1H1b1") ;
+    h1_["cutflow10"] -> GetXaxis() -> SetBinLabel(5, "BC1ZB1Hb1b1") ;
+    h1_["cutflow10"] -> GetXaxis() -> SetBinLabel(6, "BC1ZB1H1b1") ;
+    h1_["cutflow10"] -> GetXaxis() -> SetBinLabel(7, "BC1Z1Hb1b1 ") ;
+    h1_["cutflow10"] -> GetXaxis() -> SetBinLabel(8, "BC1Z1H1b1") ;
+    h1_["cutflow10"] -> GetXaxis() -> SetBinLabel(9, "t1ZB1Hb1b1") ;
+    h1_["cutflow10"] -> GetXaxis() -> SetBinLabel(10, "t1ZB1H1b1") ;
+    h1_["cutflow10"] -> GetXaxis() -> SetBinLabel(11, "t1Z1Hb1b1 ") ;
+    h1_["cutflow10"] -> GetXaxis() -> SetBinLabel(12, "t1Z1H1b1") ;
+    
+
+    h1_["cutflow11"] = cat.make<TH1D>("cutflow11", "cut flow", 12, 0.5, 12.5) ;
+    h1_["cutflow11"] -> GetXaxis() -> SetBinLabel(1, "D1ZB1Hb1b2") ;
+    h1_["cutflow11"] -> GetXaxis() -> SetBinLabel(2, "D1ZB1H1b2") ;
+    h1_["cutflow11"] -> GetXaxis() -> SetBinLabel(3, "D1Z1Hb1b2 ") ;
+    h1_["cutflow11"] -> GetXaxis() -> SetBinLabel(4, "D1Z1H1b2") ;
+    h1_["cutflow11"] -> GetXaxis() -> SetBinLabel(5, "BC1ZB1Hb1b2") ;
+    h1_["cutflow11"] -> GetXaxis() -> SetBinLabel(6, "BC1ZB1H1b2") ;
+    h1_["cutflow11"] -> GetXaxis() -> SetBinLabel(7, "BC1Z1Hb1b2 ") ;
+    h1_["cutflow11"] -> GetXaxis() -> SetBinLabel(8, "BC1Z1H1b2") ;
+    h1_["cutflow11"] -> GetXaxis() -> SetBinLabel(9, "t1ZB1Hb1b2") ;
+    h1_["cutflow11"] -> GetXaxis() -> SetBinLabel(10, "t1ZB1H1b2") ;
+    h1_["cutflow11"] -> GetXaxis() -> SetBinLabel(11, "t1Z1Hb1b2 ") ;
+    h1_["cutflow11"] -> GetXaxis() -> SetBinLabel(12, "t1Z1H1b2") ;
+
+
+    h1_["cutflow12"] = cat.make<TH1D>("cutflow12", "cut flow", 12, 0.5, 12.5) ;
+    h1_["cutflow12"] -> GetXaxis() -> SetBinLabel(1, "D1ZB1Hb0b1") ;
+    h1_["cutflow12"] -> GetXaxis() -> SetBinLabel(2, "D1ZB1H0b1") ;
+    h1_["cutflow12"] -> GetXaxis() -> SetBinLabel(3, "D1Z1Hb0b1 ") ;
+    h1_["cutflow12"] -> GetXaxis() -> SetBinLabel(4, "D1Z1H0b1") ;
+    h1_["cutflow12"] -> GetXaxis() -> SetBinLabel(5, "BC1ZB1Hb0b1") ;
+    h1_["cutflow12"] -> GetXaxis() -> SetBinLabel(6, "BC1ZB1H0b1") ;
+    h1_["cutflow12"] -> GetXaxis() -> SetBinLabel(7, "BC1Z1Hb0b1 ") ;
+    h1_["cutflow12"] -> GetXaxis() -> SetBinLabel(8, "BC1Z1H0b1") ;
+    h1_["cutflow12"] -> GetXaxis() -> SetBinLabel(9, "t1ZB1Hb0b1") ;
+    h1_["cutflow12"] -> GetXaxis() -> SetBinLabel(10, "t1ZB1H0b1") ;
+    h1_["cutflow12"] -> GetXaxis() -> SetBinLabel(11, "t1Z1Hb0b1 ") ;
+    h1_["cutflow12"] -> GetXaxis() -> SetBinLabel(12, "t1Z1H0b1") ;
+
+
+    h1_["cutflow13"] = cat.make<TH1D>("cutflow13", "cut flow", 12, 0.5, 12.5) ;
+    h1_["cutflow13"] -> GetXaxis() -> SetBinLabel(1, "D1ZB1Hb0b2") ;
+    h1_["cutflow13"] -> GetXaxis() -> SetBinLabel(2, "D1ZB1H0b2") ;
+    h1_["cutflow13"] -> GetXaxis() -> SetBinLabel(3, "D1Z1Hb0b2 ") ;
+    h1_["cutflow13"] -> GetXaxis() -> SetBinLabel(4, "D1Z1H0b2") ;
+    h1_["cutflow13"] -> GetXaxis() -> SetBinLabel(5, "BC1ZB1Hb0b2") ;
+    h1_["cutflow13"] -> GetXaxis() -> SetBinLabel(6, "BC1ZB1H0b2") ;
+    h1_["cutflow13"] -> GetXaxis() -> SetBinLabel(7, "BC1Z1Hb0b2 ") ;
+    h1_["cutflow13"] -> GetXaxis() -> SetBinLabel(8, "BC1Z1H0b2") ;
+    h1_["cutflow13"] -> GetXaxis() -> SetBinLabel(9, "t1ZB1Hb0b2") ;
+    h1_["cutflow13"] -> GetXaxis() -> SetBinLabel(10, "t1ZB1H0b2") ;
+    h1_["cutflow13"] -> GetXaxis() -> SetBinLabel(11, "t1Z1Hb0b2 ") ;
+    h1_["cutflow13"] -> GetXaxis() -> SetBinLabel(12, "t1Z1H0b2") ;
+
+    h1_["cutflow14"] = cat.make<TH1D>("cutflow14", "cut flow", 12, 0.5, 12.5) ;
+    h1_["cutflow14"] -> GetXaxis() -> SetBinLabel(1, "D1ZB0Hb0b2") ;
+    h1_["cutflow14"] -> GetXaxis() -> SetBinLabel(2, "D1ZB0H0b2") ;
+    h1_["cutflow14"] -> GetXaxis() -> SetBinLabel(3, "D1Z0Hb0b2 ") ;
+    h1_["cutflow14"] -> GetXaxis() -> SetBinLabel(4, "D1Z0H0b2") ;
+    h1_["cutflow14"] -> GetXaxis() -> SetBinLabel(5, "BC1ZB0Hb0b2") ;
+    h1_["cutflow14"] -> GetXaxis() -> SetBinLabel(6, "BC1ZB0H0b2") ;
+    h1_["cutflow14"] -> GetXaxis() -> SetBinLabel(7, "BC1Z0Hb0b2 ") ;
+    h1_["cutflow14"] -> GetXaxis() -> SetBinLabel(8, "BC1Z0H0b2") ;
+    h1_["cutflow14"] -> GetXaxis() -> SetBinLabel(9, "t1ZB0Hb0b2") ;
+    h1_["cutflow14"] -> GetXaxis() -> SetBinLabel(10, "t1ZB0H0b2") ;
+    h1_["cutflow14"] -> GetXaxis() -> SetBinLabel(11, "t1Z0Hb0b2 ") ;
+    h1_["cutflow14"] -> GetXaxis() -> SetBinLabel(12, "t1Z0H0b2") ;
+
+
+
+
+    //HPrime Candidates
+    h1_["HPrime_mass_b_cnt"]  = cat1.make<TH1D>("HPrimemass-boosted-cnt", ";M(HPrime-boosted) [GeV];;", 100, 0., 400);
+    h1_["HPrime_Pt_b_cnt"]  = cat1.make<TH1D>("HPrimePt-boosted-cnt", ";Pt(HPrime-boosted) [GeV];;", 100, 0., 1200);
+    h1_["nHPrimecandidatejets_b_cnt"] = cat1.make<TH1D>("nHPrimecandidate-boosted-cnt", ";N(HPrime jets-boosted);;" , 21, -0.5, 20.5);
+
+
+    h1_["HPrime_mass_nb_cnt"]  = cat1.make<TH1D>("HPrimemassnb-cnt", ";M(HPrime) [GeV];;", 100, 0., 400);
+    h1_["HPrime_Pt_nb_cnt"]  = cat1.make<TH1D>("HPrimePtnb-cnt", ";Pt(HPrime) [GeV];;", 100, 0., 1200);
+    h1_["nHPrimecandidatejets_nb_cnt"] = cat1.make<TH1D>("nHPrimecandidatesnb-cnt", ";N(HPrime jets);;" , 21, -0.5, 20.5);
+
+    h1_["nHPrimecandidatejets_cnt"] = cat1.make<TH1D>("nHPrimecandidates-tot-cnt", ";N(HPrime jets);;" , 21, -0.5, 20.5);
+    h1_["nHPrimecandidatejets1_cnt"] = cat1.make<TH1D>("nHPrimecandidates1-tot-cnt", ";N(HPrime jets);;" , 21, -0.5, 20.5);
+
+
+
+
+    //H candidates                                                                                                           
+    h1_["H_mass_b_cnt"]  = cat.make<TH1D>("Hmass-boosted-cnt", ";M(H-boosted) [GeV];;", 100, 0., 400);
+    h1_["H_Pt_b_cnt"]  = cat.make<TH1D>("HPt-boosted-cnt", ";Pt(H-boosted) [GeV];;", 100, 0., 1200);
+    h1_["nHcandidatejets_b_cnt"] = cat.make<TH1D>("nHcandidate-boosted-cnt", ";N(H jets-boosted);;" , 21, -0.5, 20.5);
+      
+    h1_["H_mass_nb_cnt"]  = cat.make<TH1D>("Hmassnb-cnt", ";M(H) [GeV];;", 100, 0., 400);
+    h1_["H_Pt_nb_cnt"]  = cat.make<TH1D>("HPtnb-cnt", ";Pt(H) [GeV];;", 100, 0., 1200);
+    h1_["nHcandidatejets_nb_cnt"] = cat.make<TH1D>("nHcandidatesnb-cnt", ";N(H jets);;" , 21, -0.5, 20.5);
+      
+    h1_["nHcandidatejets_cnt"] = cat.make<TH1D>("nHcandidates-tot-cnt", ";N(H jets);;" , 21, -0.5, 20.5);
+    h1_["nHcandidatejets1_cnt"] = cat.make<TH1D>("nHcandidates1-tot-cnt", ";N(H jets);;" , 21, -0.5, 20.5);
+      
+    // Z candidates
+    h1_["Z_mass_a_cnt"]  = cat.make<TH1D>("Zmass-boosted-cnt", ";M(Z-boosted) [GeV];;", 100, 0., 400);
+    h1_["Z_Pt_a_cnt"]  = cat.make<TH1D>("ZPt-boosted-cnt", ";Pt(Z-boosted) [GeV];;", 100, 0., 1200);
+    h1_["nzcandidatejets_a_cnt"] = cat.make<TH1D>("nzcandidate-boosted-cnt", ";N(Z jets-boosted);;" , 21, -0.5, 20.5);
+      
+    h1_["Z_mass_b_cnt"]  = cat.make<TH1D>("Zmass-cnt", ";M(Z) [GeV];;", 100, 0., 400);
+    h1_["Z_Pt_b_cnt"]  = cat.make<TH1D>("ZPt-cnt", ";Pt(Z) [GeV];;", 100, 0., 1200);
+    h1_["nzcandidatejets_b_cnt"] = cat.make<TH1D>("nzcandidates-cnt", ";N(Z jets);;" , 21, -0.5, 20.5);
+      
+    h1_["nzcandidatejets_tot_cnt"] = cat.make<TH1D>("nzcandidates-tot-cnt", ";N(Z jets);;" , 21, -0.5, 20.5);
+    h1_["nzcandidatejets1_tot_cnt"] = cat.make<TH1D>("nzcandidates1-tot-cnt", ";N(Z jets);;" , 21, -0.5, 20.5);  
+    // cat A
+    h1_["top_mass_a_cnt"]  = cat.make<TH1D>("topmas-A-cnt", ";M( t quark) [GeV];;", 100, 0., 400);
+    h1_["top_Pt_a_cnt"]  = cat.make<TH1D>("topPt-A-cnt", ";Pt( t quark) [GeV];;", 100, 0., 1200);
+    h1_["ntopcandidatejets_a_cnt"] = cat.make<TH1D>("ntopcandidate-A-cnt", ";N(top jets);;" , 21, -0.5, 20.5);
+
+    h1_["top_mass_bc_cnt"]  = cat.make<TH1D>("topmass-Bc-cnt", ";M( t quark) [GeV];;", 100, 0., 400);
+    h1_["top_Pt_bc_cnt"]  = cat.make<TH1D>("topPt-BC-cnt", ";Pt( t quark) [GeV];;", 100, 0., 1200);
+    h1_["ntopcandidatejets_bc_cnt"] = cat.make<TH1D>("ntopcandidate-BC-cnt", ";N(top jets);;" , 21, -0.5, 20.5);
+      
+    // cat D
+    h1_["top_mass_d_cnt"]  = cat.make<TH1D>("topmass-D-cnt", ";M( t quark) [GeV];;", 100, 0., 400);
+    h1_["top_Pt_d_cnt"]  = cat.make<TH1D>("topPt-D-cnt", ";Pt( t quark) [GeV];;", 100, 0., 1200);
+    h1_["ntopcandidatejets_d_cnt"] = cat.make<TH1D>("ntopcandidate-D-cnt", ";N(top jets);;" , 21, -0.5, 20.5);
+      
+    //W and light jet(BC)
+    h1_["W_mass_bc_cnt"]  = cat.make<TH1D>("Wmass-BC-cnt", ";M( W boson) [GeV];;", 100, 0., 400);
+    h1_["nWcandidatejets_bc_cnt"] = cat.make<TH1D>("nWcandidate-BC-cnt", ";N(W candidate jets);;" , 21, -0.5, 20.5);
+      
+    h1_["lightjet_mass_bc_cnt"]  = cat.make<TH1D>("lightjetmass-BC-cnt", ";M( light jet) [GeV];;", 100, 0., 400);
+    h1_["nlightjetcandidatejets_bc_cnt"] = cat.make<TH1D>("nlightjetcandidate-cnt", ";N(lightjet candidate jets);;" , 21, -0.5, 20.5);
+    //total top ( A+ BC+D)
+    h1_["ntopcandidatejets_cnt"] = cat.make<TH1D>("ntopcandidate-tot-cnt", ";N(top jets);;" , 21, -0.5, 20.5);
+    h1_["ntopcandidatejets1_cnt"] = cat.make<TH1D>("ntopcandidate1-tot-cnt", ";N(top jets);;" , 21, -0.5, 20.5);
+      
+    //signal region
+      
+    //H candidates                                                                                                                                                              
+    h1_["H_mass_b_sig"]  = cat.make<TH1D>("Hmass-boosted-sig", ";M(H-boosted) [GeV];;", 100, 0., 400);
+    h1_["H_Pt_b_sig"]  = cat.make<TH1D>("HPt-boosted-sig", ";Pt(H-boosted) [GeV];;", 100, 0., 1200);
+    h1_["nHcandidatejets_b_sig"] = cat.make<TH1D>("nHcandidate-boosted-sig", ";N(H jets-boosted);;" , 21, -0.5, 20.5);
+      
+    h1_["H_mass_nb_sig"]  = cat.make<TH1D>("Hmassnb-sig", ";M(H) [GeV];;", 100, 0., 400);
+    h1_["H_Pt_nb_sig"]  = cat.make<TH1D>("HPtnb-sig", ";Pt(H) [GeV];;", 100, 0., 1200);
+    h1_["nHcandidatejets_nb_sig"] = cat.make<TH1D>("nHcandidatesnb-sig", ";N(H jets);;" , 21, -0.5, 20.5);
+      
+    h1_["nHcandidatejets_sig"] = cat.make<TH1D>("nHcandidates-tot-sig", ";N(H jets);;" , 21, -0.5, 20.5);
+    h1_["nHcandidatejets1_sig"] = cat.make<TH1D>("nHcandidates1-tot-sig", ";N(H jets);;" , 21, -0.5, 20.5);
+      
+   
+    // Z candidates                                                                                                                                                             
+    h1_["Z_mass_a_sig"]  = cat.make<TH1D>("Zmass-boosted-sig", ";M(Z-boosted) [GeV];;", 100, 0., 400);
+    h1_["Z_Pt_a_sig"]  = cat.make<TH1D>("ZPt-boosted-sig", ";Pt(Z-boosted) [GeV];;", 100, 0., 1200);
+    h1_["nzcandidatejets_a_sig"] = cat.make<TH1D>("nzcandidate-boosted-sig", ";N(Z jets-boosted);;" , 21, -0.5, 20.5);
+      
+    h1_["Z_mass_b_sig"]  = cat.make<TH1D>("Zmass-sig", ";M(Z) [GeV];;", 100, 0., 400);
+    h1_["Z_Pt_b_sig"]  = cat.make<TH1D>("ZPt-sig", ";Pt(Z) [GeV];;", 100, 0., 1200);
+    h1_["nzcandidatejets_b_sig"] = cat.make<TH1D>("nzcandidates-sig", ";N(Z jets);;" , 21, -0.5, 20.5);
+      
+    h1_["nzcandidatejets_tot_sig"] = cat.make<TH1D>("nzcandidates-tot-sig", ";N(Z jets);;" , 21, -0.5, 20.5);
+    h1_["nzcandidatejets1_tot_sig"] = cat.make<TH1D>("nzcandidates1-tot-sig", ";N(Z jets);;" , 21, -0.5, 20.5);
+      
+    // cat A                                                                                                                                                                    
+    h1_["top_mass_a_sig"]  = cat.make<TH1D>("topmas-A-sig", ";M( t quark) [GeV];;", 100, 0., 400);
+    h1_["top_Pt_a_sig"]  = cat.make<TH1D>("topPt-A-sig", ";Pt( t quark) [GeV];;", 100, 0., 1200);
+    h1_["ntopcandidatejets_a_sig"] = cat.make<TH1D>("ntopcandidate-A-sig", ";N(top jets);;" , 21, -0.5, 20.5);
+      
+    h1_["top_mass_bc_sig"]  = cat.make<TH1D>("topmass-Bc-sig", ";M( t quark) [GeV];;", 100, 0., 400);
+    h1_["top_Pt_bc_sig"]  = cat.make<TH1D>("topPt-BC-sig", ";Pt( t quark) [GeV];;", 100, 0., 1200);
+    h1_["ntopcandidatejets_bc_sig"] = cat.make<TH1D>("ntopcandidate-BC-sig", ";N(top jets);;" , 21, -0.5, 20.5);
+      
+    // cat D                                                                                                                                                                    
+    h1_["top_mass_d_sig"]  = cat.make<TH1D>("topmass-D-sig", ";M( t quark) [GeV];;", 100, 0., 400);
+    h1_["top_Pt_d_sig"]  = cat.make<TH1D>("topPt-D-sig", ";Pt( t quark) [GeV];;", 100, 0., 1200);
+    h1_["ntopcandidatejets_d_sig"] = cat.make<TH1D>("ntopcandidate-D-sig", ";N(top jets);;" , 21, -0.5, 20.5);
+      
+    //W and light jet(BC)                                                                                                                                                       
+    h1_["W_mass_bc_sig"]  = cat.make<TH1D>("Wmass-BC-sig", ";M( W boson) [GeV];;", 100, 0., 400);
+    h1_["nWcandidatejets_bc_sig"] = cat.make<TH1D>("nWcandidate-BC-sig", ";N(W candidate jets);;" , 21, -0.5, 20.5);
+      
+    h1_["lightjet_mass_bc_sig"]  = cat.make<TH1D>("lightjetmass-BC-sig", ";M( light jet) [GeV];;", 100, 0., 400);
+    h1_["nlightjetcandidatejets_bc_sig"] = cat.make<TH1D>("nlightjetcandidate-sig", ";N(lightjet candidate jets);;" , 21, -0.5, 20.5);
+    //total top ( A+ BC+D)                                                                                                                                                       
+    h1_["ntopcandidatejets_sig"] = cat.make<TH1D>("ntopcandidate-tot-sig", ";N(top jets);;" , 21, -0.5, 20.5);
+    h1_["ntopcandidatejets1_sig"] = cat.make<TH1D>("ntopcandidate1-tot-sig", ";N(top jets);;" , 21, -0.5, 20.5);
+   
+    //ST plots
+      
+    //top,Z, Higgs
+      
+    h1_["st_sig"] =cat.make<TH1D>("ST_sig", ";S_{T} [Gev];;" , 50, 1000.,2500.);
+
+    h1_["st_sig1b"] =cat.make<TH1D>("ST_sig1b", ";S_{T} [Gev];;" , 50, 1000.,2500.);
+    h1_["st_sig2b"] =cat.make<TH1D>("ST_sig2b", ";S_{T} [Gev];;" , 50, 1000.,2500.);
+      
+    h1_["st_sigT1Z1"] =cat.make<TH1D>("ST_sigT1Z1", ";S_{T} [Gev];;" , 50, 1000.,2500.);
+    h1_["st_sigT0Z1"] =cat.make<TH1D>("ST_sigT0Z1", ";S_{T} [Gev];;" , 50, 1000.,2500.);
+    h1_["st_sigT1Z0"] =cat.make<TH1D>("ST_sigT1Z0", ";S_{T} [Gev];;" , 50, 1000.,2500.);
+    h1_["st_sigT0Z0"] =cat.make<TH1D>("ST_sigT0Z0", ";S_{T} [Gev];;" , 50, 1000.,2500.);
+
+    h1_["st_sigT1Z1H1"] =cat.make<TH1D>("ST_sigT1Z1H1", ";S_{T} [Gev];;" , 50, 1000.,2500.);
+    h1_["st_sigT1Z1H0"] =cat.make<TH1D>("ST_sigT1Z1H0", ";S_{T} [Gev];;" , 50, 1000.,2500.);
+    h1_["st_sigT0Z1H1"] =cat.make<TH1D>("ST_sigT0Z1H1", ";S_{T} [Gev];;" , 50, 1000.,2500.);
+    h1_["st_sigT0Z1H0"] =cat.make<TH1D>("ST_sigT0Z1H0", ";S_{T} [Gev];;" , 50, 1000.,2500.);
+    h1_["st_sigT1Z0H1"] =cat.make<TH1D>("ST_sigT1Z0H1", ";S_{T} [Gev];;" , 50, 1000.,2500.);
+    h1_["st_sigT1Z0H0"] =cat.make<TH1D>("ST_sigT1Z0H0", ";S_{T} [Gev];;" , 50, 1000.,2500.);
+    h1_["st_sigT0Z0H1"] =cat.make<TH1D>("ST_sigT0Z0H1", ";S_{T} [Gev];;" , 50, 1000.,2500.);
+    h1_["st_sigT0Z0H0"] =cat.make<TH1D>("ST_sigT0Z0H0", ";S_{T} [Gev];;" , 50, 1000.,2500.);
+    
+    h1_["st_sigT1Z1H1b1"] =cat.make<TH1D>("ST_sigT1Z1H1b1", ";S_{T} [Gev];;" , 50, 1000.,2500.);
+    h1_["st_sigT1Z1H1b2"] =cat.make<TH1D>("ST_sigT1Z1H1b2", ";S_{T} [Gev];;" , 50, 1000.,2500.);
+    h1_["st_sigT1Z1H0b1"] =cat.make<TH1D>("ST_sigT1Z1H0b1", ";S_{T} [Gev];;" , 50, 1000.,2500.);
+    h1_["st_sigT1Z1H0b2"] =cat.make<TH1D>("ST_sigT1Z1H0b2", ";S_{T} [Gev];;" , 50, 1000.,2500.);
+    
+    h1_["st_sigT0Z1H1b1"] =cat.make<TH1D>("ST_sigT0Z1H1b1", ";S_{T} [Gev];;" , 50, 1000.,2500.);
+    h1_["st_sigT0Z1H1b2"] =cat.make<TH1D>("ST_sigT0Z1H1b2", ";S_{T} [Gev];;" , 50, 1000.,2500.);
+    h1_["st_sigT0Z1H0b1"] =cat.make<TH1D>("ST_sigT0Z1H0b1", ";S_{T} [Gev];;" , 50, 1000.,2500.);
+    h1_["st_sigT0Z1H0b2"] =cat.make<TH1D>("ST_sigT0Z1H0b2", ";S_{T} [Gev];;" , 50, 1000.,2500.);
+    
+    h1_["st_sigT1Z0H1b1"] =cat.make<TH1D>("ST_sigT1Z0H1b1", ";S_{T} [Gev];;" , 50, 1000.,2500.);
+    h1_["st_sigT1Z0H1b2"] =cat.make<TH1D>("ST_sigT1Z0H1b2", ";S_{T} [Gev];;" , 50, 1000.,2500.);
+    h1_["st_sigT1Z0H0b1"] =cat.make<TH1D>("ST_sigT1Z0H0b1", ";S_{T} [Gev];;" , 50, 1000.,2500.);
+    h1_["st_sigT1Z0H0b2"] =cat.make<TH1D>("ST_sigT1Z0H0b2", ";S_{T} [Gev];;" , 50, 1000.,2500.);
+      
+    h1_["st_sigT0Z0H1b1"] =cat.make<TH1D>("ST_sigT0Z0H1b1", ";S_{T} [Gev];;" , 50, 1000.,2500.);
+    h1_["st_sigT0Z0H1b2"] =cat.make<TH1D>("ST_sigT0Z0H1b2", ";S_{T} [Gev];;" , 50, 1000.,2500.);
+    h1_["st_sigT0Z0H0b1"] =cat.make<TH1D>("ST_sigT0Z0H0b1", ";S_{T} [Gev];;" , 50, 1000.,2500.);
+    h1_["st_sigT0Z0H0b2"] =cat.make<TH1D>("ST_sigT0Z0H0b2", ";S_{T} [Gev];;" , 50, 1000.,2500.);
+    
+   h1_["st_cntT1Z1H1b1"] =cat.make<TH1D>("ST_cntT1Z1H1b1", ";S_{T} [Gev];;" ,100,0.,1000.);
+    h1_["st_cntT1Z1H1b2"] =cat.make<TH1D>("ST_cntT1Z1H1b2", ";S_{T} [Gev];;" ,100,0.,1000.);
+    h1_["st_cntT1Z1H0b1"] =cat.make<TH1D>("ST_cntT1Z1H0b1", ";S_{T} [Gev];;" ,100,0.,1000.);
+    h1_["st_cntT1Z1H0b2"] =cat.make<TH1D>("ST_cntT1Z1H0b2", ";S_{T} [Gev];;" ,100,0.,1000.);
+
+    h1_["nbjets_cntT1Z1H1b1"] = cat.make<TH1D>("nbjets_cntT1Z1H1b1", ";N(b jets);;" , 11, -0.5,10.5) ;
+    h1_["nbjets_cntT1Z1H1b2"] = cat.make<TH1D>("nbjets_cntT1Z1H1b2", ";N(b jets);;" , 11, -0.5,10.5) ;
+    h1_["nbjets_cntT1Z1H0b1"] = cat.make<TH1D>("nbjets_cntT1Z1H0b1", ";N(b jets);;" , 11, -0.5,10.5) ;
+    h1_["nbjets_cntT1Z1H0b2"] = cat.make<TH1D>("nbjets_cntT1Z1H0b2", ";N(b jets);;" , 11, -0.5,10.5) ;
+
+    h1_["st_cntT1Z1H1"] =cat.make<TH1D>("ST_cntT1Z1H1", ";S_{T} [Gev];;" ,100,0.,4000.);
+    h1_["ht_cntT1Z1H1"] =cat.make<TH1D>("HT_cntT1Z1H1", ";H_{T} [Gev];;" ,100,0.,4000.);
+    h1_["st_cntT1Z1H0"] =cat.make<TH1D>("ST_cntT1Z1H0", ";S_{T} [Gev];;" ,100,0.,4000.);
+    h1_["ht_cntT1Z1H0"] =cat.make<TH1D>("HT_cntT1Z1H0", ";H_{T} [Gev];;" ,100,0.,4000.);
+
+
+    h1_["st_cntT0Z1H1"] =cat.make<TH1D>("ST_cntT0Z1H1", ";S_{T} [Gev];;" ,100,0.,4000.);
+    h1_["ht_cntT0Z1H1"] =cat.make<TH1D>("HT_cntT0Z1H1", ";H_{T} [Gev];;" ,100,0.,4000.);
+    h1_["st_cntT0Z1H0"] =cat.make<TH1D>("ST_cntT0Z1H0", ";S_{T} [Gev];;" ,100,0.,4000.);
+    h1_["ht_cntT0Z1H0"] =cat.make<TH1D>("HT_cntT0Z1H0", ";H_{T} [Gev];;" ,100,0.,4000.);
+
+    h1_["st_cntT1Z0H1"] =cat.make<TH1D>("ST_cntT1Z0H1", ";S_{T} [Gev];;" ,100,0.,4000.);
+    h1_["ht_cntT1Z0H1"] =cat.make<TH1D>("HT_cntT1Z0H1", ";H_{T} [Gev];;" ,100,0.,4000.);
+    h1_["st_cntT1Z0H0"] =cat.make<TH1D>("ST_cntT1Z0H0", ";S_{T} [Gev];;" ,100,0.,4000.);
+    h1_["ht_cntT1Z0H0"] =cat.make<TH1D>("HT_cntT1Z0H0", ";H_{T} [Gev];;" ,100,0.,4000.);
+
+    h1_["st_cntT0Z0H1"] =cat.make<TH1D>("ST_cntT0Z0H1", ";S_{T} [Gev];;" ,100,0.,4000.);
+    h1_["ht_cntT0Z0H1"] =cat.make<TH1D>("HT_cntT0Z0H1", ";H_{T} [Gev];;" ,100,0.,4000.);
+    h1_["st_cntT0Z0H0"] =cat.make<TH1D>("ST_cntT0Z0H0", ";S_{T} [Gev];;" ,100,0.,4000.);
+    h1_["ht_cntT0Z0H0"] =cat.make<TH1D>("HT_cntT0Z0H0", ";H_{T} [Gev];;" ,100,0.,4000.);
+
+    h1_["st_cntT1Z1H1b1_A"] =cat.make<TH1D>("ST_cntT1Z1H1b1_A", ";S_{T} [Gev];;" ,100,0.,1000.);
+    h1_["st_cntT1Z1H1b2_A"] =cat.make<TH1D>("ST_cntT1Z1H1b2_A", ";S_{T} [Gev];;" ,100,0.,1000.);
+    h1_["st_cntT1Z1H0b1_A"] =cat.make<TH1D>("ST_cntT1Z1H0b1_A", ";S_{T} [Gev];;" ,100,0.,1000.);
+    h1_["st_cntT1Z1H0b2_A"] =cat.make<TH1D>("ST_cntT1Z1H0b2_A", ";S_{T} [Gev];;" ,100,0.,1000.);
+    h1_["st_cntT0Z1H1b2_A"] =cat.make<TH1D>("ST_cntT0Z1H1b2_A", ";H_{T} [Gev];;" ,100,0.,1000.);
+
+    h1_["ht_cntT1Z1H1b1"] =cat.make<TH1D>("HT_cntT1Z1H1b1", ";H_{T} [Gev];;" ,100,0.,1000.);
+    h1_["ht_cntT1Z1H1b2"] =cat.make<TH1D>("HT_cntT1Z1H1b2", ";H_{T} [Gev];;" ,100,0.,1000.);
+    h1_["ht_cntT1Z1H0b1"] =cat.make<TH1D>("HT_cntT1Z1H0b1", ";H_{T} [Gev];;" ,100,0.,1000.);
+    h1_["ht_cntT1Z1H0b2"] =cat.make<TH1D>("HT_cntT1Z1H0b2", ";H_{T} [Gev];;" ,100,0.,1000.);
+    h1_["ht_cntT0Z1H1b2"] =cat.make<TH1D>("HT_cntT0Z1H1b2", ";H_{T} [Gev];;" ,100,0.,1000.);
+
+    h1_["ht_cntT1Z1H1b1_A"] =cat.make<TH1D>("HT_cntT1Z1H1b1_A", ";H_{T} [Gev];;" ,100,0.,1000.);
+    h1_["ht_cntT1Z1H1b2_A"] =cat.make<TH1D>("HT_cntT1Z1H1b2_A", ";H_{T} [Gev];;" ,100,0.,1000.);
+    h1_["ht_cntT1Z1H0b1_A"] =cat.make<TH1D>("HT_cntT1Z1H0b1_A", ";H_{T} [Gev];;" ,100,0.,1000.);
+    h1_["ht_cntT1Z1H0b2_A"] =cat.make<TH1D>("HT_cntT1Z1H0b2_A", ";H_{T} [Gev];;" ,100,0.,1000.);
+    h1_["ht_cntT0Z1H1b2_A"] =cat.make<TH1D>("HT_cntT0Z1H1b2_A", ";H_{T} [Gev];;" ,100,0.,1000.);
+
+
+    h1_["st_cntT0Z1H1b1"] =cat.make<TH1D>("ST_cntT0Z1H1b1", ";S_{T} [Gev];;" ,100,0.,1000.);
+    h1_["st_cntT0Z1H1b2"] =cat.make<TH1D>("ST_cntT0Z1H1b2", ";S_{T} [Gev];;" ,100,0.,1000.);
+    h1_["st_cntT0Z1H0b1"] =cat.make<TH1D>("ST_cntT0Z1H0b1", ";S_{T} [Gev];;" ,100,0.,1000.);
+    h1_["st_cntT0Z1H0b2"] =cat.make<TH1D>("ST_cntT0Z1H0b2", ";S_{T} [Gev];;" ,100,0.,1000.);
+
+    h1_["st_cntT1Z0H1b1"] =cat.make<TH1D>("ST_cntT1Z0H1b1", ";S_{T} [Gev];;" ,100,0.,1000.);
+    h1_["st_cntT1Z0H1b2"] =cat.make<TH1D>("ST_cntT1Z0H1b2", ";S_{T} [Gev];;" ,100,0.,1000.);
+    h1_["st_cntT1Z0H0b1"] =cat.make<TH1D>("ST_cntT1Z0H0b1", ";S_{T} [Gev];;" ,100,0.,1000.);
+    h1_["st_cntT1Z0H0b2"] =cat.make<TH1D>("ST_cntT1Z0H0b2", ";S_{T} [Gev];;" ,100,0.,1000.);
+
+    h1_["st_cntT0Z0H1b1"] =cat.make<TH1D>("ST_cntT0Z0H1b1", ";S_{T} [Gev];;" ,100,0.,1000.);
+    h1_["st_cntT0Z0H1b2"] =cat.make<TH1D>("ST_cntT0Z0H1b2", ";S_{T} [Gev];;" ,100,0.,1000.);
+    h1_["st_cntT0Z0H0b1"] =cat.make<TH1D>("ST_cntT0Z0H0b1", ";S_{T} [Gev];;" ,100,0.,1000.);
+    h1_["st_cntT0Z0H0b2"] =cat.make<TH1D>("ST_cntT0Z0H0b2", ";S_{T} [Gev];;" ,100,0.,1000.); 
+
+    //
+    h1_["st_cntD1ZB1Hb1b1"] =cat.make<TH1D>("ST_cntD1ZB1Hb1b1", ";S_{T} [Gev];;" ,50,0.,1000.);
+    h1_["st_cntD1ZB1H1b1"] =cat.make<TH1D>("ST_cntD1ZB1H1b1", ";S_{T} [Gev];;" ,50,0.,1000.);
+    h1_["st_cntD1Z1Hb1b1"] =cat.make<TH1D>("ST_cntD1Z1Hb1b1", ";S_{T} [Gev];;" ,50,0.,1000.);
+    h1_["st_cntD1Z1H1b1"] =cat.make<TH1D>("ST_cntD1Z1H1b1", ";S_{T} [Gev];;" ,50,0.,1000.);
+
+
+    h1_["st_cntBC1ZB1Hb1b1"] =cat.make<TH1D>("ST_cntBC1ZB1Hb1b1", ";S_{T} [Gev];;" ,50,0.,1000.);
+    h1_["st_cntBC1ZB1H1b1"] =cat.make<TH1D>("ST_cntBC1ZB1H1b1", ";S_{T} [Gev];;" ,50,0.,1000.);
+    h1_["st_cntBC1Z1Hb1b1"] =cat.make<TH1D>("ST_cntBC1Z1Hb1b1", ";S_{T} [Gev];;" ,50,0.,1000.);
+    h1_["st_cntBC1Z1H1b1"] =cat.make<TH1D>("ST_cntBC1Z1H1b1", ";S_{T} [Gev];;" ,50,0.,1000.);
+
+    h1_["st_cntt1ZB1Hb1b1"] =cat.make<TH1D>("ST_cntt1ZB1Hb1b1", ";S_{T} [Gev];;" ,50,0.,1000.);
+    h1_["st_cntt1ZB1H1b1"] =cat.make<TH1D>("ST_cntt1ZB1H1b1", ";S_{T} [Gev];;" ,50,0.,1000.);
+    h1_["st_cntt1Z1Hb1b1"] =cat.make<TH1D>("ST_cntt1Z1Hb1b1", ";S_{T} [Gev];;" ,50,0.,1000.);
+    h1_["st_cntt1Z1H1b1"] =cat.make<TH1D>("ST_cntt1Z1H1b1", ";S_{T} [Gev];;" ,50,0.,1000.);
+    //
+
+    h1_["st_cntD1ZB1Hb1b2"] =cat.make<TH1D>("ST_cntD1ZB1Hb1b2", ";S_{T} [Gev];;" ,50,0.,1000.);
+    h1_["st_cntD1ZB1H1b2"] =cat.make<TH1D>("ST_cntD1ZB1H1b2", ";S_{T} [Gev];;" ,50,0.,1000.);
+    h1_["st_cntD1Z1Hb1b2"] =cat.make<TH1D>("ST_cntD1Z1Hb1b2", ";S_{T} [Gev];;" ,50,0.,1000.);
+    h1_["st_cntD1Z1H1b2"] =cat.make<TH1D>("ST_cntD1Z1H1b2", ";S_{T} [Gev];;" ,50,0.,1000.);
+
+
+    h1_["st_cntBC1ZB1Hb1b2"] =cat.make<TH1D>("ST_cntBC1ZB1Hb1b2", ";S_{T} [Gev];;" ,50,0.,1000.);
+    h1_["st_cntBC1ZB1H1b2"] =cat.make<TH1D>("ST_cntBC1ZB1H1b2", ";S_{T} [Gev];;" ,50,0.,1000.);
+    h1_["st_cntBC1Z1Hb1b2"] =cat.make<TH1D>("ST_cntBC1Z1Hb1b2", ";S_{T} [Gev];;" ,50,0.,1000.);
+    h1_["st_cntBC1Z1H1b2"] =cat.make<TH1D>("ST_cntBC1Z1H1b2", ";S_{T} [Gev];;" ,50,0.,1000.);
+
+    h1_["st_cntt1ZB1Hb1b2"] =cat.make<TH1D>("ST_cntt1ZB1Hb1b2", ";S_{T} [Gev];;" ,50,0.,1000.);
+    h1_["st_cntt1ZB1H1b2"] =cat.make<TH1D>("ST_cntt1ZB1H1b2", ";S_{T} [Gev];;" ,50,0.,1000.);
+    h1_["st_cntt1Z1Hb1b2"] =cat.make<TH1D>("ST_cntt1Z1Hb1b2", ";S_{T} [Gev];;" ,50,0.,1000.);
+    h1_["st_cntt1Z1H1b2"] =cat.make<TH1D>("ST_cntt1Z1H1b2", ";S_{T} [Gev];;" ,50,0.,1000.);
+
+    //
+    h1_["st_cntD1ZB1Hb0b1"] =cat.make<TH1D>("ST_cntD1ZB1Hb0b1", ";S_{T} [Gev];;" ,50,0.,1000.);
+    h1_["st_cntD1ZB1H0b1"] =cat.make<TH1D>("ST_cntD1ZB1H0b1", ";S_{T} [Gev];;" ,50,0.,1000.);
+    h1_["st_cntD1Z1Hb0b1"] =cat.make<TH1D>("ST_cntD1Z1Hb0b1", ";S_{T} [Gev];;" ,50,0.,1000.);
+    h1_["st_cntD1Z1H0b1"] =cat.make<TH1D>("ST_cntD1Z1H0b1", ";S_{T} [Gev];;" ,50,0.,1000.);
+
+
+    h1_["st_cntBC1ZB1Hb0b1"] =cat.make<TH1D>("ST_cntBC1ZB1Hb0b1", ";S_{T} [Gev];;" ,50,0.,1000.);
+    h1_["st_cntBC1ZB1H0b1"] =cat.make<TH1D>("ST_cntBC1ZB1H0b1", ";S_{T} [Gev];;" ,50,0.,1000.);
+    h1_["st_cntBC1Z1Hb0b1"] =cat.make<TH1D>("ST_cntBC1Z1Hb0b1", ";S_{T} [Gev];;" ,50,0.,1000.);
+    h1_["st_cntBC1Z1H0b1"] =cat.make<TH1D>("ST_cntBC1Z1H0b1", ";S_{T} [Gev];;" ,50,0.,1000.);
+
+    h1_["st_cntt1ZB1Hb0b1"] =cat.make<TH1D>("ST_cntt1ZB1Hb0b1", ";S_{T} [Gev];;" ,50,0.,1000.);
+    h1_["st_cntt1ZB1H0b1"] =cat.make<TH1D>("ST_cntt1ZB1H0b1", ";S_{T} [Gev];;" ,50,0.,1000.);
+    h1_["st_cntt1Z1Hb0b1"] =cat.make<TH1D>("ST_cntt1Z1Hb0b1", ";S_{T} [Gev];;" ,50,0.,1000.);
+    h1_["st_cntt1Z1H0b1"] =cat.make<TH1D>("ST_cntt1Z1H0b1", ";S_{T} [Gev];;" ,50,0.,1000.);
+
+
+    //
+
+    h1_["st_cntD1ZB1Hb0b2"] =cat.make<TH1D>("ST_cntD1ZB1Hb0b2", ";S_{T} [Gev];;" ,50,0.,1000.);
+    h1_["st_cntD1ZB1H0b2"] =cat.make<TH1D>("ST_cntD1ZB1H0b2", ";S_{T} [Gev];;" ,50,0.,1000.);
+    h1_["st_cntD1Z1Hb0b2"] =cat.make<TH1D>("ST_cntD1Z1Hb0b2", ";S_{T} [Gev];;" ,50,0.,1000.);
+    h1_["st_cntD1Z1H0b2"] =cat.make<TH1D>("ST_cntD1Z1H0b2", ";S_{T} [Gev];;" ,50,0.,1000.);
+
+
+    h1_["st_cntBC1ZB1Hb0b2"] =cat.make<TH1D>("ST_cntBC1ZB1Hb0b2", ";S_{T} [Gev];;" ,50,0.,1000.);
+    h1_["st_cntBC1ZB1H0b2"] =cat.make<TH1D>("ST_cntBC1ZB1H0b2", ";S_{T} [Gev];;" ,50,0.,1000.);
+    h1_["st_cntBC1Z1Hb0b2"] =cat.make<TH1D>("ST_cntBC1Z1Hb0b2", ";S_{T} [Gev];;" ,50,0.,1000.);
+    h1_["st_cntBC1Z1H0b2"] =cat.make<TH1D>("ST_cntBC1Z1H0b2", ";S_{T} [Gev];;" ,50,0.,1000.);
+
+    h1_["st_cntt1ZB1Hb0b2"] =cat.make<TH1D>("ST_cntt1ZB1Hb0b2", ";S_{T} [Gev];;" ,50,0.,1000.);
+    h1_["st_cntt1ZB1H0b2"] =cat.make<TH1D>("ST_cntt1ZB1H0b2", ";S_{T} [Gev];;" ,50,0.,1000.);
+    h1_["st_cntt1Z1Hb0b2"] =cat.make<TH1D>("ST_cntt1Z1Hb0b2", ";S_{T} [Gev];;" ,50,0.,1000.);
+    h1_["st_cntt1Z1H0b2"] =cat.make<TH1D>("ST_cntt1Z1H0b2", ";S_{T} [Gev];;" ,50,0.,1000.);
+
+    //
+
+    h1_["st_cntD1ZB0Hb0b2"] =cat.make<TH1D>("ST_cntD1ZB0Hb0b2", ";S_{T} [Gev];;" ,50,0.,1000.);
+    h1_["st_cntD1ZB0H0b2"] =cat.make<TH1D>("ST_cntD1ZB0H0b2", ";S_{T} [Gev];;" ,50,0.,1000.);
+    h1_["st_cntD1Z0Hb0b2"] =cat.make<TH1D>("ST_cntD1Z0Hb0b2", ";S_{T} [Gev];;" ,50,0.,1000.);
+    h1_["st_cntD1Z0H0b2"] =cat.make<TH1D>("ST_cntD1Z0H0b2", ";S_{T} [Gev];;" ,50,0.,1000.);
+
+
+    h1_["st_cntBC1ZB0Hb0b2"] =cat.make<TH1D>("ST_cntBC1ZB0Hb0b2", ";S_{T} [Gev];;" ,50,0.,1000.);
+    h1_["st_cntBC1ZB0H0b2"] =cat.make<TH1D>("ST_cntBC1ZB0H0b2", ";S_{T} [Gev];;" ,50,0.,1000.);
+    h1_["st_cntBC1Z0Hb0b2"] =cat.make<TH1D>("ST_cntBC1Z0Hb0b2", ";S_{T} [Gev];;" ,50,0.,1000.);
+    h1_["st_cntBC1Z0H0b2"] =cat.make<TH1D>("ST_cntBC1Z0H0b2", ";S_{T} [Gev];;" ,50,0.,1000.);
+
+    h1_["st_cntt1ZB0Hb0b2"] =cat.make<TH1D>("ST_cntt1ZB0Hb0b2", ";S_{T} [Gev];;" ,50,0.,1000.);
+    h1_["st_cntt1ZB0H0b2"] =cat.make<TH1D>("ST_cntt1ZB0H0b2", ";S_{T} [Gev];;" ,50,0.,1000.);
+    h1_["st_cntt1Z0Hb0b2"] =cat.make<TH1D>("ST_cntt1Z0Hb0b2", ";S_{T} [Gev];;" ,50,0.,1000.);
+    h1_["st_cntt1Z0H0b2"] =cat.make<TH1D>("ST_cntt1Z0H0b2", ";S_{T} [Gev];;" ,50,0.,1000.);
+  //additional plots
+  //o batg region plots
+  h1_["nob_ht"]= cnt.make<TH1D>("nob_ht", ";H_{T} [Gev];;", 100, 0., 3000.);
+  h1_["nob_st"] = cnt.make<TH1D>("nob_st", ";S_{T} [Gev];;", 50, 0., 4000.) ;
+
+  h1_["nob_1000_ht"]= cnt.make<TH1D>("nob_1000_ht", ";H_{T} [Gev];;", 100, 0., 3000.);
+  h1_["nob_1000_st"] = cnt.make<TH1D>("nob_1000_st", ";S_{T} [Gev];;", 50, 0., 4000.) ;
+
+  h1_["1b_1000_ht"]= cnt.make<TH1D>("1b_1000_ht", ";H_{T} [Gev];;", 100, 0., 3000.);
+  h1_["1b_1000_st"] = cnt.make<TH1D>("1b_1000_st", ";S_{T} [Gev];;", 50, 0., 4000.) ;
+
+      std::string lep("");
+      if(zdecayMode_ == "zmumu") {lep = "mu";}
+      else if ( zdecayMode_ == "zelel") {lep = "el";}
+      else edm::LogError("OS2LAna::beginJob") << " >>>> WrongleptonType: " << lep << " Check lep name !!!" ;
+
+  h1_["nob_1000_pt_zelel"] = cnt.make<TH1D>("nob_1000_pt_zelel",";p_{T} (Z#rightarrow  l^{+}l^{-}) [GeV];;", 50, 0., 1000.) ;
+  h1_["nob_1000_pt_zmumu"] = cnt.make<TH1D>("nob_1000_pt_zmumu",";p_{T} (Z#rightarrow  l^{+}l^{-}) [GeV];;", 50, 0., 1000.) ;
+  h1_["b_pt_z"+lep+lep] = cnt.make<TH1D>(("b_pt_z"+lep+lep).c_str(), "p_{T} (Z#rightarrow  l^{+}l^{-}) [GeV]", 50, 0., 1000.) ;
+  h1_["b_st"] = cnt.make<TH1D>("b_st", "ST [GeV]", 50, 0., 4000.) ;
+  h1_["pt_zlight_pre"] = fs->make<TH1D>("pt_zlight_pre", "p_{T} (Z + q_{light}) [GeV]", 100, 0., 2000.) ;
+  h1_["pt_zb_pre"] = fs->make<TH1D>("pt_zb_pre", "p_{T} (Z + b) [GeV]", 100, 0., 2000.) ;
+  h1_["pt_zc_pre"] = fs->make<TH1D>("pt_zc_pre", "p_{T} (Z + c) [GeV]", 100, 0., 2000.) ;
+    
+  h1_["nmergedtop_bf"] = sig.make<TH1D>("nmergedtop_bf", ";N(top boosted jets);;" , 9, -0.5, 8.5);
+  h1_["nmergedZ_bf"] = sig.make<TH1D>("nmergedZ_bf", ";N(Z boosted jets);;" , 9, -0.5, 8.5);
+  h1_["nmergedH_bf"] = sig.make<TH1D>("nmergedH_bf", ";N(H boosted jets);;" , 9, -0.5, 8.5);
+  h1_["nmergedtotal_bf"] = sig.make<TH1D>("nmergedtotal_bf", ";N(total boosted jets);;" , 9, -0.5, 8.5);
+  h1_["nmergedfrac_bf"] = sig.make<TH1D>("nmergedfrac_bf", ";N(fraction boosted jets);;" , 20, 0, 1.0);
+
+  h1_["nmergedtop_af"] = sig.make<TH1D>("nmergedtop_af", ";N(top boosted jets);;" , 9, -0.5, 8.5);
+  h1_["nmergedZ_af"] = sig.make<TH1D>("nmergedZ_af", ";N(Z boosted jets);;" , 9, -0.5, 8.5);
+  h1_["nmergedH_af"] = sig.make<TH1D>("nmergedH_af", ";N(H boosted jets);;" , 9, -0.5, 8.5);
+  h1_["nmergedtotal_af"] = sig.make<TH1D>("nmergedtotal_af", ";N(total boosted jets);;" , 9, -0.5, 8.5);
+  h1_["nmergedfrac_af"] = sig.make<TH1D>("nmergedfrac_af", ";N(fraction boosted jets);;" , 20, 0, 1.0);
+
+
+  //ak4matchedtoak8                                                                                                                                                                      
+  h1_["mass_ak4matchedak8"]  = cat.make<TH1D>("mass_ak4matchedak8", ";M(AK4matched to AK8) [GeV];;", 100, 0., 400);
+  h1_["pt_ak4matchedak8"]  = cat.make<TH1D>("pt_ak4matchedak8", ";Pt(AK4matched to AK8) [GeV];;", 100, 0., 1200);
+  h1_["nak4matchedak8"] = cat.make<TH1D>("nak4matchedak8", ";N(AK4matched to AK8);;" , 21, -0.5, 20.5);
+
+
+  h1_["dr_Wb_cnt"] = cat.make<TH1D>("dr_Wb_cnt", ";#DeltaR(Wj);;", 40, 0., 4.) ;
+  h1_["dr_Wb_sig"] = cat.make<TH1D>("dr_Wb_sig", ";#DeltaR(Wj);;", 40, 0., 4.) ;
+  
+  h1_["dphi_Wb_cnt"] = cat.make<TH1D>("dphi_Wb_cnt", ";#Delta #phi(Wj);;", 20, -5., 5.) ;
+  h1_["dphi_Wb_sig"] = cat.make<TH1D>("dphi_Wb_sig", ";#Delta #phi(Wj);;", 20, -5., 5.) ;
+    //additional plots
+    h1_["nbjets_cnt"] = cnt.make<TH1D>("nbjets_cnt", ";N(b jets);;" , 11, -0.5,10.5) ; 
+    h1_["nbjets_cat"] = cat.make<TH1D>("nbjets_cat", ";N(b jets);;" , 11, -0.5,10.5) ;
+
+    //addition nb plots
+    h1_["nbjets_met_sig"] = cnt.make<TH1D>("nbjets_met_sig", ";N(b jets);;" , 11, -0.5,10.5) ;
+    h1_["nbjets_met_cnt"] = cnt.make<TH1D>("nbjets_met_cnt", ";N(b jets);;" , 11, -0.5,10.5) ;
+    h1_["nbjets_met_0btagcnt"] = cnt.make<TH1D>("nbjets_met_0btagcnt", ";N(b jets);;" , 11, -0.5,10.5) ;
+    h1_["nbjets_met_1btagcnt"] = cnt.make<TH1D>("nbjets_met_1btagcnt", ";N(b jets);;" , 11, -0.5,10.5) ;
+  
+    h1_["ht_met_0btagcnt"]   =  cnt.make<TH1D>( "ht_met_0btagcnt", ";H_{T} (AK4 jets) [GeV]", 100, 0., 4000.) ;
+    h1_["1b_ht"]   =  cnt.make<TH1D>( "1b_ht", ";H_{T} (AK4 jets) [GeV]", 100, 0., 4000.) ;
+    h1_["ht_met_1btagcnt"]   =  cnt.make<TH1D>( "ht_met_1btagcnt", ";H_{T} (AK4 jets) [GeV]", 100, 0., 4000.) ;
+    h1_["lowmet_ht"]   =  cnt.make<TH1D>("lowmet_ht", ";H_{T} (AK4 jets) [GeV]", 100, 0., 4000.) ;
+    
+
+
+    h1_["st_met_0btagcnt"]   =  cnt.make<TH1D>( "st_met_0btagcnt", ";S_{T} [GeV]", 100, 0., 4000.) ;
+    h1_["1b_st"]   =  cnt.make<TH1D>( "1b_st", ";S_{T} [GeV]", 100, 0., 4000.) ;
+    h1_["st_met_1btagcnt"]   =  cnt.make<TH1D>( "st_met_1btagcnt", ";S_{T} [GeV]", 100, 0., 4000.) ;
+    h1_["lowmet_st"]   =  cnt.make<TH1D>("lowmet_st", ";S_{T} [GeV]", 100, 0., 4000.) ;
   }
 
   if (maketree_) {
@@ -1719,17 +2572,17 @@ pair<double, double> OS2LAna::doBoostedReco(vlq::JetCollection &ak4Jets, TLorent
         ak4[0] = ak4Jets.at(i0).getP4();
         ak4[1] = ak4Jets.at(i1).getP4();
         ak4[2] = ak4Jets.at(i2).getP4();
-      	passToChi2.push_back(ak4[0]);
-      	passToChi2.push_back(ak4[1]);
-      	passToChi2.push_back(ak4[2]);
-      	n = 3;
+        passToChi2.push_back(ak4[0]);
+        passToChi2.push_back(ak4[1]);
+        passToChi2.push_back(ak4[2]);
+        n = 3;
       }
       else if (ak4Jets.size() == 2){
-      	ak4[0] = ak4Jets.at(i0).getP4();
-      	ak4[1] = ak4Jets.at(i1).getP4();
-      	passToChi2.push_back(ak4[0]);
-      	passToChi2.push_back(ak4[1]);
-      	n = 2;
+        ak4[0] = ak4Jets.at(i0).getP4();
+        ak4[1] = ak4Jets.at(i1).getP4();
+        passToChi2.push_back(ak4[0]);
+        passToChi2.push_back(ak4[1]);
+        n = 2;
       }
       else
         continue;
@@ -1792,12 +2645,12 @@ pair<double, double> OS2LAna::doResolvedReco(vlq::JetCollection &collection, dou
         Jets[3] = collection.at(i3).getP4();
         Jets[4] = collection.at(i4).getP4();
 
-      	passToChi2.push_back(Jets[0]);
-      	passToChi2.push_back(Jets[1]);
-      	passToChi2.push_back(Jets[2]);
-      	passToChi2.push_back(Jets[3]);
-      	passToChi2.push_back(Jets[4]);
-      	n = 5;
+        passToChi2.push_back(Jets[0]);
+        passToChi2.push_back(Jets[1]);
+        passToChi2.push_back(Jets[2]);
+        passToChi2.push_back(Jets[3]);
+        passToChi2.push_back(Jets[4]);
+        n = 5;
 
       }
       else if (collection.size() == 4){
@@ -1807,12 +2660,12 @@ pair<double, double> OS2LAna::doResolvedReco(vlq::JetCollection &collection, dou
         Jets[2] = collection.at(i2).getP4();
         Jets[3] = collection.at(i3).getP4();
 
-      	passToChi2.push_back(Jets[0]);
-      	passToChi2.push_back(Jets[1]);
-      	passToChi2.push_back(Jets[2]);
-      	passToChi2.push_back(Jets[3]);
+        passToChi2.push_back(Jets[0]);
+        passToChi2.push_back(Jets[1]);
+        passToChi2.push_back(Jets[2]);
+        passToChi2.push_back(Jets[3]);
       
-      	n = 4;
+        n = 4;
       }
       else
         continue;
