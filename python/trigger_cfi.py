@@ -2,6 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 from Analysis.VLQAna.ZCandSelector_cfi import *
 from Analysis.VLQAna.ElectronMaker_cfi import *
+from Analysis.VLQAna.MuonMaker_cfi import *
 from Analysis.VLQAna.PickGenPart_cfi import *
 
 
@@ -25,8 +26,12 @@ trigAna = cms.EDFilter("trigAna",
     elselParams         = defaultElectronMakerParameters.clone(
         elPtMin         = cms.double(35),
         ),
+    muselParams         = defaultMuonMakerParameters.clone(
+        muPtMin         = cms.double(35),
+        ),
 
     isData              = cms.bool(False),
+    zeff                = cms.bool(True),
     genParams           = getSelectParams,
 
     )
