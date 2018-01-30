@@ -17,6 +17,11 @@ options.register('FileNames', 'FileNames_DY',
     VarParsing.varType.string,
     "Name of list of input files"
     )
+options.register('zeff', True,
+    VarParsing.multiplicity.singleton,
+    VarParsing.varType.bool,
+    "use dielectron and Zmass"
+    )
 
 options.setDefault('maxEvents', -1)
 options.parseArguments()
@@ -67,20 +72,29 @@ process.evtcleaner.isData = options.isData
 ##################################
 ## setup tag and probe triggers ##
 ##################################
-probe_hltpath = ['HLT_Ele32_eta2p1_WPTight_Gsf_v']
-tag_hltpath = ['HLT_Ele115_CaloIdVT_GsfTrkIdT_v']
+
+if options.zeff:
+  tag_hltpath = ['HLT_Ele32_eta2p1_WPTight_Gsf_v']
+else:
+  tag_hltpath = [
+      "HLT_IsoMu24_v",
+      "HLT_IsoTkMu24_v"
+      ]
+probe_hltpath = ['HLT_Ele115_CaloIdVT_GsfTrkIdT_v']
 
 process.tag = process.evtcleaner.clone(
-    hltPaths = cms.vstring(probe_hltpath)
+    hltPaths = cms.vstring(tag_hltpath)
     )
 process.probe = process.evtcleaner.clone(
-    hltPaths = cms.vstring(tag_hltpath)
+    hltPaths = cms.vstring(probe_hltpath)
     )
 
 from Analysis.VLQAna.trigger_cfi import *
 process.trigAna = trigAna.clone(
-    isData = cms.bool(options.isData)
+    isData = cms.bool(options.isData),
+    zeff = cms.bool(options.zeff)
     )
+process.trigAna.muselParams.muidtype = cms.string("TIGHT")
 
 ###################
 ## event counter ##

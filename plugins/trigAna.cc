@@ -11,6 +11,7 @@
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 
 #include "Analysis/VLQAna/interface/ElectronMaker.h"
+#include "Analysis/VLQAna/interface/MuonMaker.h"
 #include "Analysis/VLQAna/interface/DileptonCandsProducer.h"
 #include "Analysis/VLQAna/interface/CandidateCleaner.h"
 
@@ -39,8 +40,10 @@ private:
     edm::EDGetTokenT<int>  t_tlumisec;   
 
     const bool isData;
+    const bool zeff_;
     edm::ParameterSet DilepCandParams; 
     ElectronMaker electonmaker;
+    MuonMaker muonmaker;
 
     edm::Service<TFileService> fs   ; 
     std::map<std::string, TH1D*> h1_; 
@@ -60,8 +63,10 @@ trigAna::trigAna(const edm::ParameterSet& iConfig) :
     t_tlumisec  (consumes<int>  (iConfig.getParameter<edm::InputTag>("tag_lumisec"))),
 
     isData          (iConfig.getParameter<bool> ("isData")),
+    zeff_           (iConfig.getParameter<bool> ("zeff")),
     DilepCandParams (iConfig.getParameter<edm::ParameterSet> ("DilepCandParams")),
-    electonmaker    (iConfig.getParameter<edm::ParameterSet> ("elselParams"),consumesCollector())
+    electonmaker    (iConfig.getParameter<edm::ParameterSet> ("elselParams"),consumesCollector()),
+    muonmaker       (iConfig.getParameter<edm::ParameterSet> ("muselParams"),consumesCollector())
 {}
 
 trigAna::~trigAna() {}
@@ -90,18 +95,28 @@ bool trigAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
     vlq::ElectronCollection electrons;
     electonmaker(evt, electrons);
 
-    vlq::CandidateCollection dilepton;
-    DileptonCandsProducer dileptonsprod(DilepCandParams);
-    dileptonsprod.operator()<vlq::ElectronCollection>(dilepton, electrons);
+    if (zeff_) {
+      vlq::CandidateCollection dilepton;
+      DileptonCandsProducer dileptonsprod(DilepCandParams);
+      dileptonsprod.operator()<vlq::ElectronCollection>(dilepton, electrons);
 
-    // want a single dilepton pair
-    if (dilepton.size() == 1) h1_["cutflow"] -> Fill(3, evtwt);
-    else return false;
+      // want a single dilepton pair
+      if (dilepton.size() == 1) h1_["cutflow"] -> Fill(3, evtwt);
+      else return false;
+    }
+    else {
+      vlq::MuonCollection muons;
+      muonmaker(evt, muons);
+
+      // want events with a single muon
+      if (muons.size() == 1) h1_["cutflow"] -> Fill(3, evtwt);
+      else return false;
+    }
 
     // only look at events where a single electron passes the probe trig. 
     vector<double> highPt;
     for (auto& el : electrons) {
-        if (el.getPt() > 115)
+        if (el.getPt() > 120)
             highPt.push_back(el.getPt());
     }
 
@@ -111,20 +126,26 @@ bool trigAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
     h1_["pt_all"] -> Fill(electrons.at(0).getPt(), evtwt);
     h1_["eta_all"] -> Fill(electrons.at(0).getEta(), evtwt);
     h2_["all"] -> Fill(electrons.at(0).getPt(), electrons.at(0).getEta());
+    h2_["all_v2"] -> Fill(electrons.at(0).getPt(), electrons.at(0).getEta());
+    h2_["all_v3"] -> Fill(electrons.at(0).getPt(), electrons.at(0).getEta());
     h2_["fixed_all"] -> Fill(electrons.at(0).getPt(), electrons.at(0).getEta());
 
 
     if (*h_probe_hltdec.product()) {
         h1_["pt_pass_probe"] -> Fill(electrons.at(0).getPt(), evtwt);
         h1_["eta_pass_probe"] -> Fill(electrons.at(0).getEta(), evtwt);
-        h2_["pass"] -> Fill(electrons.at(0).getPt(), electrons.at(0).getEta());
         h2_["fixed_pass"] -> Fill(electrons.at(0).getPt(), electrons.at(0).getEta());
+        h2_["pass"] -> Fill(electrons.at(0).getPt(), electrons.at(0).getEta());
+        h2_["pass_v2"] -> Fill(electrons.at(0).getPt(), electrons.at(0).getEta());
+        h2_["pass_v3"] -> Fill(electrons.at(0).getPt(), electrons.at(0).getEta());
     }
     else {
         h1_["pt_fail_probe"] -> Fill(electrons.at(0).getPt(), evtwt);
         h1_["eta_fail_probe"] -> Fill(electrons.at(0).getEta(), evtwt);
-        h2_["fail"] -> Fill(electrons.at(0).getPt(), electrons.at(0).getEta());
         h2_["fixed_fail"] -> Fill(electrons.at(0).getPt(), electrons.at(0).getEta());
+        h2_["fail"] -> Fill(electrons.at(0).getPt(), electrons.at(0).getEta());
+        h2_["fail_v2"] -> Fill(electrons.at(0).getPt(), electrons.at(0).getEta());
+        h2_["fail_v3"] -> Fill(electrons.at(0).getPt(), electrons.at(0).getEta());
     }
 
     return true;
@@ -133,7 +154,10 @@ bool trigAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
 void trigAna::beginJob() {
 
     double ptbins[] = {115, 125, 140, 200, 600}; 
+    double ptbins_v2[] = {115, 125, 140, 200, 300, 600};
     double etabins[] = {-2.4, -2.1, -1.9, 0, 1.9, 2.1, 2.4};
+    double etabins_v2[] = {-2.4, -1.9, 0, 1.9, 2.4};
+    double etabins_v3[] = {-2.4, 0, 2.4};
 
     h1_["cutflow"] = fs->make<TH1D>("cutflow", "cutflow", 5, 0.5, 5.5);
     h1_["pt_all"] = fs->make<TH1D>("pt_all", "All Tag Events", 48, 120., 600);
@@ -147,9 +171,18 @@ void trigAna::beginJob() {
     h2_["fixed_pass"] = fs->make<TH2D>("fixed_pass", "Probe Events", 48, 120., 600., 100, -4., 4.);
     h2_["fixed_fail"] = fs->make<TH2D>("fixed_fail", "Anti-Prove Events", 48, 120., 600., 100, -4., 4.);
 
-    h2_["all"] = fs->make<TH2D>("2d_all", "All Events",  4, ptbins, 6, etabins);
-    h2_["pass"] = fs->make<TH2D>("2d_pass", "Probe Events",  4, ptbins, 6, etabins);
-    h2_["fail"] = fs->make<TH2D>("2d_fail", "Anti-Prove Events", 4, ptbins, 6, etabins);
+    h2_["all"] = fs->make<TH2D>("all", "All Events",  4, ptbins, 6, etabins);
+    h2_["pass"] = fs->make<TH2D>("pass", "Probe Events",  4, ptbins, 6, etabins);
+    h2_["fail"] = fs->make<TH2D>("fail", "Anti-Prove Events", 4, ptbins, 6, etabins);
+
+    h2_["all_v2"] = fs->make<TH2D>("all_v2", "All Events",  5, ptbins_v2, 4, etabins_v2);
+    h2_["pass_v2"] = fs->make<TH2D>("pass_v2", "Probe Events",  5, ptbins_v2, 4, etabins_v2);
+    h2_["fail_v2"] = fs->make<TH2D>("fail_v2", "Anti-Prove Events", 5, ptbins_v2, 4, etabins_v2);
+
+    h2_["all_v3"] = fs->make<TH2D>("all_v3", "All Events",  5, ptbins_v2, 2, etabins_v3);
+    h2_["pass_v3"] = fs->make<TH2D>("pass_v3", "Probe Events",  5, ptbins_v2, 2, etabins_v3);
+    h2_["fail_v3"] = fs->make<TH2D>("fail_v3", "Anti-Prove Events", 5, ptbins_v2, 2, etabins_v3);
+
 }
 
 void trigAna::endJob() {
