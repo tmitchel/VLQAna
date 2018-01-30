@@ -8,7 +8,7 @@ options.register('isData', False,
     VarParsing.varType.bool,
     "Is data?"
     )
-options.register('skim', True,
+options.register('skim', False,
     VarParsing.multiplicity.singleton,
     VarParsing.varType.bool,
     "Skim events?"
@@ -63,7 +63,7 @@ options.register('applyBTagSFs', True,
     VarParsing.varType.bool,
     "Apply b-tagging SFs to the MC"
     )
-options.register('btageffmap', "bpbpbZb1200_bTagEff.root",#until new SFs arrive
+options.register('btageffmap', 'dy_bTagEff.root',#"bpbpbZb1200_bTagEff.root",#until new SFs arrive
     VarParsing.multiplicity.singleton,
     VarParsing.varType.string,
     "ROOT file with Th2D histos of b tag effs for b,c, and light flavoured jets"
@@ -78,7 +78,7 @@ options.register('applyDYNLOCorr', False, ### Set to true only for DY process ##
     VarParsing.varType.bool,
     "Apply DY EWK k-factor to DY MC"
     )
-options.register('FileNames', 'FileNames_DY',
+options.register('FileNames', 'FileNames_BpBp1000',#FileNames_DY',
     VarParsing.multiplicity.singleton,
     VarParsing.varType.string,
     "Name of list of input files"
@@ -152,12 +152,12 @@ process.source = cms.Source(
     ) 
   )
 
-#if options.isData:
-#  import FWCore.PythonUtilities.LumiList as LumiList
-#  process.source.lumisToProcess = LumiList.LumiList(
-#      filename = "/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions16/13TeV/ReReco/Final/Cert_271036-284044_13TeV_23Sep2016ReReco_Collisions16_JSON.txt"
-#      ).getVLuminosityBlockRange()
-#
+if options.isData:
+  import FWCore.PythonUtilities.LumiList as LumiList
+  process.source.lumisToProcess = LumiList.LumiList(
+      filename = "/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions16/13TeV/ReReco/Final/Cert_271036-284044_13TeV_23Sep2016ReReco_Collisions16_JSON.txt"
+      ).getVLuminosityBlockRange()
+
 process.TFileService = cms.Service("TFileService",
     fileName = cms.string(
       options.outFileName
