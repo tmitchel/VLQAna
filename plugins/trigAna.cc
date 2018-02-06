@@ -11,9 +11,10 @@
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 
 #include "Analysis/VLQAna/interface/ElectronMaker.h"
-#include "Analysis/VLQAna/interface/MuonMaker.h"
+#include "Analysis/VLQAna/interface/JetMaker.h"
 #include "Analysis/VLQAna/interface/DileptonCandsProducer.h"
 #include "Analysis/VLQAna/interface/CandidateCleaner.h"
+#include "Analysis/VLQAna/interface/HT.h"
 
 #include <TH1D.h>
 #include <TH2D.h>
@@ -39,11 +40,14 @@ private:
     edm::EDGetTokenT<int>  t_trunno;   
     edm::EDGetTokenT<int>  t_tlumisec;   
 
+    edm::EDGetTokenT<bool> t_hltreject;
+
     const bool isData;
-    const bool zeff_;
+    const bool isPhoton;
+    const bool htTrig;
     edm::ParameterSet DilepCandParams; 
     ElectronMaker electonmaker;
-    MuonMaker muonmaker;
+    JetMaker jetAK4maker;
 
     edm::Service<TFileService> fs   ; 
     std::map<std::string, TH1D*> h1_; 
@@ -62,11 +66,14 @@ trigAna::trigAna(const edm::ParameterSet& iConfig) :
     t_trunno    (consumes<int>  (iConfig.getParameter<edm::InputTag>("tag_runno"))),
     t_tlumisec  (consumes<int>  (iConfig.getParameter<edm::InputTag>("tag_lumisec"))),
 
+    t_hltreject (consumes<bool> (iConfig.getParameter<edm::InputTag>("reject_hltdec"))),
+
     isData          (iConfig.getParameter<bool> ("isData")),
-    zeff_           (iConfig.getParameter<bool> ("zeff")),
+    isPhoton        (iConfig.getParameter<bool> ("isPhoton")),
+    htTrig          (iConfig.getParameter<bool> ("htTrig")),
     DilepCandParams (iConfig.getParameter<edm::ParameterSet> ("DilepCandParams")),
     electonmaker    (iConfig.getParameter<edm::ParameterSet> ("elselParams"),consumesCollector()),
-    muonmaker       (iConfig.getParameter<edm::ParameterSet> ("muselParams"),consumesCollector())
+    jetAK4maker             (iConfig.getParameter<edm::ParameterSet> ("jetAK4selParams"),consumesCollector())
 {}
 
 trigAna::~trigAna() {}
@@ -84,9 +91,14 @@ bool trigAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
     Handle<int>  h_tag_runno      ; evt.getByToken(t_trunno   , h_tag_runno     );
     Handle<int>  h_tag_lumisec    ; evt.getByToken(t_tlumisec , h_tag_lumisec   );
 
+    Handle<bool> h_reject_hltdec  ; evt.getByToken(t_hltreject, h_reject_hltdec );
+
     double evtwt(1.);
 
     h1_["cutflow"] -> Fill(1, evtwt);
+
+    if (isPhoton && *h_reject_hltdec.product())
+      return false;
 
     // only interested in events passing the tag
     if (*h_tag_hltdec.product()) h1_["cutflow"] -> Fill(2, evtwt);
@@ -95,23 +107,18 @@ bool trigAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
     vlq::ElectronCollection electrons;
     electonmaker(evt, electrons);
 
-    if (zeff_) {
-      vlq::CandidateCollection dilepton;
-      DileptonCandsProducer dileptonsprod(DilepCandParams);
-      dileptonsprod.operator()<vlq::ElectronCollection>(dilepton, electrons);
+    vlq::CandidateCollection dilepton;
+    DileptonCandsProducer dileptonsprod(DilepCandParams);
+    dileptonsprod.operator()<vlq::ElectronCollection>(dilepton, electrons);
 
-      // want a single dilepton pair
-      if (dilepton.size() == 1) h1_["cutflow"] -> Fill(3, evtwt);
-      else return false;
-    }
-    else {
-      vlq::MuonCollection muons;
-      muonmaker(evt, muons);
+    h1_["npair"] -> Fill(dilepton.size(), evtwt);
 
-      // want events with a single muon
-      if (muons.size() == 1) h1_["cutflow"] -> Fill(3, evtwt);
-      else return false;
-    }
+    // want a single dilepton pair
+    if (dilepton.size() == 1) h1_["cutflow"] -> Fill(3, evtwt);
+    else return false;
+ 
+    h1_["pt_el_lead"] -> Fill(electrons.at(0).getPt(), evtwt);
+    h1_["pt_el_2nd"]  -> Fill(electrons.at(1).getPt(), evtwt);
 
     // only look at events where a single electron passes the probe trig. 
     vector<double> highPt;
@@ -122,6 +129,17 @@ bool trigAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
 
     if (highPt.size() == 1) h1_["cutflow"] -> Fill(4, evtwt);
     else return false;
+
+    vlq::JetCollection ak4jets;
+    jetAK4maker(evt, ak4jets);
+    HT htak4(ak4jets);
+
+    h1_["nak4"] -> Fill(ak4jets.size(), evtwt);
+    h1_["HT"] -> Fill(htak4.getHT(), evtwt);
+    if (htTrig) {
+      if (htak4.getHT() > 1000.)  h1_["cutflow"] -> Fill(5, evtwt);
+      else return false;
+    }
 
     h1_["pt_all"] -> Fill(electrons.at(0).getPt(), evtwt);
     h1_["eta_all"] -> Fill(electrons.at(0).getEta(), evtwt);
@@ -159,7 +177,7 @@ void trigAna::beginJob() {
     double etabins_v2[] = {-2.4, -1.9, 0, 1.9, 2.4};
     double etabins_v3[] = {-2.4, 0, 2.4};
 
-    h1_["cutflow"] = fs->make<TH1D>("cutflow", "cutflow", 5, 0.5, 5.5);
+    h1_["cutflow"] = fs->make<TH1D>("cutflow", "cutflow", 6, 0.5, 6.5);
     h1_["pt_all"] = fs->make<TH1D>("pt_all", "All Tag Events", 48, 120., 600);
     h1_["pt_pass_probe"] = fs->make<TH1D>("pt_pass_probe", "Probe Events", 48, 120., 600);
     h1_["pt_fail_probe"] = fs->make<TH1D>("pt_fail_probe", "Anti-Probe Events", 48, 120., 600);
@@ -183,6 +201,11 @@ void trigAna::beginJob() {
     h2_["pass_v3"] = fs->make<TH2D>("pass_v3", "Probe Events",  5, ptbins_v2, 2, etabins_v3);
     h2_["fail_v3"] = fs->make<TH2D>("fail_v3", "Anti-Prove Events", 5, ptbins_v2, 2, etabins_v3);
 
+    h1_["npair"] = fs->make<TH1D>("npair", "N(dilepton pairs)", 5, -0.5, 4.5);
+    h1_["pt_el_lead"] = fs->make<TH1D>("pt_el_lead", "Lead Electron p_T", 50, 0., 500.);
+    h1_["pt_el_2nd"]  = fs->make<TH1D>("pt_el_2nd", "Second Electron p_T", 50, 0., 500.);
+    h1_["nak4"] = fs->make<TH1D>("nak4", "N(ak4 jets)", 15, -0.5, 14.5);
+    h1_["HT"] = fs->make<TH1D>("HT", "HT", 100, 0., 4000.);
 }
 
 void trigAna::endJob() {

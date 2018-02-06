@@ -17,10 +17,15 @@ options.register('FileNames', 'FileNames_DY',
     VarParsing.varType.string,
     "Name of list of input files"
     )
-options.register('zeff', True,
+options.register('htTrig', False,
     VarParsing.multiplicity.singleton,
     VarParsing.varType.bool,
-    "use dielectron and Zmass"
+    "use high HT trigger"
+    )
+options.register('isPhoton', False,
+    VarParsing.multiplicity.singleton,
+    VarParsing.varType.bool,
+    "is a photon"
     )
 
 options.setDefault('maxEvents', -1)
@@ -36,12 +41,14 @@ process.source = cms.Source(
     "PoolSource",
     fileNames = cms.untracked.vstring(
         #FileNames[options.FileNames]
-            'root://cms-xrd-global.cern.ch//store/user/oiorio/samples/May/17May/B2GAnaFW_80X_V3p1/SingleElectron/Run2016B/SingleElectron/Run2016B-03Feb2017_ver2-v2_B2GAnaFW_80X_V3p1/170517_123348/0000/B2GEDMNtuple_1.root',
-'root://cms-xrd-global.cern.ch//store/user/oiorio/samples/May/17May/B2GAnaFW_80X_V3p1/SingleElectron/Run2016B/SingleElectron/Run2016B-03Feb2017_ver2-v2_B2GAnaFW_80X_V3p1/170517_123348/0000/B2GEDMNtuple_2.root',
-'root://cms-xrd-global.cern.ch//store/user/oiorio/samples/May/17May/B2GAnaFW_80X_V3p1/SingleElectron/Run2016B/SingleElectron/Run2016B-03Feb2017_ver2-v2_B2GAnaFW_80X_V3p1/170517_123348/0000/B2GEDMNtuple_3.root',
-'root://cms-xrd-global.cern.ch//store/user/oiorio/samples/May/17May/B2GAnaFW_80X_V3p1/SingleElectron/Run2016B/SingleElectron/Run2016B-03Feb2017_ver2-v2_B2GAnaFW_80X_V3p1/170517_123348/0000/B2GEDMNtuple_4.root',
-'root://cms-xrd-global.cern.ch//store/user/oiorio/samples/May/17May/B2GAnaFW_80X_V3p1/SingleElectron/Run2016B/SingleElectron/Run2016B-03Feb2017_ver2-v2_B2GAnaFW_80X_V3p1/170517_123348/0000/B2GEDMNtuple_5.root'
- 
+'root://cmseos.fnal.gov//store/user/dmendis/ntuples2016/reminiaod/batch2/Electrons/SingleEG1/SingleEG1_skim_984.root', 
+'root://cmseos.fnal.gov//store/user/dmendis/ntuples2016/reminiaod/batch2/Electrons/SingleEG1/SingleEG1_skim_1.root', 
+'root://cmseos.fnal.gov//store/user/dmendis/ntuples2016/reminiaod/batch2/Electrons/SingleEG1/SingleEG1_skim_235.root', 
+'root://cmseos.fnal.gov//store/user/dmendis/ntuples2016/reminiaod/batch2/Electrons/SingleEG1/SingleEG1_skim_835.root', 
+'root://cmseos.fnal.gov//store/user/dmendis/ntuples2016/reminiaod/batch2/Electrons/SingleEG1/SingleEG1_skim_395.root', 
+'root://cmseos.fnal.gov//store/user/dmendis/ntuples2016/reminiaod/batch2/Electrons/SingleEG1/SingleEG1_skim_162.root', 
+'root://cmseos.fnal.gov//store/user/dmendis/ntuples2016/reminiaod/batch2/Electrons/SingleEG1/SingleEG1_skim_2.root', 
+
         )
     )
 process.TFileService = cms.Service("TFileService",
@@ -73,14 +80,19 @@ process.evtcleaner.isData = options.isData
 ## setup tag and probe triggers ##
 ##################################
 
-if options.zeff:
-  tag_hltpath = ['HLT_Ele32_eta2p1_WPTight_Gsf_v']
+if options.htTrig:
+  tag_hltpath = ['HLT_PFHT900_v']
 else:
-  tag_hltpath = [
-      "HLT_IsoMu24_v",
-      "HLT_IsoTkMu24_v"
-      ]
-probe_hltpath = ['HLT_Ele115_CaloIdVT_GsfTrkIdT_v']
+  tag_hltpath = ['HLT_Ele32_eta2p1_WPTight_Gsf_v']
+
+probe_hltpath = [
+  'HLT_Ele115_CaloIdVT_GsfTrkIdT_v',
+  'HLT_Photon175_v'
+  ]
+
+reject_hltpath = [
+  'HLT_Ele115_CaloIdVT_GsfTrkIdT_v',
+    ]
 
 process.tag = process.evtcleaner.clone(
     hltPaths = cms.vstring(tag_hltpath)
@@ -88,13 +100,16 @@ process.tag = process.evtcleaner.clone(
 process.probe = process.evtcleaner.clone(
     hltPaths = cms.vstring(probe_hltpath)
     )
+process.reject = process.evtcleaner.clone(
+    hltPaths = cms.vstring(reject_hltpath)
+    )
 
 from Analysis.VLQAna.trigger_cfi import *
 process.trigAna = trigAna.clone(
     isData = cms.bool(options.isData),
-    zeff = cms.bool(options.zeff)
+    isPhoton = cms.bool(options.isPhoton),
+    htTrig = cms.bool(options.htTrig),
     )
-process.trigAna.muselParams.muidtype = cms.string("TIGHT")
 
 ###################
 ## event counter ##
@@ -108,7 +123,8 @@ process.trigAna.muselParams.muidtype = cms.string("TIGHT")
 process.p = cms.Path(
  #   process.allEvents
     process.tag
-    *process.probe
+    *cms.ignore(process.probe)
+    *cms.ignore(process.reject)
     *process.trigAna
     )
 

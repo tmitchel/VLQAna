@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 from Analysis.VLQAna.ZCandSelector_cfi import *
 from Analysis.VLQAna.ElectronMaker_cfi import *
-from Analysis.VLQAna.MuonMaker_cfi import *
+from Analysis.VLQAna.JetMaker_cfi import *
 from Analysis.VLQAna.PickGenPart_cfi import *
 
 
@@ -17,6 +17,8 @@ trigAna = cms.EDFilter("trigAna",
     tag_lumisec         = cms.InputTag("tag", "lumisec"),
     tag_hltdec          = cms.InputTag("tag", "hltdecision"),
 
+    reject_hltdec       = cms.InputTag("reject", "hltdecision"),
+
     DilepCandParams     = defaultZCandSelectionParameters.clone(
         massMin         = cms.double(60),
         massMax         = cms.double(120),
@@ -26,12 +28,13 @@ trigAna = cms.EDFilter("trigAna",
     elselParams         = defaultElectronMakerParameters.clone(
         elPtMin         = cms.double(35),
         ),
-    muselParams         = defaultMuonMakerParameters.clone(
-        muPtMin         = cms.double(35),
+    jetAK4selParams     = defaultAK4JetSelectionParameters.clone(
+        jetAbsEtaMax    = cms.double(2.4),
         ),
 
     isData              = cms.bool(False),
-    zeff                = cms.bool(True),
+    isPhoton            = cms.bool(False),
+    htTrig              = cms.bool(False),
     genParams           = getSelectParams,
 
     )
