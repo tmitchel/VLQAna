@@ -53,3 +53,5 @@ evtcleaner = cms.EDFilter("EventCleaner",
     BbHParams                  = cms.PSet(genPartParams,BqHParams), 
     BtWParams                  = cms.PSet(genPartParams,BqWParams), 
     )
+
+evtrejecter = evtcleaner.clone()
