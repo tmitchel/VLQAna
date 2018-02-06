@@ -8,6 +8,11 @@ options.register('isData', False,
     VarParsing.varType.bool,
     "Is data?"
     )
+options.register('isPhoton', False,
+    VarParsing.multiplicity.singleton,
+    VarParsing.varType.bool,
+    "trigger for photon datastream"
+    )
 options.register('skim', False,
     VarParsing.multiplicity.singleton,
     VarParsing.varType.bool,
@@ -78,7 +83,7 @@ options.register('applyDYNLOCorr', False, ### Set to true only for DY process ##
     VarParsing.varType.bool,
     "Apply DY EWK k-factor to DY MC"
     )
-options.register('FileNames', 'FileNames_BpBp1000',#FileNames_DY',
+options.register('FileNames', 'FileNames_SingleMuon_v2p4',#'FileNames_BpBp1000',#FileNames_DY',
     VarParsing.multiplicity.singleton,
     VarParsing.varType.string,
     "Name of list of input files"
@@ -102,7 +107,8 @@ options.register('storeLHEWts', True,
 options.setDefault('maxEvents', -1)
 options.parseArguments()
 
-dataPath = '../data/'
+#dataPath = '../data/'
+dataPath = ''
 
 hltpaths = []
 if options.isData:
@@ -113,6 +119,7 @@ if options.isData:
   options.applyBTagSFs   = False 
   options.applyDYNLOCorr = False 
   options.doPUReweightingOfficial = False
+  options.storeLHEWts = False
 
 if options.zdecaymode == "zmumu":
   hltpaths = [
@@ -121,16 +128,27 @@ if options.zdecaymode == "zmumu":
       "HLT_IsoTkMu24_v"
       ]
 elif options.zdecaymode == "zelel":
-  hltpaths = [
-      #"HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_v",
-      #"HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v"
-      "HLT_Ele115_CaloIdVT_GsfTrkIdT_v",
-      ]
+  if options.isPhoton:
+    hltpaths = [
+        'HLT_Photon175_v'
+        ]
+    rejectpaths = [
+        'HLT_Ele115_CaloIdVT_GsfTrkIdT_v'
+        ]
+  else:
+    hltpaths = [
+        #"HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_v",
+        #"HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v"
+        "HLT_Ele115_CaloIdVT_GsfTrkIdT_v",
+        "HLT_Photon175_v",
+        ]
+    rejectpaths = []
+  
 else:
   sys.exit("!!!Error: Wrong Z decay mode option chosen. Choose either 'zmumu' or 'zelel'!!!") 
 
-if options.skim: 
-  hltpaths = []
+#if options.skim: 
+#  hltpaths = []
 
 if options.filterSignal == True: 
   print 'signal type = ', len(options.signalType), 'skim : ', options.skim
@@ -141,22 +159,22 @@ if options.filterSignal == True:
 
 print options
 
-process = cms.Process("OS2LAna")
+process = cms.Process("OS2LAnaa")
 
 from inputFiles_cfi import * 
 
 process.source = cms.Source(
   "PoolSource",
   fileNames = cms.untracked.vstring(
-    FileNames[options.FileNames]
+    #FileNames[options.FileNames]
     ) 
   )
 
-if options.isData:
-  import FWCore.PythonUtilities.LumiList as LumiList
-  process.source.lumisToProcess = LumiList.LumiList(
-      filename = "/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions16/13TeV/ReReco/Final/Cert_271036-284044_13TeV_23Sep2016ReReco_Collisions16_JSON.txt"
-      ).getVLuminosityBlockRange()
+#if options.isData:
+#  import FWCore.PythonUtilities.LumiList as LumiList
+#  process.source.lumisToProcess = LumiList.LumiList(
+#      filename = "/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions16/13TeV/ReReco/Final/Cert_271036-284044_13TeV_23Sep2016ReReco_Collisions16_JSON.txt"
+#      ).getVLuminosityBlockRange()
 
 process.TFileService = cms.Service("TFileService",
     fileName = cms.string(
@@ -179,6 +197,11 @@ process.evtcleaner.hltPaths = cms.vstring (hltpaths)
 process.evtcleaner.DoPUReweightingOfficial = cms.bool(options.doPUReweightingOfficial)  
 process.evtcleaner.storeLHEWts = options.storeLHEWts
 
+if options.isPhoton:
+  process.evtrejecter = process.evtcleaner.clone(
+      hltPaths = cms.vstring(rejectpaths)
+      )
+
 from Analysis.VLQAna.OS2LAna_cfi import * 
 
 ### Z candidate and jet selections 
@@ -193,6 +216,7 @@ process.ana = ana.clone(
     applyDYNLOCorr = cms.bool(options.applyDYNLOCorr),
     skim = cms.bool(options.skim),
     isData = cms.bool(options.isData),
+    run_photons = cms.bool(options.isPhoton),
     maketree = cms.bool(options.maketree), 
     fnamebtagSF = cms.string(os.path.join(dataPath,'CSVv2_Moriond17_B_H.csv')),
     fnameSJbtagSF = cms.string(os.path.join(dataPath,'subjet_CSVv2_Moriond17_B_H.csv')),
@@ -404,13 +428,23 @@ elif options.massReco:
     *process.finalEvents
     )
 else:
-  process.p = cms.Path(
-    process.allEvents
-    *process.evtcleaner
-    *process.cleanedEvents
-    *process.ana
-    *process.finalEvents
-    )
+  if options.isPhoton:
+    process.p = cms.Path(
+      process.allEvents
+      *process.evtcleaner
+      *process.evtrejecter
+      *process.cleanedEvents
+      *process.ana
+      *process.finalEvents
+      )
+  else:
+    process.p = cms.Path(
+      process.allEvents
+      *process.evtcleaner
+      *process.cleanedEvents
+      *process.ana
+      *process.finalEvents
+      )
 
 if options.skim: 
   outCommand = ['keep *', 'drop *_evtcleaner_*_*', 'drop *_TriggerResults_*_*']#remove unwanted new branches OS2LAna
