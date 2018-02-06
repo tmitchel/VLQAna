@@ -159,18 +159,20 @@ EventCleaner::EventCleaner(const edm::ParameterSet& iConfig) :
   consumes<int>                     (l_puNtrueInt    ) ; 
 
   if ( !isData_ ) {
+
+    if (doPUReweightingOfficial_) {
+      LumiWeights_     = edm::LumiReWeighting(file_PUDistMC_, file_PUDistData_    , hist_PUDistMC_, hist_PUDistData_) ;
+      LumiWeightsLow_  = edm::LumiReWeighting(file_PUDistMC_, file_PUDistDataLow_ , hist_PUDistMC_, hist_PUDistData_) ;
+      LumiWeightsHigh_ = edm::LumiReWeighting(file_PUDistMC_, file_PUDistDataHigh_, hist_PUDistMC_, hist_PUDistData_) ;
+    }
+
+    t_genEvtInfoProd = consumes<GenEventInfoProduct>(l_genEvtInfoProd) ; 
+    if ( storeLHEWts_ ) {
+      consumes<LHERunInfoProduct>({"externalLHEProducer"});
+      t_lheEvtProd = consumes<LHEEventProduct>(l_lheEvtProd) ; 
+    }
   }
 
-  if (doPUReweightingOfficial_) {
-    LumiWeights_     = edm::LumiReWeighting(file_PUDistMC_, file_PUDistData_    , hist_PUDistMC_, hist_PUDistData_) ;
-    LumiWeightsLow_  = edm::LumiReWeighting(file_PUDistMC_, file_PUDistDataLow_ , hist_PUDistMC_, hist_PUDistData_) ;
-    LumiWeightsHigh_ = edm::LumiReWeighting(file_PUDistMC_, file_PUDistDataHigh_, hist_PUDistMC_, hist_PUDistData_) ;
-  }
-  t_genEvtInfoProd = consumes<GenEventInfoProduct>(l_genEvtInfoProd) ; 
-  if ( storeLHEWts_ ) {
-    consumes<LHERunInfoProduct>({"externalLHEProducer"});
-    t_lheEvtProd = consumes<LHEEventProduct>(l_lheEvtProd) ; 
-  }
   produces<int>("evtno");
   produces<int>("lumisec");
   produces<int>("runno");
@@ -267,27 +269,36 @@ bool EventCleaner::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   double htHat(0.0);
   std::vector<int> lhewtids;
   std::vector<double> lhewts;
-  if ( !isData_ && storeLHEWts_ ) {
 
-    Handle<LHEEventProduct> h_lheEvtProd;
-    evt.getByToken(t_lheEvtProd, h_lheEvtProd); 
-    double nominal_wt = h_lheEvtProd->weights()[0].wgt ; // h_lheEvtProd->hepeup().XWGTUP ; //h_lheEvtProd->originalXWGTUP();
-    lhewtids.reserve(h_lheEvtProd->weights().size()) ;
-    lhewts.reserve(h_lheEvtProd->weights().size()) ; 
-    for (unsigned iwt = 0; iwt < h_lheEvtProd->weights().size(); ++iwt) {
-      lhewtids.push_back(std::stoi(h_lheEvtProd->weights()[iwt].id)) ;
-      lhewts.push_back(h_lheEvtProd->weights()[iwt].wgt / nominal_wt) ; 
-    }
+  if ( !isData_ ) {
 
-    std::vector<lhef::HEPEUP::FiveVector> lheParticles = h_lheEvtProd->hepeup().PUP;
-    for(size_t idxPart = 0; idxPart < lheParticles.size();++idxPart){
-      unsigned absPdgId = TMath::Abs(h_lheEvtProd->hepeup().IDUP[idxPart]);
-      unsigned status = h_lheEvtProd->hepeup().ISTUP[idxPart];
-      if(status==1 &&((absPdgId >=1 &&absPdgId<=6) || absPdgId == 21)){
-        htHat += sqrt(pow(lheParticles[idxPart][0],2.) + pow(lheParticles[idxPart][1],2.));
+    Handle<GenEventInfoProduct> h_genEvtInfoProd;
+    evt.getByToken(t_genEvtInfoProd, h_genEvtInfoProd);
+    evtwtGen = h_genEvtInfoProd->weight() ;
+    evtwtGen /= std::abs(evtwtGen) ;
+
+    if ( storeLHEWts_ ) {
+
+      Handle<LHEEventProduct> h_lheEvtProd;
+      evt.getByToken(t_lheEvtProd, h_lheEvtProd); 
+      double nominal_wt = h_lheEvtProd->weights()[0].wgt ; // h_lheEvtProd->hepeup().XWGTUP ; //h_lheEvtProd->originalXWGTUP();
+      lhewtids.reserve(h_lheEvtProd->weights().size()) ;
+      lhewts.reserve(h_lheEvtProd->weights().size()) ; 
+      for (unsigned iwt = 0; iwt < h_lheEvtProd->weights().size(); ++iwt) {
+        lhewtids.push_back(std::stoi(h_lheEvtProd->weights()[iwt].id)) ;
+        lhewts.push_back(h_lheEvtProd->weights()[iwt].wgt / nominal_wt) ; 
       }
-    }
 
+      std::vector<lhef::HEPEUP::FiveVector> lheParticles = h_lheEvtProd->hepeup().PUP;
+      for(size_t idxPart = 0; idxPart < lheParticles.size();++idxPart){
+        unsigned absPdgId = TMath::Abs(h_lheEvtProd->hepeup().IDUP[idxPart]);
+        unsigned status = h_lheEvtProd->hepeup().ISTUP[idxPart];
+        if(status==1 &&((absPdgId >=1 &&absPdgId<=6) || absPdgId == 21)){
+          htHat += sqrt(pow(lheParticles[idxPart][0],2.) + pow(lheParticles[idxPart][1],2.));
+        }
+      }
+
+    }
   }
   else {
     lhewtids.push_back(-999999);

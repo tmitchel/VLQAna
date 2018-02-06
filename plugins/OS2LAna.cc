@@ -92,6 +92,7 @@ class OS2LAna : public edm::EDFilter {
     edm::EDGetTokenT<double>   t_evtwtPVHigh     ;
     edm::EDGetTokenT<unsigned> t_npv             ;
     edm::EDGetTokenT<bool>     t_hltdecision     ;
+    edm::EDGetTokenT<bool>     t_hltreject       ;
     edm::EDGetTokenT<int>      t_evtno           ; 
     edm::EDGetTokenT<int>      t_runno           ;
     edm::EDGetTokenT<int>      t_lumisec         ;
@@ -108,6 +109,7 @@ class OS2LAna : public edm::EDFilter {
     const double STMaxControl_                   ;
     const bool skim_                             ;
     const bool isData_                           ;
+    const bool run_photons_                      ;
     const bool filterSignal_                     ;
     const bool additionalPlots_                  ;
     const std::string signalType_                ;
@@ -197,6 +199,7 @@ OS2LAna::OS2LAna(const edm::ParameterSet& iConfig) :
   t_evtwtPVHigh           (consumes<double>  (iConfig.getParameter<edm::InputTag>("evtwtPVHigh"))),
   t_npv                   (consumes<unsigned>(iConfig.getParameter<edm::InputTag>("npv"))),
   t_hltdecision           (consumes<bool>    (iConfig.getParameter<edm::InputTag>("hltdecision"))),
+  t_hltreject             (consumes<bool>    (iConfig.getParameter<edm::InputTag>("hltreject"))),
   t_evtno                 (consumes<int>     (iConfig.getParameter<edm::InputTag>("evtno"))),
   t_runno                 (consumes<int>     (iConfig.getParameter<edm::InputTag>("runno"))),
   t_lumisec               (consumes<int>     (iConfig.getParameter<edm::InputTag>("lumisec"))),
@@ -213,6 +216,7 @@ OS2LAna::OS2LAna(const edm::ParameterSet& iConfig) :
   STMaxControl_           (iConfig.getParameter<double>            ("STMaxControl")), 
   skim_                   (iConfig.getParameter<bool>              ("skim")), 
   isData_                 (iConfig.getParameter<bool>              ("isData")),
+  run_photons_            (iConfig.getParameter<bool>              ("run_photons")),
   filterSignal_           (iConfig.getParameter<bool>              ("filterSignal")), 
   additionalPlots_        (iConfig.getParameter<bool>              ("additionalPlots")), 
   signalType_             (iConfig.getParameter<std::string>       ("signalType")), 
@@ -296,6 +300,7 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   Handle<double>   h_evtwtPVHigh ; evt.getByToken(t_evtwtPVHigh ,h_evtwtPVHigh) ;  
   Handle<unsigned> h_npv         ; evt.getByToken(t_npv         ,h_npv        ) ; 
   Handle<bool>     h_hltdecision ; evt.getByToken(t_hltdecision ,h_hltdecision) ; 
+  Handle<bool>     h_hltreject   ; evt.getByToken(t_hltreject   ,h_hltreject  ) ;
   Handle<int>      h_evtno       ; evt.getByToken(t_evtno       ,h_evtno      ) ; 
   Handle<int>      h_runno       ; evt.getByToken(t_runno       ,h_runno      ) ; 
   Handle<int>      h_lumisec     ; evt.getByToken(t_lumisec     ,h_lumisec    ) ; 
@@ -356,7 +361,11 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
     }
   }
 
-  const bool hltdecision(*h_hltdecision.product()) ; 
+  bool hltdecision_initializer(*h_hltdecision.product());
+  if (run_photons_)
+    hltdecision_initializer *= !(*h_hltreject.product());
+
+  const bool hltdecision(hltdecision_initializer) ; 
   if ( hltdecision ) h1_["cutflow"] -> Fill(2, evtwt) ;
   else return false; //// Presel: HLT  
 
@@ -430,15 +439,20 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
 
     if (applyLeptonTrigSFs_) {
       if ( zdecayMode_ == "zmumu" ) evtwt *= lepTrigSFs(goodMuons.at(0).getPt(),goodMuons.at(0).getEta()) ; 
+//      else if ( zdecayMode_ == "zelel" ) {
+//        double temp_elSF(1.0);
+//        if (goodElectrons.at(0).getPt() > 300.)
+//          temp_elSF = 0.04;
+//        else
+//          temp_elSF = 0.02;
+//        evtwt = evtwt + evtwt * elSyst_ * temp_elSF;  // elSyst_ is +/- 1 so apply a +/- 0.02 (0.04) if el pt is less (greater) than 300
+//      }
       else if ( zdecayMode_ == "zelel" ) {
-        double temp_elSF(1.0);
-        if (goodElectrons.at(0).getPt() > 300.)
-          temp_elSF = 0.04;
-        else
-          temp_elSF = 0.02;
-        evtwt = evtwt + evtwt * elSyst_ * temp_elSF;  // elSyst_ is +/- 1 so apply a +/- 0.02 (0.04) if el pt is less (greater) than 300
+        double leg1 = lepTrigSFs(goodElectrons.at(0).getPt(),goodElectrons.at(0).getEta()) ;
+        double leg2 = lepTrigSFs(goodElectrons.at(1).getPt(),goodElectrons.at(1).getEta()) ;
+        double elTrigSF = leg1 + leg2 - leg1*leg2 ;
+        evtwt *= elTrigSF;
       }
-      //      else if ( zdecayMode_ == "zelel" ) evtwt *= lepTrigSFs(goodElectrons.at(0).getPt(),goodElectrons.at(0).getEta()) ; 
     }
   } 
 
