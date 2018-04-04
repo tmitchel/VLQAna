@@ -132,6 +132,9 @@ class OS2LAna : public edm::EDFilter {
     const bool applyDYNLOCorr_                   ;
     const bool DYSFSyst_                         ;
     const int  tauShift_                         ;
+    const int  WZShift_                          ;
+    const int  higgsShift_                       ;
+    const int  topShift_                         ;
     const int pdfID_offset_                      ;
     const int scale_offset_                      ;
     const bool syst_                             ;
@@ -240,6 +243,9 @@ OS2LAna::OS2LAna(const edm::ParameterSet& iConfig) :
   applyDYNLOCorr_         (iConfig.getParameter<bool>              ("applyDYNLOCorr")),
   DYSFSyst_               (iConfig.getParameter<bool>              ("DYSFSyst")),
   tauShift_               (iConfig.getParameter<int>               ("tauShift")),
+  WZShift_                (iConfig.getParameter<int>               ("WZShift")),
+  higgsShift_             (iConfig.getParameter<int>               ("higgsShift")),
+  topShift_             (iConfig.getParameter<int>               ("topShift")),
   pdfID_offset_           (iConfig.getParameter<int>               ("pdfID_offset")),
   scale_offset_           (iConfig.getParameter<int>               ("scale_offset")),
   syst_                   (iConfig.getParameter<bool>               ("syst")),
@@ -572,9 +578,10 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   for (auto idx : t_higgs_overlap)
     h1_["overlapped_top_higgs"] -> Fill(ST, evtwt);
 
-  std::cout << "Number of tops: " << goodTopTaggedJets.size() << " Number of Iso tops: " << iso_top.size() << " Number of overlaps: " << t_higgs_overlap.size() << std::endl;
+  double mistag_higgs(0.98), mistag_top(1.04), mistag_WZ(1.08);
+  double mis_higgs_err(0.14), mis_top_err(0.07), mis_WZ_err(0.05);
 
-  if (!isData){                                                                                                                          
+  if (!isData_){                                                                                                                          
     GenParticleCollection genPartsInfo;                                                                                                                                 
     genPartsInfo = genpart(evt) ; 
 
@@ -588,18 +595,10 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
           }
         }
       }
-      if (realTag) {
-        if (filterSignal_)
-          std::cout << "Applying over sig top efficiency" << std::endl;
-        else
-          std::cout << "Applying over bkg top efficiency" << std::endl;
-      }
-      else {
-        if (filterSignal_)
-          std::cout << "Applying over sig mistag SF" << std::endl;
-        else
-          std::cout << "Applying over bkg mistag SF" << std::endl;
-      }
+      if (filterSignal_ && realTag) 
+          evtwt *= ( 1.06 + (tauShift_ * .09));
+      else 
+          evtwt *= ( mistag_top + (topShift_ * mis_top_err));
     }
 
     for (auto i : iso_top) {
@@ -612,24 +611,17 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
           }
         }
       }
-      if (realTag) {
-        if (filterSignal_)
-          std::cout << "Applying real sig top efficiency" << std::endl;
-        else
-          std::cout << "Applying real bkg top efficiency" << std::endl;
-      }
-      else {
-        if (filterSignal_)
-          std::cout << "Applying real sig mistag SF" << std::endl;
-        else
-          std::cout << "Applying real bkg mistag SF" << std::endl;
-      }
+      if (filterSignal_ && realTag) 
+          evtwt *= ( 1.06 + (tauShift_ * .09));
+      else 
+          evtwt *= ( mistag_top + (topShift_ * mis_top_err));
     }
 
     // check for W/Z & Higgs overlap
     for (auto &WZtag : goodWTaggedJets) {
       bool overlap_higgs_WZ(false), realW(false);
       for (auto &gen : genPartsInfo) {
+
         if ( abs(gen.getPdgID()) == 25 && (abs(gen.getMom0PdgID()) == 8000001 || abs(gen.getMom1PdgID()) == 8000001) ) {
           if (WZtag.getP4().DeltaR(gen.getP4()) < 0.8)
             overlap_higgs_WZ = true;
@@ -638,89 +630,32 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
           if (WZtag.getP4().DeltaR(gen.getP4()) < 0.8)
             realW = true;
         }
+
       }
       if (!overlap_higgs_WZ){
-        if (filterSignal_)
-          if (realW)
-            std::cout << "Applying sig W eff for event with " << goodWTaggedJets.size() << " W-tags"  << std::endl;
-          else
-            std::cout << "Applying sig W mistag for event with " << goodWTaggedJets.size() << " W-tags"  << std::endl;
+        if (filterSignal_ && realW)
+            evtwt *= ( 1.11 + (tauShift_ * .08) + (tauShift_ * 0.041 * log(WZtag.getPt() / 200)));
         else
-          if (realW)
-            std::cout << "Applying bkg W eff for event with " << goodWTaggedJets.size() << " W-tags"  << std::endl;
-          else
-            std::cout << "Applying bkg W mistag for event with " << goodWTaggedJets.size() << " W-tags"  << std::endl;
+           evtwt *= ( mistag_WZ + (WZShift_ * mis_WZ_err) ); 
       }      
+      else 
+        h1_["higgs_WZ_overlap"] -> Fill(ST, evtwt);
     } 
+    for (auto& jet : goodHTaggedJets) {
+      bool realH = false;
+      for (auto& gen : genPartsInfo) {
+        if ( abs(gen.getPdgID()) == 25 && (abs(gen.getMom0PdgID()) == 8000001 || abs(gen.getMom1PdgID()) == 8000001) ) {
+          if (jet.getP4().DeltaR(gen.getP4()) < 0.8 && filterSignal_) {
+            evtwt *= ( 1.11 + (tauShift_ * .08) + (tauShift_ * 0.041 * log(jet.getPt() / 200)));
+            realH = true;
+          }
+        }
+      }
+      if (!realH)
+        evtwt *= ( mistag_higgs + (higgsShift_ * mis_higgs_err) );
+    }
   }
-
-
-//  // just find matching t/Higgs jets and store them away in a vector
-//  std::vector<vlq::Jet> t_higgs_overlap, t_WZ_overlap, H_WZ_overlap;
-//  for (auto &top : goodTopTaggedJets) {
-//    for (auto &higgs : goodHTaggedJets) {
-//      if (top.getPt() == higgs.getPt() && top.getEta() == higgs.getEta())
-//        t_higgs_overlap.push_back(top);
-//    }
-//    for (auto &WZjet : goodWTaggedJets) {
-//      if (top.getPt() == WZjet.getPt() && top.getEta() == WZjet.getEta())
-//        t_WZ_overlap.push_back(top);
-//    }
-//  }
-//
-//  for (auto &higgs : goodHTaggedJets) {
-//    for (auto &WZjet : goodWTaggedJets) {
-//      if (WZjet.getPt() == higgs.getPt() && WZjet.getEta() == higgs.getEta()) 
-//        H_WZ_overlap.push_back(higgs);
-//    }
-//  }
-//
-//  for (auto &over : t_higgs_overlap) 
-//     h1_["overlapped_top_higgs"] -> Fill(ST, evtwt);
-//
-//  for (auto &over : t_WZ_overlap)
-//    h1_["overlapped_top_WZ"] -> Fill(ST, evtwt);
-//
-//  for (auto &over : H_WZ_overlap) 
-//    h1_["overlapped_higgs_WZ"] -> Fill(ST, evtwt);
-
-//  if (!isData){                                                                                                                          
-//    GenParticleCollection genPartsInfo;                                                                                                                                 
-//    genPartsInfo = genpart(evt) ; 
-//    for (auto &top : goodTopTaggedJets) { 
-//      bool realTag = false;
-//      for (auto &gen : genPartsInfo) {
-//        // only look at generator level tops
-//        if (abs(gen.getPdgID()) == 6 && (abs(gen.getMom0PdgID()) == 8000001 || abs(gen.getMom1PdgID()) == 8000001)) {
-//          if (top.getP4().DeltaR(gen.getP4()) < 0.8) {
-//            realTag = true;
-//            // apply top efficiency SF
-//          }
-//        }
-//      }
-//      if (realTag) {
-//        if (filterSignal)
-//          std::cout << "Applying top efficiency" << std::endl;
-//        else
-//          std::cout << "Applying top efficiency" << std::endl;
-//      }
-//      else {
-//        if (filterSignal)
-//          std::cout << "Applying mistag SF" << std::endl;
-//        else
-//          std::cout << "Applying mistag SF" << std::endl;
-//      }
-//    }
-//  }
-
-  if (!isData_){
-    for (auto& jet : goodWTaggedJets)
-      evtwt *= ( 1.11 + (tauShift_ * .08) + (tauShift_ * 0.041 * log(jet.getPt() / 200)));
-    for (auto& jet : goodHTaggedJets)
-      evtwt *= ( 1.11 + (tauShift_ * .08) + (tauShift_ * 0.041 * log(jet.getPt() / 200)));
-    for (auto& jet : goodTopTaggedJets)
-      evtwt *= ( 1.06 + (tauShift_ * .09));
-  }
+      
 
   double sjbtagsf(1) ;
   double sjbtagsf_bcUp(1) ; 
@@ -2121,7 +2056,8 @@ void OS2LAna::beginJob() {
     h1_["overlapped_top_higgs"] = sig.make<TH1D>("overlapped_top_higgs", "Overlapping Top and Higgs", 100, 0., 4000.);
     h1_["overlapped_top_WZ"] = sig.make<TH1D>("overlapped_top_WZ", "Overlapping Top and WZ", 100, 0., 4000.);
     h1_["overlapped_higgs_WZ"] = sig.make<TH1D>("overlapped_higgs_WZ", "Overlapping Higgs and WZ", 100, 0., 4000.);
-
+    h1_["higgs_WZ_overlap"] = sig.make<TH1D>("higgs_WZ_overlap", "Overlapping Higgs and WZ", 100, 0., 4000.);
+    h1_["top_higgs_overlap"] = sig.make<TH1D>("top_higgs_overlap", "Overlapping Top and Higgs", 100, 0., 4000.);
 
     h1_["ptak8jet1_pre"] = pre.make<TH1D>("ptak8jet1_pre", ";p_{T} leading AK8 jet;;", 100, 0., 1500.);
     h1_["prunedMak8jet1_pre"] = pre.make<TH1D>("prunedMak8jet1_pre", "Pruned Mass leading AK8 Jet;M [GeV];;", 100, 0., 200.);
