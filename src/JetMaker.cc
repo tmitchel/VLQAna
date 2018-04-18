@@ -262,8 +262,8 @@ void JetMaker::operator()(edm::Event& evt, vlq::JetCollection& jets) {
 
     double unc(0);
     if (jecShift_ != 0 ) {
-      ptr_jecUnc->setJetEta( newJetP4.Eta()    );
-      ptr_jecUnc->setJetPt ( newJetP4.Pt()     );
+      ptr_jecUnc->setJetEta( uncorrJetP4.Eta()    );
+      ptr_jecUnc->setJetPt ( uncorrJetP4.Pt()     );
       unc = ptr_jecUnc->getUncertainty(true);
       newJetP4 *= (1 + jecShift_*unc) ; 
     }
@@ -373,7 +373,7 @@ void JetMaker::operator()(edm::Event& evt, vlq::JetCollection& jets) {
         double pt_reco   = uncorrJetP4.Pt() ;
         double jerscalemass = ApplyJERMass(jmrShift_) ; 
         if (pt_gen > 0) masssmear = std::max( 0.0, pt_gen + jerscalemass*(pt_reco - pt_gen) )/pt_reco ; 
-        else masssmear = 1;
+        else masssmear = 1.;
       }
 
       newJetP4.SetVectM(newJetP4.Vect(), newJetP4.Mag()*massCorr*masssmear) ; 

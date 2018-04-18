@@ -19,7 +19,8 @@ class ApplyLeptonTrigSFs {
         if(pt < 120.) pt = 120.1;
         if(pt > 600.) pt = 599.9;
         std::unique_ptr<TFile>f_effmap = std::unique_ptr<TFile>(new TFile(eltrigeffmap_.c_str())) ;
-        std::unique_ptr<TH2>h2_effmap = std::unique_ptr<TH2>(dynamic_cast<TH2*>(f_effmap->Get("eta_pt"))) ; 
+//        std::unique_ptr<TH2>h2_effmap = std::unique_ptr<TH2>(dynamic_cast<TH2*>(f_effmap->Get("eta_pt"))) ; 
+        std::unique_ptr<TH2>h2_effmap = std::unique_ptr<TH2>(dynamic_cast<TH2*>(f_effmap->Get("triggerSF"))) ; 
         int binpt = h2_effmap->GetXaxis()->FindBin(pt);
         int bineta = h2_effmap->GetYaxis()->FindBin(eta);
         sf_ = h2_effmap->GetBinContent(binpt, bineta) ; 

@@ -131,7 +131,8 @@ class OS2LAna : public edm::EDFilter {
     const bool applyBTagSFs_                     ;
     const bool applyDYNLOCorr_                   ;
     const bool DYSFSyst_                         ;
-    const int  tauShift_                         ;
+    const int  tau21Shift_                       ;
+    const int  tau32Shift_                       ;
     const int  WZShift_                          ;
     const int  higgsShift_                       ;
     const int  topShift_                         ;
@@ -242,7 +243,8 @@ OS2LAna::OS2LAna(const edm::ParameterSet& iConfig) :
   applyBTagSFs_           (iConfig.getParameter<bool>              ("applyBTagSFs")),
   applyDYNLOCorr_         (iConfig.getParameter<bool>              ("applyDYNLOCorr")),
   DYSFSyst_               (iConfig.getParameter<bool>              ("DYSFSyst")),
-  tauShift_               (iConfig.getParameter<int>               ("tauShift")),
+  tau21Shift_             (iConfig.getParameter<int>               ("tau21Shift")),
+  tau32Shift_             (iConfig.getParameter<int>               ("tau32Shift")),
   WZShift_                (iConfig.getParameter<int>               ("WZShift")),
   higgsShift_             (iConfig.getParameter<int>               ("higgsShift")),
   topShift_             (iConfig.getParameter<int>               ("topShift")),
@@ -595,8 +597,8 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
           }
         }
       }
-      if (filterSignal_ && realTag) 
-          evtwt *= ( 1.06 + (tauShift_ * .09));
+      if (!isData_ && realTag) 
+          evtwt *= ( 1.06 + (tau32Shift_ * .09));
       else 
           evtwt *= ( mistag_top + (topShift_ * mis_top_err));
     }
@@ -611,8 +613,8 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
           }
         }
       }
-      if (filterSignal_ && realTag) 
-          evtwt *= ( 1.06 + (tauShift_ * .09));
+      if (!isData_ && realTag) 
+          evtwt *= ( 1.06 + (tau32Shift_ * .09));
       else 
           evtwt *= ( mistag_top + (topShift_ * mis_top_err));
     }
@@ -633,8 +635,8 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
 
       }
       if (!overlap_higgs_WZ){
-        if (filterSignal_ && realW)
-            evtwt *= ( 1.11 + (tauShift_ * .08) + (tauShift_ * 0.041 * log(WZtag.getPt() / 200)));
+        if (!isData_ && realW)
+            evtwt *= ( 1.11 + (tau21Shift_ * .08) + (tau21Shift_ * 0.041 * log(WZtag.getPt() / 200)));
         else
            evtwt *= ( mistag_WZ + (WZShift_ * mis_WZ_err) ); 
       }      
@@ -645,8 +647,8 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
       bool realH = false;
       for (auto& gen : genPartsInfo) {
         if ( abs(gen.getPdgID()) == 25 && (abs(gen.getMom0PdgID()) == 8000001 || abs(gen.getMom1PdgID()) == 8000001) ) {
-          if (jet.getP4().DeltaR(gen.getP4()) < 0.8 && filterSignal_) {
-            evtwt *= ( 1.11 + (tauShift_ * .08) + (tauShift_ * 0.041 * log(jet.getPt() / 200)));
+          if (jet.getP4().DeltaR(gen.getP4()) < 0.8 && !isData_) {
+            evtwt *= ( 1.11 + (tau21Shift_ * .08) + (tau21Shift_ * 0.041 * log(jet.getPt() / 200)));
             realH = true;
           }
         }
@@ -1114,12 +1116,12 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
       }
       
       // begin mass reconstruction secion
-//      fillPdfHistos("st", ST, evtwt, lhe_id_wts);
-      
-//      // pairs to hold <chi2, mass> 
-//      pair<double, double> resReco_bZ(9999, -1), boostReco_bZ(9999, -1);
-//      pair<double, double> resReco_bH(9999, -1), boostReco_bH(9999, -1);
-//      pair<double, double> resReco_tW, boostReco_tW;
+      fillPdfHistos("st", ST, evtwt, lhe_id_wts);
+    
+      // pairs to hold <chi2, mass> 
+      pair<double, double> resReco_bZ(9999, -1), boostReco_bZ(9999, -1);
+      pair<double, double> resReco_bH(9999, -1), boostReco_bH(9999, -1);
+      pair<double, double> resReco_tW, boostReco_tW;
 
       if (ST > 4000) ST = 3999;    
         
@@ -1214,10 +1216,10 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
 //        resReco_bH = doResolvedReco(goodAK4Jets, 125., zll.at(0).getP4());
 //        resReco_bZ = doResolvedReco(goodAK4Jets, 91.2, zll.at(0).getP4());
 //      }
-//      if (goodWTaggedJets.size() > 0)
-//        boostReco_bZ = doBoostedReco(goodAK4Jets, goodWTaggedJets.at(0).getP4(), 91.2, zll.at(0).getP4(), 150.);
-//      if (goodHTaggedJets.size() > 0)
-//        boostReco_bH = doBoostedReco(goodAK4Jets, goodHTaggedJets.at(0).getP4(), 125., zll.at(0).getP4(), 150.);
+      if (goodWTaggedJets.size() > 0)
+        boostReco_bZ = doBoostedReco(goodAK4Jets, goodWTaggedJets.at(0).getP4(), 91.2, zll.at(0).getP4(), 150.);
+      if (goodHTaggedJets.size() > 0)
+        boostReco_bH = doBoostedReco(goodAK4Jets, goodHTaggedJets.at(0).getP4(), 125., zll.at(0).getP4(), 150.);
 //
 //      if (goodHTaggedJets.size() > 0){
 //        h1_["H_reco"] -> Fill(boostReco_bH.second, evtwt);
@@ -1257,98 +1259,57 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
 //        fillPdfHistos("boost_reco", boostReco_bH.second, evtwt, lhe_id_wts);
 //      }
 
-//      if (goodAK4Jets.size() > 3) {
-//         
-//        if (goodWTaggedJets.size() == 0) {
-//          resReco_bZ = doResolvedReco(goodAK4Jets, 91.2, zll.at(0).getP4());
-//          if (goodBTaggedAK4Jets.size() == 1) {
-//            h1_["resReco_bZ_1b"] -> Fill(resReco_bZ.second, evtwt);
-//            h1_["st_bZ_1b"]      -> Fill(ST               , evtwt);
-//            fillPdfHistos("resReco_bZ_1b", resReco_bZ.second, evtwt, lhe_id_wts);
-//            fillPdfHistos("st_bZ_1b"     , ST               , evtwt, lhe_id_wts);
-//          }
-//          else {
-//            h1_["resReco_bZ_2b"] -> Fill(resReco_bZ.second, evtwt);
-//            h1_["st_bZ_2b"]      -> Fill(ST               , evtwt);
-//            fillPdfHistos("resReco_bZ_2b", resReco_bZ.second, evtwt, lhe_id_wts);
-//            fillPdfHistos("st_bZ_2b"     , ST               , evtwt, lhe_id_wts);
-//          }
-//        }    // close nZjet == 0
-//
-//        h1_["nak4-3j"]         -> Fill(goodAK4Jets.size()              , evtwt);
-//        h1_["nak8-3j"]         -> Fill(goodAK8Jets.size()              , evtwt);
-//        h1_["nhjets-3j"]       -> Fill(goodHTaggedJets.size()          , evtwt);
-//        h1_["nzjets-3j"]       -> Fill(goodWTaggedJets.size()          , evtwt);
-//        h1_["nbjets-3j"]       -> Fill(goodBTaggedAK4Jets.size()       , evtwt);
-//        h1_["pt_bjet-3j"]      -> Fill(goodBTaggedAK4Jets.at(0).getPt(), evtwt);
-//        h1_["pt_ak4_lead-3j"]  -> Fill(goodAK4Jets.at(0).getPt()       , evtwt);
-//        h1_["pt_ak4_2nd-3j"]   -> Fill(goodAK4Jets.at(1).getPt()       , evtwt);
-//        h1_["pt_ak4_3rd-3j"]   -> Fill(goodAK4Jets.at(2).getPt()       , evtwt);
-//        h1_["pt_ak4_4th-3j"]   -> Fill(goodAK4Jets.at(3).getPt()       , evtwt);
-//        h1_["eta_ak4_lead-3j"] -> Fill(goodAK4Jets.at(0).getEta()      , evtwt);
-//        h1_["eta_ak4_2nd-3j"]  -> Fill(goodAK4Jets.at(1).getEta()      , evtwt);
-//        h1_["eta_ak4_3rd-3j"]  -> Fill(goodAK4Jets.at(2).getEta()      , evtwt);
-//        h1_["eta_ak4_4th-3j"]  -> Fill(goodAK4Jets.at(3).getEta()      , evtwt);
-//        h1_["st-3j"]           -> Fill(ST                              , evtwt);
-//        h1_["ht-3j"]           -> Fill(htak4.getHT()                   , evtwt);
-// 
-//        TLorentzVector leadLep, scndLep;
-//
-//        if (zdecayMode_ == "zelel") {
-//          leadLep = goodElectrons.at(0).getP4();
-//          scndLep = goodElectrons.at(1).getP4();
-//        }
-//        else {
-//          leadLep = goodMuons.at(0).getP4();
-//          scndLep = goodMuons.at(1).getP4();
-//        }
-//        h1_["pt_"+lep+lep+"-3j"] -> Fill(zll.at(0).getPt() ,evtwt);
-//        h1_["pt_"+lep+"_lead-3j"]  -> Fill(leadLep.Pt()           , evtwt);
-//        h1_["pt_"+lep+"_2nd-3j"]   -> Fill(scndLep.Pt()           , evtwt);
-//        h1_["eta_"+lep+"_lead-3j"] -> Fill(leadLep.Eta()          , evtwt);
-//        h1_["eta_"+lep+"_2nd-3j"]  -> Fill(scndLep.Eta()          , evtwt);
-//        h1_["m_"+lep+lep+"-3j"]    -> Fill(zll.at(0).getMass()    , evtwt);
-//        h1_["dr_"+lep+lep+"-3j"]   -> Fill(leadLep.DeltaR(scndLep), evtwt);
-//        h1_["met-3j"]              -> Fill(goodMet.at(0).getPt()  , evtwt);
-//        h1_["npv-3j"]                 -> Fill(npv                    , evtwt);
-// 
-// 
-//        if (goodHTaggedJets.size() == 0) {
-//          resReco_bH = doResolvedReco(goodAK4Jets, 125., zll.at(0).getP4());
-//          if (goodBTaggedAK4Jets.size() == 1) {
-//            h1_["resReco_bH_1b"] -> Fill(resReco_bH.second, evtwt);
-//            h1_["st_bH_1b"]      -> Fill(ST               , evtwt);
-//            fillPdfHistos("resReco_bH_1b", resReco_bH.second, evtwt, lhe_id_wts);
-//            fillPdfHistos("st_bH_1b"     , ST               , evtwt, lhe_id_wts);
-//          }
-//          else {
-//            h1_["resReco_bH_2b"] -> Fill(resReco_bH.second, evtwt);
-//            h1_["st_bH_2b"]      -> Fill(ST               , evtwt);
-//            fillPdfHistos("resReco_bH_2b", resReco_bH.second, evtwt, lhe_id_wts);
-//            fillPdfHistos("st_bH_2b"     , ST               , evtwt, lhe_id_wts);
-//          }
-//        }    // close nHjet == 0
-//
+      if (goodWTaggedJets.size() > 0) {
+        h1_["boostReco_bZ"] -> Fill(boostReco_bZ.second, evtwt);
+        fillPdfHistos("boostReco_bZ", boostReco_bZ.second, evtwt, lhe_id_wts);
+      }
+      if (goodHTaggedJets.size() > 0) {
+        h1_["boostReco_bH"] -> Fill(boostReco_bH.second, evtwt);
+        fillPdfHistos("boostReco_bH", boostReco_bH.second, evtwt, lhe_id_wts);
+      }
+
+      if (goodAK4Jets.size() > 3) {
+         
+        if (goodWTaggedJets.size() == 0) {
+          resReco_bZ = doResolvedReco(goodAK4Jets, 91.2, zll.at(0).getP4());
+          if (goodBTaggedAK4Jets.size() == 1) {
+            h1_["resReco_bZ_1b"] -> Fill(resReco_bZ.second, evtwt);
+            fillPdfHistos("resReco_bZ_1b", resReco_bZ.second, evtwt, lhe_id_wts);
+          }
+          else {
+            h1_["resReco_bZ_2b"] -> Fill(resReco_bZ.second, evtwt);
+            fillPdfHistos("resReco_bZ_2b", resReco_bZ.second, evtwt, lhe_id_wts);
+          }
+        }    // close nZjet == 0
+ 
+        if (goodHTaggedJets.size() == 0) {
+          resReco_bH = doResolvedReco(goodAK4Jets, 125., zll.at(0).getP4());
+          if (goodBTaggedAK4Jets.size() == 1) {
+            h1_["resReco_bH_1b"] -> Fill(resReco_bH.second, evtwt);
+            fillPdfHistos("resReco_bH_1b", resReco_bH.second, evtwt, lhe_id_wts);
+          }
+          else {
+            h1_["resReco_bH_2b"] -> Fill(resReco_bH.second, evtwt);
+            fillPdfHistos("resReco_bH_2b", resReco_bH.second, evtwt, lhe_id_wts);
+          }
+        }    // close nHjet == 0
+
 //        if (goodTopTaggedJets.size() == 0) {
 //          resReco_tW = doResolvedReco(goodAK4Jets, 180., zll.at(0).getP4());
 //          if (goodBTaggedAK4Jets.size() == 1) {
 //            h1_["resReco_tW_1b"] -> Fill(resReco_tW.second, evtwt);
-//            h1_["st_tW_1b"]      -> Fill(ST               , evtwt);
 //            fillPdfHistos("resReco_tW_1b", resReco_tW.second, evtwt, lhe_id_wts);
-//            fillPdfHistos("st_tW_1b"     , ST               , evtwt, lhe_id_wts);
 //          }
 //          else {
 //            h1_["resReco_tW_2b"] -> Fill(resReco_tW.second, evtwt);
-//            h1_["st_tW_2b"]      -> Fill(ST               , evtwt);
 //            fillPdfHistos("resReco_tW_2b", resReco_tW.second, evtwt, lhe_id_wts);
-//            fillPdfHistos("st_tW_2b"     , ST               , evtwt, lhe_id_wts);
 //          }
 //        }    // close nTopjet == 0
-//      }    // close nak4 > 3
-//      else if (goodAK4Jets.size() == 3 && goodWTaggedJets.size() == 0 && goodHTaggedJets.size() == 0 && goodTopTaggedJets.size() == 0) {
-//        h1_["st_residual"] -> Fill(ST, evtwt);
-//        fillPdfHistos("st_residual", ST, evtwt, lhe_id_wts);
-//      }
+      }    // close nak4 > 3
+      else if (goodAK4Jets.size() == 3 && goodWTaggedJets.size() == 0 && goodHTaggedJets.size() == 0 && goodTopTaggedJets.size() == 0) {
+        h1_["st_residual"] -> Fill(ST, evtwt);
+        fillPdfHistos("st_residual", ST, evtwt, lhe_id_wts);
+      }
 
       // begin categorization
       vlq::JetCollection ak4matchedak8, ak4nonmatched1, ak4nonmatched2, ak4nonmatched3;
@@ -1833,11 +1794,11 @@ void OS2LAna::beginJob() {
 //        string b1_reco_name   = Form("b1_reco_scale%d", i+1);
 //        string boost_reco_name = Form("boost_reco_scale%d", i+1);
 
-//        string boostReco_bZ_name  = Form("boostReco_bZ_scale%d", i+1);
-//        string boostReco_bH_name  = Form("boostReco_bH_scale%d", i+1);
-//        string boostReco_name     = Form("boostReco_scale%d", i+1);
-//        string resReco_1b_name    = Form("resReco_1b_scale%d", i+1);
-//        string resReco_2b_name    = Form("resReco_2b_scale%d", i+1);
+        string boostReco_bZ_name  = Form("boostReco_bZ_scale%d", i+1);
+        string boostReco_bH_name  = Form("boostReco_bH_scale%d", i+1);
+        string boostReco_name     = Form("boostReco_scale%d", i+1);
+        string resReco_1b_name    = Form("resReco_1b_scale%d", i+1);
+        string resReco_2b_name    = Form("resReco_2b_scale%d", i+1);
 
         h1_[ST_sigT1Z1H1b1_name.c_str()] =cat.make<TH1D>(ST_sigT1Z1H1b1_name.c_str(), ";S_{T} [Gev];;" , 50, 1000.,2500.);
         h1_[ST_sigT1Z1H1b2_name.c_str()] =cat.make<TH1D>(ST_sigT1Z1H1b2_name.c_str(), ";S_{T} [Gev];;" , 50, 1000.,2500.);
@@ -1882,12 +1843,11 @@ void OS2LAna::beginJob() {
 //        h1_[b2_reco_name.c_str()]   = fs->make<TH1D>(b2_reco_name.c_str(), "ST", 100, 0., 4000.);
 //        h1_[b1_reco_name.c_str()]   = fs->make<TH1D>(b1_reco_name.c_str(), "ST", 100, 0., 4000.);
 
-//        h1_[boostReco_bZ_name.c_str()]  = fs->make<TH1D>(boostReco_bZ_name.c_str(), "reco", 1000, 0., 3000.);
-//        h1_[boostReco_bH_name.c_str()]  = fs->make<TH1D>(boostReco_bH_name.c_str(), "reco", 1000, 0., 3000.);
-//        h1_[boostReco_tW_name.c_str()]  = fs->make<TH1D>(boostReco_tW_name.c_str(), "reco", 1000, 0., 3000.);
-//        h1_[boostReco_name.c_str()]     = fs->make<TH1D>(boostReco_name.c_str(), "reco", 1000, 0., 3000.);
-//        h1_[resReco_1b_name.c_str()]    = fs->make<TH1D>(resReco_1b_name.c_str(), "reco", 1000, 0., 3000.);
-//        h1_[resReco_2b_name.c_str()]    = fs->make<TH1D>(resReco_2b_name.c_str(), "reco", 1000, 0., 3000.);
+        h1_[boostReco_bZ_name.c_str()]  = fs->make<TH1D>(boostReco_bZ_name.c_str(), "reco", 1000, 0., 3000.);
+        h1_[boostReco_bH_name.c_str()]  = fs->make<TH1D>(boostReco_bH_name.c_str(), "reco", 1000, 0., 3000.);
+        h1_[boostReco_name.c_str()]     = fs->make<TH1D>(boostReco_name.c_str(), "reco", 1000, 0., 3000.);
+        h1_[resReco_1b_name.c_str()]    = fs->make<TH1D>(resReco_1b_name.c_str(), "reco", 1000, 0., 3000.);
+        h1_[resReco_2b_name.c_str()]    = fs->make<TH1D>(resReco_2b_name.c_str(), "reco", 1000, 0., 3000.);
       }
 
       for (unsigned i = 0; i < 101; i++) {
@@ -1933,18 +1893,18 @@ void OS2LAna::beginJob() {
 //        string b1_reco_name   = Form("b1_reco_pdf%d", i+1);
 //        string boost_reco_name = Form("boost_reco_pdf%d", i+1);
 
-//        string resReco_bZ_1b_name = Form("resReco_bZ_1b_pdf%d", i+1);
-//        string resReco_bH_1b_name = Form("resReco_bH_1b_pdf%d", i+1);
-//        string resReco_tW_1b_name = Form("resReco_tW_1b_pdf%d", i+1);
-//        string resReco_bZ_2b_name = Form("resReco_bZ_2b_pdf%d", i+1);
-//        string resReco_bH_2b_name = Form("resReco_bH_2b_pdf%d", i+1);
-//        string resReco_tW_2b_name = Form("resReco_tW_2b_pdf%d", i+1);
-//        string boostReco_bZ_name  = Form("boostReco_bZ_pdf%d", i+1);
-//        string boostReco_bH_name  = Form("boostReco_bH_pdf%d", i+1);
-//        string boostReco_tW_name  = Form("boostReco_tW_pdf%d", i+1);
-//        string resReco_1b_name    = Form("resReco_1b_pdf%d", i+1);
-//        string resReco_2b_name    = Form("resReco_2b_pdf%d", i+1);
-//        string boostReco_name     = Form("boostReco_pdf%d", i+1);
+        string resReco_bZ_1b_name = Form("resReco_bZ_1b_pdf%d", i+1);
+        string resReco_bH_1b_name = Form("resReco_bH_1b_pdf%d", i+1);
+        string resReco_tW_1b_name = Form("resReco_tW_1b_pdf%d", i+1);
+        string resReco_bZ_2b_name = Form("resReco_bZ_2b_pdf%d", i+1);
+        string resReco_bH_2b_name = Form("resReco_bH_2b_pdf%d", i+1);
+        string resReco_tW_2b_name = Form("resReco_tW_2b_pdf%d", i+1);
+        string boostReco_bZ_name  = Form("boostReco_bZ_pdf%d", i+1);
+        string boostReco_bH_name  = Form("boostReco_bH_pdf%d", i+1);
+        string boostReco_tW_name  = Form("boostReco_tW_pdf%d", i+1);
+        string resReco_1b_name    = Form("resReco_1b_pdf%d", i+1);
+        string resReco_2b_name    = Form("resReco_2b_pdf%d", i+1);
+        string boostReco_name     = Form("boostReco_pdf%d", i+1);
 
         h1_[preName_pdf.c_str()]        = fs->make<TH1D>(preName_pdf.c_str(), "prePDF", 100, 0., 4000.);
         h1_[STName_pdf.c_str()]         = fs->make<TH1D>(STName_pdf.c_str(), "pdfST", 100, 0., 4000.);
@@ -1990,18 +1950,18 @@ void OS2LAna::beginJob() {
 //        h1_[boost_reco_name.c_str()]   = fs->make<TH1D>(boost_reco_name.c_str(), "ST", 100, 0., 4000.);
 //        h1_[H_reco_name.c_str()]   = fs->make<TH1D>(H_reco_name.c_str(), "ST", 100, 0., 4000.);
 
-//        h1_[resReco_bZ_1b_name.c_str()] = fs->make<TH1D>(resReco_bZ_1b_name.c_str(), "reco", 1000, 0., 3000.);
-//        h1_[resReco_bH_1b_name.c_str()] = fs->make<TH1D>(resReco_bH_1b_name.c_str(), "reco", 1000, 0., 3000.);
-//        h1_[resReco_bZ_2b_name.c_str()] = fs->make<TH1D>(resReco_bZ_2b_name.c_str(), "reco", 1000, 0., 3000.);
-//        h1_[resReco_bH_2b_name.c_str()] = fs->make<TH1D>(resReco_bH_2b_name.c_str(), "reco", 1000, 0., 3000.);
-//        h1_[resReco_tW_1b_name.c_str()] = fs->make<TH1D>(resReco_tW_1b_name.c_str(), "reco", 1000, 0., 3000.);
-//        h1_[resReco_tW_2b_name.c_str()] = fs->make<TH1D>(resReco_tW_2b_name.c_str(), "reco", 1000, 0., 3000.);
-//        h1_[boostReco_bZ_name.c_str()]  = fs->make<TH1D>(boostReco_bZ_name.c_str(), "reco", 1000, 0., 3000.);
-//        h1_[boostReco_bH_name.c_str()]  = fs->make<TH1D>(boostReco_bH_name.c_str(), "reco", 1000, 0., 3000.);
-//        h1_[boostReco_tW_name.c_str()]  = fs->make<TH1D>(boostReco_tW_name.c_str(), "reco", 1000, 0., 3000.);
-//        h1_[resReco_1b_name.c_str()]    = fs->make<TH1D>(resReco_1b_name.c_str(), "reco", 1000, 0., 3000.);
-//        h1_[resReco_2b_name.c_str()]    = fs->make<TH1D>(resReco_2b_name.c_str(), "reco", 1000, 0., 3000.);
-//        h1_[boostReco_name.c_str()]     = fs->make<TH1D>(boostReco_name.c_str(), "reco", 1000, 0., 3000.);
+        h1_[resReco_bZ_1b_name.c_str()] = fs->make<TH1D>(resReco_bZ_1b_name.c_str(), "reco", 1000, 0., 3000.);
+        h1_[resReco_bH_1b_name.c_str()] = fs->make<TH1D>(resReco_bH_1b_name.c_str(), "reco", 1000, 0., 3000.);
+        h1_[resReco_bZ_2b_name.c_str()] = fs->make<TH1D>(resReco_bZ_2b_name.c_str(), "reco", 1000, 0., 3000.);
+        h1_[resReco_bH_2b_name.c_str()] = fs->make<TH1D>(resReco_bH_2b_name.c_str(), "reco", 1000, 0., 3000.);
+        h1_[resReco_tW_1b_name.c_str()] = fs->make<TH1D>(resReco_tW_1b_name.c_str(), "reco", 1000, 0., 3000.);
+        h1_[resReco_tW_2b_name.c_str()] = fs->make<TH1D>(resReco_tW_2b_name.c_str(), "reco", 1000, 0., 3000.);
+        h1_[boostReco_bZ_name.c_str()]  = fs->make<TH1D>(boostReco_bZ_name.c_str(), "reco", 1000, 0., 3000.);
+        h1_[boostReco_bH_name.c_str()]  = fs->make<TH1D>(boostReco_bH_name.c_str(), "reco", 1000, 0., 3000.);
+        h1_[boostReco_tW_name.c_str()]  = fs->make<TH1D>(boostReco_tW_name.c_str(), "reco", 1000, 0., 3000.);
+        h1_[resReco_1b_name.c_str()]    = fs->make<TH1D>(resReco_1b_name.c_str(), "reco", 1000, 0., 3000.);
+        h1_[resReco_2b_name.c_str()]    = fs->make<TH1D>(resReco_2b_name.c_str(), "reco", 1000, 0., 3000.);
+        h1_[boostReco_name.c_str()]     = fs->make<TH1D>(boostReco_name.c_str(), "reco", 1000, 0., 3000.);
       }
     }
 
@@ -2176,24 +2136,24 @@ void OS2LAna::beginJob() {
     h1_["2b_category"] = sig.make<TH1D>("2b_category", "2b_category", 100, 0., 4000.);
     h1_["1b_category"] = sig.make<TH1D>("1b_category", "1b_category", 100, 0., 4000.);
 
-//    h1_["boost_reco"] = sig.make<TH1D>("boost_reco", "boost_reco", 100, 0., 4000.);
-//    h1_["H_reco"] = sig.make<TH1D>("H_reco", "H_reco", 100, 0., 4000.);
-//    h1_["Z_reco"] = sig.make<TH1D>("Z_reco", "WZ_reco", 100, 0., 4000.);
-//    h1_["b2_reco"] = sig.make<TH1D>("b2_reco", "b2_reco", 100, 0., 4000.);
-//    h1_["b1_reco"] = sig.make<TH1D>("b1_reco", "b1_reco", 100, 0., 4000.);
+    h1_["boost_reco"] = sig.make<TH1D>("boost_reco", "boost_reco", 100, 0., 4000.);
+    h1_["H_reco"] = sig.make<TH1D>("H_reco", "H_reco", 100, 0., 4000.);
+    h1_["Z_reco"] = sig.make<TH1D>("Z_reco", "WZ_reco", 100, 0., 4000.);
+    h1_["b2_reco"] = sig.make<TH1D>("b2_reco", "b2_reco", 100, 0., 4000.);
+    h1_["b1_reco"] = sig.make<TH1D>("b1_reco", "b1_reco", 100, 0., 4000.);
 
-//    h1_["boostReco_bZ"] = sig.make<TH1D>("boostReco_bZ", "Boosted Reconstruction B->bZ;M_{#chi^{2}}(B);;", 1000, 0., 3000);
-//    h1_["boostReco_bH"] = sig.make<TH1D>("boostReco_bH", "Boosted Reconstruction B->bH;M_{#chi^{2}}(B);;", 1000, 0., 3000);
-//    h1_["boostReco_tW"] = sig.make<TH1D>("boostReco_tW", "Boosted Reconstruction B->tW;M_{#chi^{2}}(B);;", 1000, 0., 3000);
-//    h1_["resReco_bZ_1b"] = sig.make<TH1D>("resReco_bZ_1b", "Resolved Reconstruction B->bZ;M_{#chi^{2}}(B);;", 1000, 0., 3000);
-//    h1_["resReco_bH_1b"] = sig.make<TH1D>("resReco_bH_1b", "Resolved Reconstruction B->bH;M_{#chi^{2}}(B);;", 1000, 0., 3000);
-//    h1_["resReco_bZ_2b"] = sig.make<TH1D>("resReco_bZ_2b", "Resolved Reconstruction B->bZ;M_{#chi^{2}}(B);;", 1000, 0., 3000);
-//    h1_["resReco_bH_2b"] = sig.make<TH1D>("resReco_bH_2b", "Resolved Reconstruction B->bH;M_{#chi^{2}}(B);;", 1000, 0., 3000);
-//    h1_["resReco_tW_1b"] = sig.make<TH1D>("resReco_tW_1b", "Resolved Reconstruction B->tW;M_{#chi^{2}}(B);;", 1000, 0., 3000);
-//    h1_["resReco_tW_2b"] = sig.make<TH1D>("resReco_tW_2b", "Resolved Reconstruction B->tW;M_{#chi^{2}}(B);;", 1000, 0., 3000);
-//    h1_["boostReco"] = sig.make<TH1D>("boostReco", "Boosted Reconstruction B->bZ;M_{#chi^{2}}(B);;", 1000, 0., 3000);
-//    h1_["resReco_1b"] = sig.make<TH1D>("resReco_1b", "Resolved Reconstruction B->bH;M_{#chi^{2}}(B);;", 1000, 0., 3000);
-//    h1_["resReco_2b"] = sig.make<TH1D>("resReco_2b", "Resolved Reconstruction;M_{#chi^{2}}(B);;", 1000, 0., 3000);
+    h1_["boostReco_bZ"] = sig.make<TH1D>("boostReco_bZ", "Boosted Reconstruction B->bZ;M_{#chi^{2}}(B);;", 1000, 0., 3000);
+    h1_["boostReco_bH"] = sig.make<TH1D>("boostReco_bH", "Boosted Reconstruction B->bH;M_{#chi^{2}}(B);;", 1000, 0., 3000);
+    h1_["boostReco_tW"] = sig.make<TH1D>("boostReco_tW", "Boosted Reconstruction B->tW;M_{#chi^{2}}(B);;", 1000, 0., 3000);
+    h1_["resReco_bZ_1b"] = sig.make<TH1D>("resReco_bZ_1b", "Resolved Reconstruction B->bZ;M_{#chi^{2}}(B);;", 1000, 0., 3000);
+    h1_["resReco_bH_1b"] = sig.make<TH1D>("resReco_bH_1b", "Resolved Reconstruction B->bH;M_{#chi^{2}}(B);;", 1000, 0., 3000);
+    h1_["resReco_bZ_2b"] = sig.make<TH1D>("resReco_bZ_2b", "Resolved Reconstruction B->bZ;M_{#chi^{2}}(B);;", 1000, 0., 3000);
+    h1_["resReco_bH_2b"] = sig.make<TH1D>("resReco_bH_2b", "Resolved Reconstruction B->bH;M_{#chi^{2}}(B);;", 1000, 0., 3000);
+    h1_["resReco_tW_1b"] = sig.make<TH1D>("resReco_tW_1b", "Resolved Reconstruction B->tW;M_{#chi^{2}}(B);;", 1000, 0., 3000);
+    h1_["resReco_tW_2b"] = sig.make<TH1D>("resReco_tW_2b", "Resolved Reconstruction B->tW;M_{#chi^{2}}(B);;", 1000, 0., 3000);
+    h1_["boostReco"] = sig.make<TH1D>("boostReco", "Boosted Reconstruction B->bZ;M_{#chi^{2}}(B);;", 1000, 0., 3000);
+    h1_["resReco_1b"] = sig.make<TH1D>("resReco_1b", "Resolved Reconstruction B->bH;M_{#chi^{2}}(B);;", 1000, 0., 3000);
+    h1_["resReco_2b"] = sig.make<TH1D>("resReco_2b", "Resolved Reconstruction;M_{#chi^{2}}(B);;", 1000, 0., 3000);
 //
 //    h1_["nak4-3j"]             = sig.make<TH1D>("nak4-3j"       , "nak4-3j"       , 21, -0.5, 20.5);
 //    h1_["nak8-3j"]             = sig.make<TH1D>("nak8-3j"       , "nak8-3j"       , 11, -0.5, 10.5);
@@ -2513,6 +2473,7 @@ return(chi2_fill);
 
 void OS2LAna::fillPdfHistos(string name, double value, double evtwt, vector<pair<int,double>> &lhe_id_wts) {
 
+  if (false) {
   if (!syst_ && !isData_ && !vv_) {
 
     for (unsigned i = 0; i < 101; i++) 
@@ -2520,6 +2481,7 @@ void OS2LAna::fillPdfHistos(string name, double value, double evtwt, vector<pair
     for (unsigned i = 0; i < 9; i++)
       h1_[Form((name+"_scale%d").c_str(), i+1)] -> Fill(value, evtwt*lhe_id_wts.at(i+scale_offset_).second);
 
+  }
   }
 }
 

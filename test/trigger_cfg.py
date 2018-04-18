@@ -22,6 +22,11 @@ options.register('htTrig', False,
     VarParsing.varType.bool,
     "use high HT trigger"
     )
+options.register('muTrig', False,
+    VarParsing.multiplicity.singleton,
+    VarParsing.varType.bool,
+    "use Mu trigger"
+    )
 options.register('isPhoton', False,
     VarParsing.multiplicity.singleton,
     VarParsing.varType.bool,
@@ -79,9 +84,16 @@ process.evtcleaner.isData = options.isData
 ##################################
 ## setup tag and probe triggers ##
 ##################################
+if options.htTrig and options.muTrig:
+  sys.exit("NOPE. Can only choose one schema at a time")
 
 if options.htTrig:
   tag_hltpath = ['HLT_PFHT900_v']
+elif options.muTrig:
+  tag_hltpath = [
+      'HLT_IsoMu24_v*',
+      'HLT_IsoTkMu24_v*'
+      ]
 else:
   tag_hltpath = ['HLT_Ele32_eta2p1_WPTight_Gsf_v']
 
@@ -109,7 +121,14 @@ process.trigAna = trigAna.clone(
     isData = cms.bool(options.isData),
     isPhoton = cms.bool(options.isPhoton),
     htTrig = cms.bool(options.htTrig),
+    muTrig = cms.bool(options.muTrig),
     )
+
+if options.muTrig:
+  process.trigAna.elselParams.elPtMin = cms.double(120.)
+  process.trigAna.muselParams.muPtMin = cms.double(30.)
+else:
+  process.trigAna.elselParams.elPtMin = cms.double(35.)
 
 ###################
 ## event counter ##

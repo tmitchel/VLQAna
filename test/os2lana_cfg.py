@@ -48,12 +48,12 @@ options.register('doPUReweightingOfficial', True,
     VarParsing.varType.bool,
     "Do pileup reweighting using official recipe"
     )
-options.register('filterSignal', False,
+options.register('filterSignal', True,
     VarParsing.multiplicity.singleton,
     VarParsing.varType.bool,
     "Select only tZXX or bZXX modes"
     )
-options.register('signalType', '',
+options.register('signalType', 'EvtType_MC_tZtZ',
     VarParsing.multiplicity.singleton,
     VarParsing.varType.string,
     "Select one of EvtType_MC_tZtZ, EvtType_MC_tZtH, EvtType_MC_tZbW, EvtType_MC_tHtH, EvtType_MC_tHbW, EvtType_MC_bWbW, EvtType_MC_bZbZ, EvtType_MC_bZbH, EvtType_MC_bZtW, EvtType_MC_bHbH, EvtType_MC_bHtW, EvtType_MC_tWtW" 
@@ -83,7 +83,7 @@ options.register('applyDYNLOCorr', False, ### Set to true only for DY process ##
     VarParsing.varType.bool,
     "Apply DY EWK k-factor to DY MC"
     )
-options.register('FileNames', 'FileNames_SingleMuon_v2p4',#'FileNames_BpBp1000',#FileNames_DY',
+options.register('FileNames', 'FileNames_TpTp1200',#'FileNames_SingleMuon_v2p4',#'FileNames_BpBp1000',#FileNames_DY',
     VarParsing.multiplicity.singleton,
     VarParsing.varType.string,
     "Name of list of input files"
@@ -107,8 +107,8 @@ options.register('storeLHEWts', True,
 options.setDefault('maxEvents', -1)
 options.parseArguments()
 
-#dataPath = '../data/'
-dataPath = ''
+dataPath = '../data/'
+#dataPath = ''
 
 hltpaths = []
 if options.isData:
@@ -166,7 +166,7 @@ from inputFiles_cfi import *
 process.source = cms.Source(
   "PoolSource",
   fileNames = cms.untracked.vstring(
-    #FileNames[options.FileNames]
+    FileNames[options.FileNames]
     ) 
   )
 
@@ -262,7 +262,7 @@ process.ana.muselParams.muIsoMax = cms.double(0.15)
 process.ana.lepIdSFsParams.lepidtype = cms.string(options.lepID)
 process.ana.lepIdSFsParams.zdecayMode = cms.string(options.zdecaymode)
 process.ana.lepTrigSFsParams.zdecayMode = cms.string(options.zdecaymode)
-if options.zdecaymode == "zelel": process.ana.lepTrigSFsParams.eltrigeffmap = cms.string(os.path.join(dataPath,"ElectronTriggerSF.root")) 
+if options.zdecaymode == "zelel": process.ana.lepTrigSFsParams.eltrigeffmap = cms.string(os.path.join(dataPath,"ElectronTriggerSF_v2.root")) 
 if options.zdecaymode == "zelel": 
   process.ana.DilepCandParams.ptMaxLeadingLep = cms.double(120)
   process.ana.ZCandParams.ptMaxLeadingLep = cms.double(120)
@@ -381,6 +381,35 @@ else:
         syst = cms.bool(True),
         )
 
+    process.anaHiggsUp = process.ana.clone(
+        higgsShift = cms.int32(1),
+        syst = cms.bool(True),
+        )
+
+    process.anaHiggsDown = process.ana.clone(
+        higgsShift = cms.int32(-1),
+        syst = cms.bool(True),
+        )
+
+    process.anaTopUp = process.ana.clone(
+        topShift = cms.int32(1),
+        syst = cms.bool(True),
+        )
+
+    process.anaTopDown = process.ana.clone(
+        topShift = cms.int32(-1),
+        syst = cms.bool(True),
+        )
+    process.anaWZUp = process.ana.clone(
+        WZShift = cms.int32(1),
+        syst = cms.bool(True),
+        )
+
+    process.anaWZDown = process.ana.clone(
+        WZShift = cms.int32(-1),
+        syst = cms.bool(True),
+        )
+
 ## Event counters
 from Analysis.EventCounter.eventcounter_cfi import eventCounter
 process.allEvents = eventCounter.clone(isData=options.isData)
@@ -413,6 +442,12 @@ if options.syst and not options.skim:
     *cms.ignore(process.anaJmrUp)
     *cms.ignore(process.anaJmrDown)
     *cms.ignore(process.anaDYSF)
+    *cms.ignore(process.anaHiggsUp)
+    *cms.ignore(process.anaHiggsDown)
+    *cms.ignore(process.anaTopUp)
+    *cms.ignore(process.anaTopDown)
+    *cms.ignore(process.anaHiggsUp)
+    *cms.ignore(process.anaHiggsDown)
     )
 elif options.massReco:
   process.load('Analysis.VLQAna.MassReco_cfi')
