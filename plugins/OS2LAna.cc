@@ -324,6 +324,7 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   const int lumisec(*h_lumisec.product()) ;
   const bool isData(evtno > 0 ? true : false) ; 
   vector<pair<int, double> > lhe_id_wts;
+
   
   if (!isData_){
     for (unsigned i=0; i<(*h_lhewtids.product()).size(); i++){
@@ -332,6 +333,7 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
       lhe_id_wts.push_back(make_pair(id, wt));
     }
   }
+
 
   int signalType(-1);
   if ( !isData && filterSignal_ ) {
@@ -342,6 +344,7 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
       else if (*h_evttype.product() == "EvtType_MC_bHbH") signalType = 4; 
       else if (*h_evttype.product() == "EvtType_MC_bHtW") signalType = 5; 
       else if (*h_evttype.product() == "EvtType_MC_tWtW") signalType = 6; 
+      else if (*h_evttype.product() == "EvtType_MC_tZtZ") signalType = 7; 
       else if (*h_evttype.product() == "EvtType_MC_tZtZ") signalType = 7; 
       else if (*h_evttype.product() == "EvtType_MC_tZtH") signalType = 8; 
       else if (*h_evttype.product() == "EvtType_MC_tZbW") signalType = 9; 
@@ -360,7 +363,6 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   if (PileupUp_)         evtwt = (*h_evtwtGen.product()) * (*h_evtwtPVHigh.product()) ; 
   else if (PileupDown_)  evtwt = (*h_evtwtGen.product()) * (*h_evtwtPVLow.product()) ;
   else                   evtwt = (*h_evtwtGen.product()) * (*h_evtwtPV.product()) ;
-
   h1_["cutflow"] -> Fill(1, evtwt) ;
 
   if (!isData_ && !syst_ && !vv_) {
@@ -416,6 +418,7 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
   if ( applyDYNLOCorr_ ) {
     double EWKNLOkfact( dynloewkkfact(dileptons.at(0).getPt()) ) ; ////GetDYNLOCorr(dileptons.at(0).getPt())) ; 
     evtwt *= EWKNLOkfact ;
+    
     if (DYSFSyst_) {
       if ( zdecayMode_ == "zmumu"){
         if (goodAK4Jets.size() == 3) { evtwt *= 0.94;}
@@ -436,7 +439,6 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
 
   //// Get lepton ID and Iso SF
   if  ( !isData_ ) {
-
     if (applyLeptonIDSFs_) {
       if ( zdecayMode_ == "zmumu" ) {
         evtwt *= lepIdSFs.IDSF(goodMuons.at(0).getPt(),goodMuons.at(0).getEta()) ;
@@ -449,7 +451,7 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
         evtwt *= lepIdSFs.IDSF(goodElectrons.at(1).getPt(), goodElectrons.at(1).getEta()) ;
       }
     }
-
+    
     if (applyLeptonTrigSFs_) {
       if ( zdecayMode_ == "zmumu" ) evtwt *= lepTrigSFs(goodMuons.at(0).getPt(),goodMuons.at(0).getEta()) ; 
       else if ( zdecayMode_ == "zelel" ) {
@@ -657,7 +659,7 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
         evtwt *= ( mistag_higgs + (higgsShift_ * mis_higgs_err) );
     }
   }
-      
+
 
   double sjbtagsf(1) ;
   double sjbtagsf_bcUp(1) ; 
@@ -833,10 +835,41 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
 
     //// Z pt
     for (auto izll : zll) h1_["pt_z"+lep+lep+"_pre"] -> Fill(izll.getPt(), presel_wt) ;
-
     //========================================================
     // Preselection done, proceeding with control selections
     //========================================================
+    
+    // CR3 
+    if (goodBTaggedAK4Jets.size() == 0 && ST > STMin_) {
+      // CR3 control for BB
+      if (goodWTaggedJets.size() > 0)
+        h1_["st_bZ_boost_0b"] -> Fill(ST, evtwt);
+      else {
+        if (goodBTaggedAK4Jets.size() == 1)
+          h1_["st_bZ_1b_0b"] -> Fill(ST, evtwt);
+        else 
+          h1_["st_bZ_2b_0b"] -> Fill(ST, evtwt);
+      }
+        
+      if (goodHTaggedJets.size() > 0) 
+        h1_["st_bH_boost_0b"] -> Fill(ST, evtwt);
+      else {
+        if (goodBTaggedAK4Jets.size() == 1) 
+          h1_["st_bH_1b_0b"] -> Fill(ST, evtwt);
+        else 
+          h1_["st_bH_2b_0b"] -> Fill(ST, evtwt);
+      }
+
+      if (goodTopTaggedJets.size() > 0) 
+        h1_["st_tW_boost_0b"] -> Fill(ST, evtwt);
+      else {
+        if (goodBTaggedAK4Jets.size() == 1) 
+          h1_["st_tW_1b_0b"] -> Fill(ST, evtwt);
+        else 
+          h1_["st_tW_2b_0b"] -> Fill(ST, evtwt);
+      }
+    }
+
     //fill control plots
     if ( goodBTaggedAK4Jets.size() > 0 && ST < STMaxControl_  ) {
       for (auto izll : zll) {
@@ -885,6 +918,34 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
       for (auto& ak8 : goodAK8Jets) {
         h1_["ptak8_cnt"] -> Fill(ak8.getPt(), evtwt);
         h1_["prunedMak8_cnt"] -> Fill(ak8.getPrunedMass(), evtwt);
+      }
+
+      // CR4 control for BB
+      if (goodWTaggedJets.size() > 0)
+        h1_["st_bZ_boost_cnt"] -> Fill(ST, evtwt);
+      else {
+        if (goodBTaggedAK4Jets.size() == 1)
+          h1_["st_bZ_1b_cnt"] -> Fill(ST, evtwt);
+        else 
+          h1_["st_bZ_2b_cnt"] -> Fill(ST, evtwt);
+      }
+        
+      if (goodHTaggedJets.size() > 0) 
+        h1_["st_bH_boost_cnt"] -> Fill(ST, evtwt);
+      else {
+        if (goodBTaggedAK4Jets.size() == 1) 
+          h1_["st_bH_1b_cnt"] -> Fill(ST, evtwt);
+        else 
+          h1_["st_bH_2b_cnt"] -> Fill(ST, evtwt);
+      }
+
+      if (goodTopTaggedJets.size() > 0) 
+        h1_["st_tW_boost_cnt"] -> Fill(ST, evtwt);
+      else {
+        if (goodBTaggedAK4Jets.size() == 1) 
+          h1_["st_tW_1b_cnt"] -> Fill(ST, evtwt);
+        else 
+          h1_["st_tW_2b_cnt"] -> Fill(ST, evtwt);
       }
 
       // CR4 + 1 Z-tag
@@ -1118,10 +1179,10 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
       // begin mass reconstruction secion
       fillPdfHistos("st", ST, evtwt, lhe_id_wts);
     
-      // pairs to hold <chi2, mass> 
-      pair<double, double> resReco_bZ(9999, -1), boostReco_bZ(9999, -1);
-      pair<double, double> resReco_bH(9999, -1), boostReco_bH(9999, -1);
-      pair<double, double> resReco_tW, boostReco_tW;
+//      // pairs to hold <chi2, mass> 
+//      pair<double, double> resReco_bZ(9999, -1), boostReco_bZ(9999, -1);
+//      pair<double, double> resReco_bH(9999, -1), boostReco_bH(9999, -1);
+//      pair<double, double> resReco_tW, boostReco_tW;
 
       if (ST > 4000) ST = 3999;    
         
@@ -1216,10 +1277,10 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
 //        resReco_bH = doResolvedReco(goodAK4Jets, 125., zll.at(0).getP4());
 //        resReco_bZ = doResolvedReco(goodAK4Jets, 91.2, zll.at(0).getP4());
 //      }
-      if (goodWTaggedJets.size() > 0)
-        boostReco_bZ = doBoostedReco(goodAK4Jets, goodWTaggedJets.at(0).getP4(), 91.2, zll.at(0).getP4(), 150.);
-      if (goodHTaggedJets.size() > 0)
-        boostReco_bH = doBoostedReco(goodAK4Jets, goodHTaggedJets.at(0).getP4(), 125., zll.at(0).getP4(), 150.);
+//      if (goodWTaggedJets.size() > 0)
+//        boostReco_bZ = doBoostedReco(goodAK4Jets, goodWTaggedJets.at(0).getP4(), 91.2, zll.at(0).getP4(), 150.);
+//      if (goodHTaggedJets.size() > 0)
+//        boostReco_bH = doBoostedReco(goodAK4Jets, goodHTaggedJets.at(0).getP4(), 125., zll.at(0).getP4(), 150.);
 //
 //      if (goodHTaggedJets.size() > 0){
 //        h1_["H_reco"] -> Fill(boostReco_bH.second, evtwt);
@@ -1258,42 +1319,42 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
 //        h1_["boost_reco"] -> Fill(boostReco_bH.second, evtwt);
 //        fillPdfHistos("boost_reco", boostReco_bH.second, evtwt, lhe_id_wts);
 //      }
-
-      if (goodWTaggedJets.size() > 0) {
-        h1_["boostReco_bZ"] -> Fill(boostReco_bZ.second, evtwt);
-        fillPdfHistos("boostReco_bZ", boostReco_bZ.second, evtwt, lhe_id_wts);
-      }
-      if (goodHTaggedJets.size() > 0) {
-        h1_["boostReco_bH"] -> Fill(boostReco_bH.second, evtwt);
-        fillPdfHistos("boostReco_bH", boostReco_bH.second, evtwt, lhe_id_wts);
-      }
-
-      if (goodAK4Jets.size() > 3) {
-         
-        if (goodWTaggedJets.size() == 0) {
-          resReco_bZ = doResolvedReco(goodAK4Jets, 91.2, zll.at(0).getP4());
-          if (goodBTaggedAK4Jets.size() == 1) {
-            h1_["resReco_bZ_1b"] -> Fill(resReco_bZ.second, evtwt);
-            fillPdfHistos("resReco_bZ_1b", resReco_bZ.second, evtwt, lhe_id_wts);
-          }
-          else {
-            h1_["resReco_bZ_2b"] -> Fill(resReco_bZ.second, evtwt);
-            fillPdfHistos("resReco_bZ_2b", resReco_bZ.second, evtwt, lhe_id_wts);
-          }
-        }    // close nZjet == 0
- 
-        if (goodHTaggedJets.size() == 0) {
-          resReco_bH = doResolvedReco(goodAK4Jets, 125., zll.at(0).getP4());
-          if (goodBTaggedAK4Jets.size() == 1) {
-            h1_["resReco_bH_1b"] -> Fill(resReco_bH.second, evtwt);
-            fillPdfHistos("resReco_bH_1b", resReco_bH.second, evtwt, lhe_id_wts);
-          }
-          else {
-            h1_["resReco_bH_2b"] -> Fill(resReco_bH.second, evtwt);
-            fillPdfHistos("resReco_bH_2b", resReco_bH.second, evtwt, lhe_id_wts);
-          }
-        }    // close nHjet == 0
-
+//
+//      if (goodWTaggedJets.size() > 0) {
+//        h1_["boostReco_bZ"] -> Fill(boostReco_bZ.second, evtwt);
+//        fillPdfHistos("boostReco_bZ", boostReco_bZ.second, evtwt, lhe_id_wts);
+//      }
+//      if (goodHTaggedJets.size() > 0) {
+//        h1_["boostReco_bH"] -> Fill(boostReco_bH.second, evtwt);
+//        fillPdfHistos("boostReco_bH", boostReco_bH.second, evtwt, lhe_id_wts);
+//      }
+//
+//      if (goodAK4Jets.size() > 3) {
+//         
+//        if (goodWTaggedJets.size() == 0) {
+//          resReco_bZ = doResolvedReco(goodAK4Jets, 91.2, zll.at(0).getP4());
+//          if (goodBTaggedAK4Jets.size() == 1) {
+//            h1_["resReco_bZ_1b"] -> Fill(resReco_bZ.second, evtwt);
+//            fillPdfHistos("resReco_bZ_1b", resReco_bZ.second, evtwt, lhe_id_wts);
+//          }
+//          else {
+//            h1_["resReco_bZ_2b"] -> Fill(resReco_bZ.second, evtwt);
+//            fillPdfHistos("resReco_bZ_2b", resReco_bZ.second, evtwt, lhe_id_wts);
+//          }
+//        }    // close nZjet == 0
+// 
+//        if (goodHTaggedJets.size() == 0) {
+//          resReco_bH = doResolvedReco(goodAK4Jets, 125., zll.at(0).getP4());
+//          if (goodBTaggedAK4Jets.size() == 1) {
+//            h1_["resReco_bH_1b"] -> Fill(resReco_bH.second, evtwt);
+//            fillPdfHistos("resReco_bH_1b", resReco_bH.second, evtwt, lhe_id_wts);
+//          }
+//          else {
+//            h1_["resReco_bH_2b"] -> Fill(resReco_bH.second, evtwt);
+//            fillPdfHistos("resReco_bH_2b", resReco_bH.second, evtwt, lhe_id_wts);
+//          }
+//        }    // close nHjet == 0
+//
 //        if (goodTopTaggedJets.size() == 0) {
 //          resReco_tW = doResolvedReco(goodAK4Jets, 180., zll.at(0).getP4());
 //          if (goodBTaggedAK4Jets.size() == 1) {
@@ -1305,11 +1366,11 @@ bool OS2LAna::filter(edm::Event& evt, const edm::EventSetup& iSetup) {
 //            fillPdfHistos("resReco_tW_2b", resReco_tW.second, evtwt, lhe_id_wts);
 //          }
 //        }    // close nTopjet == 0
-      }    // close nak4 > 3
-      else if (goodAK4Jets.size() == 3 && goodWTaggedJets.size() == 0 && goodHTaggedJets.size() == 0 && goodTopTaggedJets.size() == 0) {
-        h1_["st_residual"] -> Fill(ST, evtwt);
-        fillPdfHistos("st_residual", ST, evtwt, lhe_id_wts);
-      }
+//      }    // close nak4 > 3
+//      else if (goodAK4Jets.size() == 3 && goodWTaggedJets.size() == 0 && goodHTaggedJets.size() == 0 && goodTopTaggedJets.size() == 0) {
+//        h1_["st_residual"] -> Fill(ST, evtwt);
+//        fillPdfHistos("st_residual", ST, evtwt, lhe_id_wts);
+//      }
 
       // begin categorization
       vlq::JetCollection ak4matchedak8, ak4nonmatched1, ak4nonmatched2, ak4nonmatched3;
@@ -1794,11 +1855,11 @@ void OS2LAna::beginJob() {
 //        string b1_reco_name   = Form("b1_reco_scale%d", i+1);
 //        string boost_reco_name = Form("boost_reco_scale%d", i+1);
 
-        string boostReco_bZ_name  = Form("boostReco_bZ_scale%d", i+1);
-        string boostReco_bH_name  = Form("boostReco_bH_scale%d", i+1);
-        string boostReco_name     = Form("boostReco_scale%d", i+1);
-        string resReco_1b_name    = Form("resReco_1b_scale%d", i+1);
-        string resReco_2b_name    = Form("resReco_2b_scale%d", i+1);
+//        string boostReco_bZ_name  = Form("boostReco_bZ_scale%d", i+1);
+//        string boostReco_bH_name  = Form("boostReco_bH_scale%d", i+1);
+//        string boostReco_name     = Form("boostReco_scale%d", i+1);
+//        string resReco_1b_name    = Form("resReco_1b_scale%d", i+1);
+//        string resReco_2b_name    = Form("resReco_2b_scale%d", i+1);
 
         h1_[ST_sigT1Z1H1b1_name.c_str()] =cat.make<TH1D>(ST_sigT1Z1H1b1_name.c_str(), ";S_{T} [Gev];;" , 50, 1000.,2500.);
         h1_[ST_sigT1Z1H1b2_name.c_str()] =cat.make<TH1D>(ST_sigT1Z1H1b2_name.c_str(), ";S_{T} [Gev];;" , 50, 1000.,2500.);
@@ -1843,11 +1904,11 @@ void OS2LAna::beginJob() {
 //        h1_[b2_reco_name.c_str()]   = fs->make<TH1D>(b2_reco_name.c_str(), "ST", 100, 0., 4000.);
 //        h1_[b1_reco_name.c_str()]   = fs->make<TH1D>(b1_reco_name.c_str(), "ST", 100, 0., 4000.);
 
-        h1_[boostReco_bZ_name.c_str()]  = fs->make<TH1D>(boostReco_bZ_name.c_str(), "reco", 1000, 0., 3000.);
-        h1_[boostReco_bH_name.c_str()]  = fs->make<TH1D>(boostReco_bH_name.c_str(), "reco", 1000, 0., 3000.);
-        h1_[boostReco_name.c_str()]     = fs->make<TH1D>(boostReco_name.c_str(), "reco", 1000, 0., 3000.);
-        h1_[resReco_1b_name.c_str()]    = fs->make<TH1D>(resReco_1b_name.c_str(), "reco", 1000, 0., 3000.);
-        h1_[resReco_2b_name.c_str()]    = fs->make<TH1D>(resReco_2b_name.c_str(), "reco", 1000, 0., 3000.);
+//        h1_[boostReco_bZ_name.c_str()]  = fs->make<TH1D>(boostReco_bZ_name.c_str(), "reco", 1000, 0., 3000.);
+//        h1_[boostReco_bH_name.c_str()]  = fs->make<TH1D>(boostReco_bH_name.c_str(), "reco", 1000, 0., 3000.);
+//        h1_[boostReco_name.c_str()]     = fs->make<TH1D>(boostReco_name.c_str(), "reco", 1000, 0., 3000.);
+//        h1_[resReco_1b_name.c_str()]    = fs->make<TH1D>(resReco_1b_name.c_str(), "reco", 1000, 0., 3000.);
+//        h1_[resReco_2b_name.c_str()]    = fs->make<TH1D>(resReco_2b_name.c_str(), "reco", 1000, 0., 3000.);
       }
 
       for (unsigned i = 0; i < 101; i++) {
@@ -1893,18 +1954,18 @@ void OS2LAna::beginJob() {
 //        string b1_reco_name   = Form("b1_reco_pdf%d", i+1);
 //        string boost_reco_name = Form("boost_reco_pdf%d", i+1);
 
-        string resReco_bZ_1b_name = Form("resReco_bZ_1b_pdf%d", i+1);
-        string resReco_bH_1b_name = Form("resReco_bH_1b_pdf%d", i+1);
-        string resReco_tW_1b_name = Form("resReco_tW_1b_pdf%d", i+1);
-        string resReco_bZ_2b_name = Form("resReco_bZ_2b_pdf%d", i+1);
-        string resReco_bH_2b_name = Form("resReco_bH_2b_pdf%d", i+1);
-        string resReco_tW_2b_name = Form("resReco_tW_2b_pdf%d", i+1);
-        string boostReco_bZ_name  = Form("boostReco_bZ_pdf%d", i+1);
-        string boostReco_bH_name  = Form("boostReco_bH_pdf%d", i+1);
-        string boostReco_tW_name  = Form("boostReco_tW_pdf%d", i+1);
-        string resReco_1b_name    = Form("resReco_1b_pdf%d", i+1);
-        string resReco_2b_name    = Form("resReco_2b_pdf%d", i+1);
-        string boostReco_name     = Form("boostReco_pdf%d", i+1);
+//        string resReco_bZ_1b_name = Form("resReco_bZ_1b_pdf%d", i+1);
+//        string resReco_bH_1b_name = Form("resReco_bH_1b_pdf%d", i+1);
+//        string resReco_tW_1b_name = Form("resReco_tW_1b_pdf%d", i+1);
+//        string resReco_bZ_2b_name = Form("resReco_bZ_2b_pdf%d", i+1);
+//        string resReco_bH_2b_name = Form("resReco_bH_2b_pdf%d", i+1);
+//        string resReco_tW_2b_name = Form("resReco_tW_2b_pdf%d", i+1);
+//        string boostReco_bZ_name  = Form("boostReco_bZ_pdf%d", i+1);
+//        string boostReco_bH_name  = Form("boostReco_bH_pdf%d", i+1);
+//        string boostReco_tW_name  = Form("boostReco_tW_pdf%d", i+1);
+//        string resReco_1b_name    = Form("resReco_1b_pdf%d", i+1);
+//        string resReco_2b_name    = Form("resReco_2b_pdf%d", i+1);
+//        string boostReco_name     = Form("boostReco_pdf%d", i+1);
 
         h1_[preName_pdf.c_str()]        = fs->make<TH1D>(preName_pdf.c_str(), "prePDF", 100, 0., 4000.);
         h1_[STName_pdf.c_str()]         = fs->make<TH1D>(STName_pdf.c_str(), "pdfST", 100, 0., 4000.);
@@ -1950,18 +2011,18 @@ void OS2LAna::beginJob() {
 //        h1_[boost_reco_name.c_str()]   = fs->make<TH1D>(boost_reco_name.c_str(), "ST", 100, 0., 4000.);
 //        h1_[H_reco_name.c_str()]   = fs->make<TH1D>(H_reco_name.c_str(), "ST", 100, 0., 4000.);
 
-        h1_[resReco_bZ_1b_name.c_str()] = fs->make<TH1D>(resReco_bZ_1b_name.c_str(), "reco", 1000, 0., 3000.);
-        h1_[resReco_bH_1b_name.c_str()] = fs->make<TH1D>(resReco_bH_1b_name.c_str(), "reco", 1000, 0., 3000.);
-        h1_[resReco_bZ_2b_name.c_str()] = fs->make<TH1D>(resReco_bZ_2b_name.c_str(), "reco", 1000, 0., 3000.);
-        h1_[resReco_bH_2b_name.c_str()] = fs->make<TH1D>(resReco_bH_2b_name.c_str(), "reco", 1000, 0., 3000.);
-        h1_[resReco_tW_1b_name.c_str()] = fs->make<TH1D>(resReco_tW_1b_name.c_str(), "reco", 1000, 0., 3000.);
-        h1_[resReco_tW_2b_name.c_str()] = fs->make<TH1D>(resReco_tW_2b_name.c_str(), "reco", 1000, 0., 3000.);
-        h1_[boostReco_bZ_name.c_str()]  = fs->make<TH1D>(boostReco_bZ_name.c_str(), "reco", 1000, 0., 3000.);
-        h1_[boostReco_bH_name.c_str()]  = fs->make<TH1D>(boostReco_bH_name.c_str(), "reco", 1000, 0., 3000.);
-        h1_[boostReco_tW_name.c_str()]  = fs->make<TH1D>(boostReco_tW_name.c_str(), "reco", 1000, 0., 3000.);
-        h1_[resReco_1b_name.c_str()]    = fs->make<TH1D>(resReco_1b_name.c_str(), "reco", 1000, 0., 3000.);
-        h1_[resReco_2b_name.c_str()]    = fs->make<TH1D>(resReco_2b_name.c_str(), "reco", 1000, 0., 3000.);
-        h1_[boostReco_name.c_str()]     = fs->make<TH1D>(boostReco_name.c_str(), "reco", 1000, 0., 3000.);
+//        h1_[resReco_bZ_1b_name.c_str()] = fs->make<TH1D>(resReco_bZ_1b_name.c_str(), "reco", 1000, 0., 3000.);
+//        h1_[resReco_bH_1b_name.c_str()] = fs->make<TH1D>(resReco_bH_1b_name.c_str(), "reco", 1000, 0., 3000.);
+//        h1_[resReco_bZ_2b_name.c_str()] = fs->make<TH1D>(resReco_bZ_2b_name.c_str(), "reco", 1000, 0., 3000.);
+//        h1_[resReco_bH_2b_name.c_str()] = fs->make<TH1D>(resReco_bH_2b_name.c_str(), "reco", 1000, 0., 3000.);
+//        h1_[resReco_tW_1b_name.c_str()] = fs->make<TH1D>(resReco_tW_1b_name.c_str(), "reco", 1000, 0., 3000.);
+//        h1_[resReco_tW_2b_name.c_str()] = fs->make<TH1D>(resReco_tW_2b_name.c_str(), "reco", 1000, 0., 3000.);
+//        h1_[boostReco_bZ_name.c_str()]  = fs->make<TH1D>(boostReco_bZ_name.c_str(), "reco", 1000, 0., 3000.);
+//        h1_[boostReco_bH_name.c_str()]  = fs->make<TH1D>(boostReco_bH_name.c_str(), "reco", 1000, 0., 3000.);
+//        h1_[boostReco_tW_name.c_str()]  = fs->make<TH1D>(boostReco_tW_name.c_str(), "reco", 1000, 0., 3000.);
+//        h1_[resReco_1b_name.c_str()]    = fs->make<TH1D>(resReco_1b_name.c_str(), "reco", 1000, 0., 3000.);
+//        h1_[resReco_2b_name.c_str()]    = fs->make<TH1D>(resReco_2b_name.c_str(), "reco", 1000, 0., 3000.);
+//        h1_[boostReco_name.c_str()]     = fs->make<TH1D>(boostReco_name.c_str(), "reco", 1000, 0., 3000.);
       }
     }
 
@@ -2128,6 +2189,26 @@ void OS2LAna::beginJob() {
     h1_["st_bH_2b"] = sig.make<TH1D>("st_bH_2b", "st-bH-2b", 100, 0., 4000.);
     h1_["st_tW_2b"] = sig.make<TH1D>("st_tW_2b", "st-tW-2b", 100, 0., 4000.);
     h1_["st_residual"] = sig.make<TH1D>("st_residual", "st-residual", 100, 0., 4000.);
+
+    h1_["st_bZ_boost_cnt"] = cnt.make<TH1D>("st_bZ_boost_cnt", "st-bZ-boost", 100, 0., 4000.);
+    h1_["st_bH_boost_cnt"] = cnt.make<TH1D>("st_bH_boost_cnt", "st-bH-boost", 100, 0., 4000.);
+    h1_["st_tW_boost_cnt"] = cnt.make<TH1D>("st_tW_boost_cnt", "st-tW-boost", 100, 0., 4000.);
+    h1_["st_bZ_1b_cnt"] = cnt.make<TH1D>("st_bZ_1b_cnt", "st-bZ-1b", 100, 0., 4000.);
+    h1_["st_bH_1b_cnt"] = cnt.make<TH1D>("st_bH_1b_cnt", "st-bH-1b", 100, 0., 4000.);
+    h1_["st_tW_1b_cnt"] = cnt.make<TH1D>("st_tW_1b_cnt", "st-tW-1b", 100, 0., 4000.);
+    h1_["st_bZ_2b_cnt"] = cnt.make<TH1D>("st_bZ_2b_cnt", "st-bZ-2b", 100, 0., 4000.);
+    h1_["st_bH_2b_cnt"] = cnt.make<TH1D>("st_bH_2b_cnt", "st-bH-2b", 100, 0., 4000.);
+    h1_["st_tW_2b_cnt"] = cnt.make<TH1D>("st_tW_2b_cnt", "st-tW-2b", 100, 0., 4000.);
+
+    h1_["st_bZ_boost_0b"] = cnt.make<TH1D>("st_bZ_boost_0b", "st-bZ-boost", 100, 0., 4000.);
+    h1_["st_bH_boost_0b"] = cnt.make<TH1D>("st_bH_boost_0b", "st-bH-boost", 100, 0., 4000.);
+    h1_["st_tW_boost_0b"] = cnt.make<TH1D>("st_tW_boost_0b", "st-tW-boost", 100, 0., 4000.);
+    h1_["st_bZ_1b_0b"] = cnt.make<TH1D>("st_bZ_1b_0b", "st-bZ-1b", 100, 0., 4000.);
+    h1_["st_bH_1b_0b"] = cnt.make<TH1D>("st_bH_1b_0b", "st-bH-1b", 100, 0., 4000.);
+    h1_["st_tW_1b_0b"] = cnt.make<TH1D>("st_tW_1b_0b", "st-tW-1b", 100, 0., 4000.);
+    h1_["st_bZ_2b_0b"] = cnt.make<TH1D>("st_bZ_2b_0b", "st-bZ-2b", 100, 0., 4000.);
+    h1_["st_bH_2b_0b"] = cnt.make<TH1D>("st_bH_2b_0b", "st-bH-2b", 100, 0., 4000.);
+    h1_["st_tW_2b_0b"] = cnt.make<TH1D>("st_tW_2b_0b", "st-tW-2b", 100, 0., 4000.);
 
     h1_["t_category"] = sig.make<TH1D>("t_category", "t_category", 100, 0., 4000.);
     h1_["H_category"] = sig.make<TH1D>("H_category", "H_category", 100, 0., 4000.);
@@ -2441,6 +2522,13 @@ pair<double, double> OS2LAna::doResolvedReco(vlq::JetCollection &collection, dou
 
         Jets[0] = collection.at(i0).getP4();
         Jets[1] = collection.at(i1).getP4();
+        Jets[2] = collection.at(i2).getP4();
+        Jets[3] = collection.at(i3).getP4();
+
+        passToChi2.push_back(Jets[0]);
+        passToChi2.push_back(Jets[1]);
+        passToChi2.push_back(Jets[2]);
+        passToChi2.push_back(Jets[3]);
         Jets[2] = collection.at(i2).getP4();
         Jets[3] = collection.at(i3).getP4();
 
