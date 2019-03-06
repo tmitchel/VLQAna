@@ -12,6 +12,18 @@ def list_Zmumu_data():
         ]
     return jobList
 
+def list_photon_data():
+  jobList = [
+      ['/SinglePhoton/vorobiev-SinglePhoton_Run2016B-23Sep2016-v3_B2GAnaFW_80X_v2p4-6f92d8e9b2717da1daa65a0e07f84d5f/USER', 'Photon2016B', '10'],
+      ['/SinglePhoton/vorobiev-SinglePhoton_Run2016D-23Sep2016-v1_B2GAnaFW_80X_v2p4-6f92d8e9b2717da1daa65a0e07f84d5f/USER', 'Photon2016D', '10'],
+      ['/SinglePhoton/vorobiev-SinglePhoton_Run2016E-23Sep2016-v1_B2GAnaFW_80X_v2p4-961c7d882d8721e72fac616aaa90ecc1/USER', 'Photon2016E', '10'],
+      ['/SinglePhoton/vorobiev-SinglePhoton_Run2016F-23Sep2016-v1_B2GAnaFW_80X_v2p4-e26b2444814d18badce3899570108664/USER', 'Photon2016F', '10'],
+      ['/SinglePhoton/vorobiev-SinglePhoton_Run2016G-23Sep2016-v1_B2GAnaFW_80X_v2p4-b45603bfa955d854bdcb9af322c0b037/USER', 'Photon2016G', '10'],
+      ['/SinglePhoton/vorobiev-SinglePhoton_Run2016H-PromptReco-v2_B2GAnaFW_80X_v2p4-376a23645e94877b22a7f32873431514/USER', 'Photon2016H_v2', '10'],
+      ['/SinglePhoton/vorobiev-SinglePhoton_Run2016H-PromptReco-v3_B2GAnaFW_80X_v2p4-376a23645e94877b22a7f32873431514/USER', 'Photon2016H_v3', '10'],
+      ]
+  return jobList
+
 
 def list_MC(): 
     jobList = [

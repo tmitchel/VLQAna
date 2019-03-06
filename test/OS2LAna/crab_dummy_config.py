@@ -1,4 +1,6 @@
 from WMCore.Configuration import Configuration
+from glob import glob
+
 config = Configuration()
 
 config.section_("General")
@@ -10,8 +12,9 @@ config.General.transferLogs = True
 config.section_("JobType")
 config.JobType.pluginName = 'Analysis'
 config.JobType.psetName = 'os2lana_cfg.py'
-config.JobType.pyCfgParams = [DATA, MODE, FILTERSIGNAL,'applyBTagSFs=False', 'applyTriggerSFs=False', DYNLO,'skim=True']
-config.JobType.inputFiles = ['2016_25ns_Spring_PUXsec65740nb50.root','2016_25ns_Spring_PUXsec69200nb50.root','2016_25ns_Spring_PUXsec72660nb50.root','PUDistMC_2016_25ns_SpringMC_PUScenarioV1_PoissonOOTPU.root','scalefactors_v4.root','inputFiles_cfi.py','Spring16_25nsV6_MC_L2Relative_AK8PFchs.txt','Spring16_25nsV6_MC_L3Absolute_AK8PFchs.txt','CSVv2_ichep.csv','Spring16_25nsV6_MC_Uncertainty_AK4PFchs.txt','Spring16_25nsV6_MC_Uncertainty_AK8PFchs.txt']
+config.JobType.pyCfgParams = [DATA, MODE, 'filterSignal=False','applyBTagSFs=False', 'applyLeptonTrigSFs=False', 'applyDYNLOCorr=False','skim=True', 'maketree=False', 'doPUReweightingOfficial=False', 'applyLeptonIDSFs=False', 'massReco=False', 'syst=False', 'storeLHEWts=False', JECNAME, ISPHOTON]
+#config.JobType.inputFiles = ['RunII2016Rereco_25ns_PUXsec69000.root','RunII2016Rereco_25ns_PUXsec65550.root','RunII2016Rereco_25ns_PUXsec72450.root','PUDistMC_Summer2016_25ns_Moriond17MC_PoissonOOTPU.root','CSVv2_Moriond17_B_H.csv','subjet_CSVv2_Moriond17_B_H.csv','scalefactors_v4.root','inputFiles_cfi.py','Spring16_25nsV6_MC_L2Relative_AK8PFchs.txt','Spring16_25nsV6_MC_L3Absolute_AK8PFchs.txt','CSVv2_ichep.csv','Spring16_25nsV6_MC_Uncertainty_AK4PFchs.txt','Spring16_25nsV6_MC_Uncertainty_AK8PFchs.txt']
+config.JobType.inputFiles = [ifile for ifile in glob('data/*')]
 
 config.section_("Data")
 config.Data.inputDataset = DUMMY_DATASET

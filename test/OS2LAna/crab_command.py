@@ -35,12 +35,12 @@ parser.add_option('--inputCfg', metavar='C', type='string', action='store',
                   help='input config tag to be used')
 
 parser.add_option('--outLabel', metavar='L', type='string', action='store',
-                  default='v1',
+                  default='reskim',
                   dest='outLabel',
                   help='output tag to be used')
 
 parser.add_option('--user', metavar='C', type='string', action='store',
-                  default='skhalil',
+                  default='tmitchel',
                   dest='user',
                   help='user subdir path')
 
@@ -49,11 +49,23 @@ print options
 command = options.command
 user = options.user
 
+jecdict = {
+    'B': "Summer16_23Sep2016BCDV4_DATA",
+    'C': "Summer16_23Sep2016BCDV4_DATA",
+    'D': "Summer16_23Sep2016BCDV4_DATA",
+    'E': "Summer16_23Sep2016EFV4_DATA",
+    'F': "Summer16_23Sep2016EFV4_DATA",
+    'G': "Summer16_23Sep2016GV4_DATA",
+    'H': "Summer16_23Sep2016HV4_DATA",
+    }
+
 #set the parameter options in os2lana.py
 if options.isData == 1:
     isData  = 'isData=True'
 else:
     isData = 'isData=False'
+
+isphoton = 'isPhoton=False'
    
 if 'Zmumu' in options.channel:
     mode = 'zdecaymode=zmumu'
@@ -67,10 +79,17 @@ elif 'Zelel' in options.channel:
     if options.isData:
         jobList = list_Zelel_data()
     else: jobList = list_MC()
+elif 'photon' in options.channel:
+  mode = 'zdecaymode=zelel'
+  isphoton = '"isPhoton=True"'
+  print 'Submitting jobs for photon channel ------->'
+  if options.isData:
+    jobList = list_photon_data()
 
 for job in jobList:
     print job  
     print '------prepare to run on :  ' + job[0] + ' -----------'
+    jecname = job[1].split('2016')[-1].split('_')[0]
     f = open(options.inputCfg, 'r')
     instring = f.read()
     baseList = job[0].split('/')
@@ -81,19 +100,21 @@ for job in jobList:
     a1 = a0.replace( 'DUMMY_DATASET', "'"+job[0]+"'" )
     a2 = a1.replace( 'DUMMY_NUMBER',  job[2])
     a3 = a2.replace( 'DUMMY_NAME', "'"+outname+"'" )
-    a4 = a3.replace( 'DUMMY_SITE',"'"+'T2_CH_CERN'+"'")
-    a5 = a4.replace( 'DUMMY_OUTPUT_PATH', "'"+'/store/group/phys_b2g/'+user+'/'+options.channel+"/'")
+    a4 = a3.replace( 'DUMMY_SITE',"'"+'T3_US_FNALLPC'+"'")
+    a5 = a4.replace( 'DUMMY_OUTPUT_PATH', "'"+'/store/user/'+user+'/skim2018/'+options.channel+"/'")
     a6 = a5.replace( 'DATA', "'"+isData+"'")
     a7 = a6.replace( 'MODE', "'"+mode+"'")
    
     if 'Tprime' in baseList[1] or 'Bprime' in baseList[1]:
         a8 = a7.replace( 'FILTERSIGNAL', "'filterSignal=True'")     
     else:
-        a8 = a7.replace( ', FILTERSIGNAL', '')         
-    if 'DY' in  baseList[1]: a9 = a8.replace( 'DYNLO', "'applyDYNLOCorr=True'")
-    else: a9 = a8.replace( 'DYNLO', "'applyDYNLOCorr=False'")
+        a8 = a7.replace( ', FILTERSIGNAL', '')      
+    a9 = a8.replace( 'JECNAME', "'newJECPayloadNames="+jecdict[jecname]+"'")
+    a10 = a9.replace( 'ISPHOTON', isphoton )
+    #if 'DY' in  baseList[1]: a9 = a8.replace( 'DYNLO', "'applyDYNLOCorr=True'")
+    #else: a9 = a8.replace( 'DYNLO', "'applyDYNLOCorr=False'")
     print '------ Config : ------- '
-    print a9 
+    print a10
     
     # write the crab config files .........
     c = 'mkdir '+options.channel
@@ -101,7 +122,7 @@ for job in jobList:
         subprocess.call( [c], shell=True )    
     crabName = 'crab_' + outname + '.py'
     fout = open( options.channel+'/'+crabName, 'w')
-    fout.write( a9 )
+    fout.write( a10 )
     fout.close()
     
     print '------ CRAB starting up! ------'
@@ -113,4 +134,4 @@ for job in jobList:
     print exe
     print '--------------->'
     
-    #subprocess.call( [exe], shell=True )
+    subprocess.call( [exe], shell=True )

@@ -68,7 +68,7 @@ options.register('applyBTagSFs', True,
     VarParsing.varType.bool,
     "Apply b-tagging SFs to the MC"
     )
-options.register('btageffmap', 'dy_bTagEff.root',#"bpbpbZb1200_bTagEff.root",#until new SFs arrive
+options.register('btageffmap', 'bpbpbZb1200_bTagEff.root',#"bpbpbZb1200_bTagEff.root",#until new SFs arrive
     VarParsing.multiplicity.singleton,
     VarParsing.varType.string,
     "ROOT file with Th2D histos of b tag effs for b,c, and light flavoured jets"
@@ -83,7 +83,7 @@ options.register('applyDYNLOCorr', False, ### Set to true only for DY process ##
     VarParsing.varType.bool,
     "Apply DY EWK k-factor to DY MC"
     )
-options.register('FileNames', 'FileNames_TpTp1200',#'FileNames_SingleMuon_v2p4',#'FileNames_BpBp1000',#FileNames_DY',
+options.register('FileNames', 'FileNames_WW',#'FileNames_SingleMuon_v2p4',#'FileNames_BpBp1000',#FileNames_DY',
     VarParsing.multiplicity.singleton,
     VarParsing.varType.string,
     "Name of list of input files"
@@ -98,7 +98,7 @@ options.register('syst', False,
     VarParsing.varType.bool,
     "Do systematics"
     )
-options.register('storeLHEWts', True,
+options.register('storeLHEWts', False,
     VarParsing.multiplicity.singleton,
     VarParsing.varType.bool,
     'Store LHE weights'

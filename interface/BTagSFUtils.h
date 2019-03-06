@@ -214,6 +214,14 @@ class BTagSFUtils {
           std::cout << " sfUpabs = " << sfUpabs << " is nan = " << boost::math::isnan(sfUpabs) << std::endl ; 
         }
 
+        //if (fabs(flhad) < 4) {
+        //  sf *= 0.50;
+        //  btagsf_bcUp *= 0.50;
+        //  btagsf_bcDown *= 0.50;
+        //  btagsf_lUp *= 0.50;
+        //  btagsf_lDown *= 0.50;
+        //}
+
         double jetcsv = jetcsvs.at(idx.first) ; 
         if ( jetcsv >= csvMin ) { 
           btagsf *= sf ; 
@@ -263,16 +271,19 @@ class BTagSFUtils {
         int binpt = h2_btageffmap_b->GetXaxis()->FindBin(pt);
         int bineta = h2_btageffmap_b->GetYaxis()->FindBin(eta);
         eff = h2_btageffmap_b->GetBinContent(binpt, bineta) ; 
+        //eff *= 1.05; // check what happens when increasing btag efficiency for DeepCSV
       }
       else if (jetFl == 4 && pt >= cfl_ptMin_)  {
         int binpt = h2_btageffmap_c->GetXaxis()->FindBin(pt);
         int bineta = h2_btageffmap_c->GetYaxis()->FindBin(eta);
         eff = h2_btageffmap_c->GetBinContent(binpt, bineta) ; 
+        //eff *= 1.05; // check what happens when increasing btag efficiency for DeepCSV
       }
       else if (jetFl == 0 && pt >= lfl_ptMin_)  {
         int binpt = h2_btageffmap_l->GetXaxis()->FindBin(pt);
         int bineta = h2_btageffmap_l->GetYaxis()->FindBin(eta);
         eff = h2_btageffmap_l->GetBinContent(binpt, bineta) ; 
+        //eff *= 0.5; // check what happens when decreasing mistag rate for DeepCSV
       }
       else eff = 0.; 
 
